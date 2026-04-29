@@ -163,6 +163,17 @@
         </div>
     </header>
 
+    <!-- 首次设置管理员模态框 -->
+    <div class="modal-overlay" id="adminSetupModal">
+        <div class="modal-box">
+            <h3>🔧 首次设置管理员</h3>
+            <p style="font-size:13px;color:#475569;margin-bottom:10px;">请输入管理员账号和密码（至少4位）</p>
+            <input type="text" id="setupUsername" placeholder="设置用户名">
+            <input type="password" id="setupPassword" placeholder="设置密码">
+            <button class="login-submit" onclick="setupAdmin()">保存并登录</button>
+        </div>
+    </div>
+
     <!-- 登录模态框 -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
@@ -171,7 +182,6 @@
             <input type="text" id="usernameInput" placeholder="用户名" autocomplete="off">
             <input type="password" id="passwordInput" placeholder="密码">
             <button class="login-submit" onclick="handleLogin()">登 录</button>
-            <p style="margin-top:14px;font-size:11px;color:#94a3b8;">初始账号: admin / 密码: admin123</p>
         </div>
     </div>
 
@@ -201,7 +211,7 @@
     <div class="main-container">
         <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角“管理员登录”</strong>后解锁编辑权限。</div>
         <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。初始账号 admin / admin123
+            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。首次使用请先设置管理员。
         </div>
 
         <div class="summary-grid">
@@ -284,7 +294,7 @@
 
     <script>
         (function() {
-            // ==================== Firebase 配置 ====================
+            // ==================== Firebase 配置 (请保持您的信息) ====================
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
                 authDomain: "haixuanqi-16ad1.firebaseapp.com",
@@ -298,8 +308,8 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            const STORAGE_LEDGER = 'football_ledger_cloud_v2';
-            const STORAGE_EMPLOYEES = 'football_employees_cloud_v2';
+            const STORAGE_LEDGER = 'football_ledger_cloud_v3';
+            const STORAGE_EMPLOYEES = 'football_employees_cloud_v3';
             const TODAY = new Date().toISOString().split('T')[0];
             const DEFAULT_EMPLOYEES = [
                 { id: 'emp_1', name: '阿伦', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
@@ -309,13 +319,10 @@
                 { id: 'emp_5', name: '斌斌', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 }
             ];
 
-            // ★ 初始管理员账号（硬编码，云端会覆盖）
-            const DEFAULT_ADMIN = { username: 'admin', password: 'admin123' };
-
             let ledgerRows = [];
             let employees = [];
             let isLoggedIn = false;
-            let adminCredentials = { ...DEFAULT_ADMIN }; // 本地默认凭据
+            let adminCredentials = null; // { username, password }
             let ignoreNextSnapshot = false;
 
             const $ = s => document.querySelector(s);
@@ -329,6 +336,7 @@
                 loginBtn: $('#loginBtn'),
                 loginModal: $('#loginModal'),
                 loginError: $('#loginError'),
+                adminSetupModal: $('#adminSetupModal'),
                 changePwdModal: $('#changePwdModal'),
                 changePwdError: $('#changePwdError'),
                 importModal: $('#importModal'),
@@ -372,9 +380,11 @@
                 employees.forEach(e => { open += parseInt(e.openCount) || 0; newO += parseInt(e.newOpen) || 0; perf += parseFloat(e.performance) || 0; prize += parseFloat(e.prizeRedemption) || 0; });
                 return { open, newOpen: newO, performance: +perf.toFixed(2), prizeRedemption: +prize.toFixed(2) };
             };
+
             function createBlankRow(date) {
                 return { date: date || TODAY, openCount: 0, newOpen: 0, perf: 0, prize: 0, actual: 0, expenses: 0, yesterday: 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: '' };
             }
+
             function recalcLedger() {
                 if (!ledgerRows.length) return;
                 let prevToday = null;
@@ -432,7 +442,7 @@
                     } else {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        // 直接将初始数据写入云端（无需登录）
+                        // 尝试写入云端初始数据（即使未登录也写入）
                         db.ref('/appData').set({ ledger: ledgerRows, employees: employees }).catch(e => console.warn);
                     }
                     callback();
@@ -448,27 +458,55 @@
                 });
             }
 
-            // ★ 管理员凭据加载：云端有则用云端，否则用默认，并尝试写入云端
+            // ★ 核心：加载管理员凭据，如果没有则弹出首次设置框
             function loadAdminCredentials(callback) {
                 db.ref('/admin').once('value').then(snapshot => {
                     const val = snapshot.val();
                     if (val && val.username && val.password) {
                         adminCredentials = val;
+                        // 已有管理员，不弹窗
                     } else {
-                        // 云端没有，写入默认管理员
-                        adminCredentials = { ...DEFAULT_ADMIN };
-                        db.ref('/admin').set(adminCredentials).catch(e => console.warn);
+                        // 云端无管理员，弹出首次设置框
+                        dom.adminSetupModal.classList.add('active');
                     }
                     if (callback) callback();
                 }).catch(err => {
-                    console.error('管理员数据加载失败，使用本地默认凭据', err);
-                    adminCredentials = { ...DEFAULT_ADMIN };
-                    showToast('⚠️ 无法连接云端，使用默认管理员账号', 'warn');
+                    console.error('管理员数据加载失败', err);
+                    showToast('⚠️ 无法连接云端，但仍可设置管理员', 'warn');
+                    // 即使网络失败也弹出设置框，允许离线设置
+                    dom.adminSetupModal.classList.add('active');
                     if (callback) callback();
                 });
             }
 
-            // ==================== 登录相关 ====================
+            // ==================== 管理员设置 ====================
+            window.setupAdmin = function() {
+                const username = $('#setupUsername').value.trim();
+                const password = $('#setupPassword').value.trim();
+                if (!username || password.length < 4) {
+                    showToast('用户名不能为空，密码至少4位', 'warn');
+                    return;
+                }
+                adminCredentials = { username, password };
+                // 保存到云端
+                db.ref('/admin').set(adminCredentials).then(() => {
+                    dom.adminSetupModal.classList.remove('active');
+                    isLoggedIn = true;
+                    updateLoginUI();
+                    renderAll();
+                    showToast('管理员已设置并登录，云端已保存', 'success');
+                }).catch(err => {
+                    console.error('云端保存管理员失败', err);
+                    // 即使云端保存失败，也允许本地登录
+                    dom.adminSetupModal.classList.remove('active');
+                    isLoggedIn = true;
+                    updateLoginUI();
+                    renderAll();
+                    showToast('已在本地设置管理员（云端暂未同步）', 'warn');
+                });
+            };
+
+            // ==================== 登录/登出 ====================
             window.toggleLogin = function() {
                 if (isLoggedIn) {
                     isLoggedIn = false;
@@ -476,6 +514,14 @@
                     renderAll();
                     showToast('已登出', 'warn');
                 } else {
+                    if (!adminCredentials) {
+                        showToast('请先设置管理员账号', 'warn');
+                        // 如果还没有凭据，尝试弹出设置框（防止异常情况）
+                        if (!dom.adminSetupModal.classList.contains('active')) {
+                            dom.adminSetupModal.classList.add('active');
+                        }
+                        return;
+                    }
                     dom.loginModal.classList.add('active');
                     $('#usernameInput').value = '';
                     $('#passwordInput').value = '';
@@ -498,9 +544,11 @@
                 }
             };
 
+            // ==================== 修改密码 ====================
             window.changePassword = function() {
                 const old = $('#oldPassword').value.trim();
                 const newP = $('#newPassword').value.trim();
+                if (!adminCredentials) return;
                 if (old !== adminCredentials.password) {
                     $('#changePwdError').style.display = 'block';
                     return;
@@ -523,10 +571,29 @@
                     dom.loginBtn.textContent = '👤 管理员 (登出)';
                     dom.loginBtn.className = 'btn-login unlocked';
                     dom.lockBanner.style.display = 'none';
+                    // 添加修改密码按钮（如果不存在）
+                    if (!document.getElementById('btnChangePwd')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'btnChangePwd';
+                        btn.className = 'btn btn-outline btn-sm';
+                        btn.textContent = '🔑 修改密码';
+                        btn.onclick = function() {
+                            if (!isLoggedIn) return showToast('请先登录', 'warn');
+                            $('#oldPassword').value = '';
+                            $('#newPassword').value = '';
+                            $('#changePwdError').style.display = 'none';
+                            dom.changePwdModal.classList.add('active');
+                        };
+                        const toolbar = document.getElementById('toolbar');
+                        const sep = toolbar.querySelector('.sep');
+                        toolbar.insertBefore(btn, sep);
+                    }
                 } else {
                     dom.loginBtn.textContent = '🔒 管理员登录';
                     dom.loginBtn.className = 'btn-login locked';
                     dom.lockBanner.style.display = 'flex';
+                    const btn = document.getElementById('btnChangePwd');
+                    if (btn) btn.remove();
                 }
                 setEditable(!isLoggedIn);
             }
@@ -538,7 +605,7 @@
                 $$('.btn-del').forEach(b => b.disabled = dis);
             }
 
-            // ==================== 渲染与数据操作 ====================
+            // ==================== 渲染函数 ====================
             function renderAll() {
                 recalcLedger();
                 renderLedger();
@@ -547,6 +614,7 @@
                 updateCards();
                 updateHeaderDate();
             }
+
             function renderLedger() {
                 dom.ledgerBody.innerHTML = '';
                 if (!ledgerRows.length) { dom.emptyLedger.style.display = 'block'; dom.rowBadge.textContent = '0 条'; return; }
@@ -575,6 +643,7 @@
                     dom.ledgerBody.appendChild(tr);
                 });
             }
+
             function refreshLedgerDisplay() {
                 $$('[data-lfield]').forEach(el => {
                     const i = +el.dataset.lidx, f = el.dataset.lfield;
@@ -586,6 +655,7 @@
                         el.textContent = fmtMoney(r.yesterday);
                 });
             }
+
             function renderCumulative() {
                 dom.cumulativeBody.innerHTML = '';
                 if (!ledgerRows.length) { dom.emptyCumulative.style.display = 'block'; return; }
@@ -596,6 +666,7 @@
                     dom.cumulativeBody.appendChild(tr);
                 });
             }
+
             function renderEmployees() {
                 dom.employeeBody.innerHTML = '';
                 dom.empBadge.textContent = employees.length + ' 名员工';
@@ -615,6 +686,7 @@
                 });
                 updateEmployeeSummaries();
             }
+
             function updateEmployeeSummaries() {
                 const sums = getEmpSums();
                 dom.empOpenTotal.textContent = sums.open;
@@ -624,6 +696,7 @@
                 dom.cardEmpTotal.textContent = fmtMoney(sums.performance);
                 dom.cardTotalPrizeEmp.textContent = fmtMoney(sums.prizeRedemption);
             }
+
             function updateCards() {
                 if (!ledgerRows.length) {
                     ['cardBalance','cardTotalPerf','cardTotalPrizeLedger','cardTotalActual','cardTotalExpenses'].forEach(id => dom[id].textContent='¥0.00');
@@ -636,9 +709,11 @@
                 dom.cardTotalActual.textContent = fmtMoney(last.totalActual);
                 dom.cardTotalExpenses.textContent = fmtMoney(last.totalExpenses);
             }
+
             function updateHeaderDate() {
                 dom.headerDate.textContent = '📅 ' + new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
             }
+
             function autoSaveToCloud() {
                 if (!isLoggedIn) return;
                 clearTimeout(window._st);
@@ -696,16 +771,6 @@
                     const i = +btn.dataset.edel;
                     if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1); pushToCloud(); renderEmployees(); showToast('已删除', 'warn'); }
                 };
-
-                // 修改密码按钮
-                const changePwdBtn = document.getElementById('btnChangePwd');
-                if (changePwdBtn) changePwdBtn.onclick = () => {
-                    if (!isLoggedIn) return showToast('请先登录', 'warn');
-                    $('#oldPassword').value = '';
-                    $('#newPassword').value = '';
-                    $('#changePwdError').style.display = 'none';
-                    dom.changePwdModal.classList.add('active');
-                };
             }
 
             // ==================== 全局操作函数 ====================
@@ -725,7 +790,7 @@
             function syncAllInputs() { $$('#ledgerBody input').forEach(inp => { const i = +inp.dataset.lidx, f = inp.dataset.lfield; if (isNaN(i)) return; const v = inp.value; if (f === 'date') ledgerRows[i].date = v || TODAY; else if (f === 'notes') ledgerRows[i].notes = v; else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0; else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0; else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0; }); }
 
             // 关闭模态框
-            [dom.loginModal, dom.changePwdModal, dom.importModal].forEach(modal => {
+            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal].forEach(modal => {
                 modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
             });
             document.addEventListener('keydown', function(e) {
@@ -745,7 +810,9 @@
                         renderAll();
                         bindEvents();
                         startCloudListener();
-                        showToast('☁️ 系统就绪', 'success');
+                        if (adminCredentials && !dom.adminSetupModal.classList.contains('active')) {
+                            showToast('☁️ 系统就绪，请登录', 'success');
+                        }
                     });
                 });
                 if (localStorage.getItem('guide_off') === '1') dom.guideBanner.style.display = 'none';
