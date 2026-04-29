@@ -134,7 +134,6 @@
         .file-area { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; margin-bottom: 14px; cursor: pointer; transition: all var(--transition); font-size: 14px; color: #64748b; }
         .file-area:hover { border-color: #2563eb; background: #faf9ff; }
         .file-area input[type="file"] { display: none; }
-        .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1e293b; color: #fff; padding: 12px 26px; border-radius: 28px; font-size: 14px; font-weight: 600; z-index: 300; pointer-events: none; transition: transform 0.35s; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.toast-success { background: #0d9488; } .toast.toast-warn { background: #d97706; }
@@ -294,7 +293,7 @@
 
     <script>
         (function() {
-            // ==================== Firebase 配置 (请保持您的信息) ====================
+            // ==================== 请替换为您自己的 Firebase 配置 ====================
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
                 authDomain: "haixuanqi-16ad1.firebaseapp.com",
@@ -308,8 +307,8 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            const STORAGE_LEDGER = 'football_ledger_cloud_v3';
-            const STORAGE_EMPLOYEES = 'football_employees_cloud_v3';
+            const STORAGE_LEDGER = 'football_ledger_cloud_v4';
+            const STORAGE_EMPLOYEES = 'football_employees_cloud_v4';
             const TODAY = new Date().toISOString().split('T')[0];
             const DEFAULT_EMPLOYEES = [
                 { id: 'emp_1', name: '阿伦', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
@@ -322,7 +321,7 @@
             let ledgerRows = [];
             let employees = [];
             let isLoggedIn = false;
-            let adminCredentials = null; // { username, password }
+            let adminCredentials = null;
             let ignoreNextSnapshot = false;
 
             const $ = s => document.querySelector(s);
@@ -442,7 +441,7 @@
                     } else {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        // 尝试写入云端初始数据（即使未登录也写入）
+                        // 尝试写入初始数据（无需登录）
                         db.ref('/appData').set({ ledger: ledgerRows, employees: employees }).catch(e => console.warn);
                     }
                     callback();
@@ -458,22 +457,21 @@
                 });
             }
 
-            // ★ 核心：加载管理员凭据，如果没有则弹出首次设置框
+            // ★ 确保弹窗一定出现
             function loadAdminCredentials(callback) {
                 db.ref('/admin').once('value').then(snapshot => {
                     const val = snapshot.val();
                     if (val && val.username && val.password) {
                         adminCredentials = val;
-                        // 已有管理员，不弹窗
                     } else {
-                        // 云端无管理员，弹出首次设置框
+                        // 无管理员，显示设置框
                         dom.adminSetupModal.classList.add('active');
                     }
                     if (callback) callback();
                 }).catch(err => {
                     console.error('管理员数据加载失败', err);
-                    showToast('⚠️ 无法连接云端，但仍可设置管理员', 'warn');
-                    // 即使网络失败也弹出设置框，允许离线设置
+                    showToast('⚠️ 无法连接云端，请设置管理员', 'warn');
+                    // 网络错误仍弹出设置框
                     dom.adminSetupModal.classList.add('active');
                     if (callback) callback();
                 });
@@ -493,14 +491,23 @@
                     dom.adminSetupModal.classList.remove('active');
                     isLoggedIn = true;
                     updateLoginUI();
+                    // 此时台账数据可能还未写入，但无关紧要
+                    if (!ledgerRows.length) {
+                        ledgerRows = [createBlankRow(TODAY)];
+                        employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
+                        pushToCloud(); // 现在已登录，可以保存
+                    }
                     renderAll();
                     showToast('管理员已设置并登录，云端已保存', 'success');
                 }).catch(err => {
                     console.error('云端保存管理员失败', err);
-                    // 即使云端保存失败，也允许本地登录
                     dom.adminSetupModal.classList.remove('active');
                     isLoggedIn = true;
                     updateLoginUI();
+                    if (!ledgerRows.length) {
+                        ledgerRows = [createBlankRow(TODAY)];
+                        employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
+                    }
                     renderAll();
                     showToast('已在本地设置管理员（云端暂未同步）', 'warn');
                 });
@@ -516,10 +523,7 @@
                 } else {
                     if (!adminCredentials) {
                         showToast('请先设置管理员账号', 'warn');
-                        // 如果还没有凭据，尝试弹出设置框（防止异常情况）
-                        if (!dom.adminSetupModal.classList.contains('active')) {
-                            dom.adminSetupModal.classList.add('active');
-                        }
+                        dom.adminSetupModal.classList.add('active');
                         return;
                     }
                     dom.loginModal.classList.add('active');
@@ -571,7 +575,6 @@
                     dom.loginBtn.textContent = '👤 管理员 (登出)';
                     dom.loginBtn.className = 'btn-login unlocked';
                     dom.lockBanner.style.display = 'none';
-                    // 添加修改密码按钮（如果不存在）
                     if (!document.getElementById('btnChangePwd')) {
                         const btn = document.createElement('button');
                         btn.id = 'btnChangePwd';
@@ -774,20 +777,152 @@
             }
 
             // ==================== 全局操作函数 ====================
-            window.addEmployee = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 }); pushToCloud(); renderEmployees(); showToast('已添加员工', 'success'); };
-            window.resetAllEmployee = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); if (confirm('重置所有员工数据为零？')) { employees.forEach(e => { e.openCount = 0; e.newOpen = 0; e.performance = 0; e.prizeRedemption = 0; }); pushToCloud(); renderEmployees(); showToast('已重置', 'success'); } };
-            window.syncAllToLedger = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); if (!ledgerRows.length) return showToast('请先添加台账行', 'warn'); const sums = getEmpSums(); let target = ledgerRows.length - 1; for (let i = ledgerRows.length - 1; i >= 0; i--) { if (ledgerRows[i].date === TODAY) { target = i; break; } } ledgerRows[target].openCount = sums.open; ledgerRows[target].newOpen = sums.newOpen; ledgerRows[target].perf = sums.performance; ledgerRows[target].prize = sums.prizeRedemption; autoSaveToCloud(); showToast('已同步汇总到台账', 'success'); };
-            window.addLedgerRow = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); const prev = ledgerRows.length ? ledgerRows[ledgerRows.length - 1] : null; const newRow = createBlankRow(TODAY); if (prev) newRow.yesterday = prev.todayBalance; ledgerRows.push(newRow); autoSaveToCloud(); showToast('已添加台账行', 'success'); };
-            window.saveAllData = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); recalcLedger(); renderAll(); pushToCloud(); showToast('已保存并同步', 'success'); };
-            window.quickFinish = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); syncAllToLedger(); saveAllData(); showToast('✅ 今日已结算，数据已同步', 'success'); };
-            window.refreshAllCalc = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); $$('#ledgerBody input').forEach(inp => { const i = +inp.dataset.lidx, f = inp.dataset.lfield; if (isNaN(i)) return; const v = inp.value; if (f === 'date') ledgerRows[i].date = v || TODAY; else if (f === 'notes') ledgerRows[i].notes = v; else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0; else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0; else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0; }); autoSaveToCloud(); showToast('已刷新', 'success'); };
-            window.clearAllData = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); if (confirm('⚠️ 清空所有台账数据？此操作不可恢复！') && confirm('再次确认：所有数据将被永久删除！')) { ledgerRows = [createBlankRow(TODAY)]; autoSaveToCloud(); showToast('已清空', 'warn'); } };
-            window.exportCSV = function() { syncAllInputs(); recalcLedger(); const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注']; const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']); downloadCSVFile(headers, rows, `竞彩足球台账_${TODAY}.csv`); showToast('CSV已导出', 'success'); };
-            window.openImportModal = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); dom.importModal.classList.add('active'); dom.csvFileName.textContent = '📁 点击选择 CSV 文件'; dom.csvFileInput.value = ''; };
-            window.handleCsvFileSelect = function(event) { const file = event.target.files[0]; if (file) dom.csvFileName.textContent = '📄 ' + file.name; };
-            window.importCSV = function() { const file = dom.csvFileInput.files[0]; if (!file) { showToast('请选择CSV文件', 'warn'); return; } const reader = new FileReader(); reader.onload = function(e) { const text = e.target.result; const lines = text.split('\n').filter(l => l.trim()); if (lines.length < 2) return showToast('CSV格式无效', 'warn'); const headers = lines[0].split(','); const dataRows = lines.slice(1); const newLedger = dataRows.map(line => { const cols = line.split(','); return { date: cols[0] || TODAY, openCount: parseInt(cols[1]) || 0, newOpen: parseInt(cols[2]) || 0, perf: parseFloat(cols[3]) || 0, prize: parseFloat(cols[4]) || 0, actual: 0, expenses: parseFloat(cols[6]) || 0, yesterday: parseFloat(cols[7]) || 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: cols[13] || '' }; }); ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)]; recalcLedger(); renderAll(); pushToCloud(); dom.importModal.classList.remove('active'); showToast('✅ CSV已导入并同步', 'success'); }; reader.readAsText(file); };
-            function downloadCSVFile(headers, rows, filename) { const BOM = '\uFEFF'; const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n'); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-            function syncAllInputs() { $$('#ledgerBody input').forEach(inp => { const i = +inp.dataset.lidx, f = inp.dataset.lfield; if (isNaN(i)) return; const v = inp.value; if (f === 'date') ledgerRows[i].date = v || TODAY; else if (f === 'notes') ledgerRows[i].notes = v; else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0; else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0; else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0; }); }
+            window.addEmployee = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
+                pushToCloud();
+                renderEmployees();
+                showToast('已添加员工', 'success');
+            };
+            window.resetAllEmployee = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                if (confirm('重置所有员工数据为零？')) {
+                    employees.forEach(e => { e.openCount = 0; e.newOpen = 0; e.performance = 0; e.prizeRedemption = 0; });
+                    pushToCloud();
+                    renderEmployees();
+                    showToast('已重置', 'success');
+                }
+            };
+            window.syncAllToLedger = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                if (!ledgerRows.length) return showToast('请先添加台账行', 'warn');
+                const sums = getEmpSums();
+                let target = ledgerRows.length - 1;
+                for (let i = ledgerRows.length - 1; i >= 0; i--) { if (ledgerRows[i].date === TODAY) { target = i; break; } }
+                ledgerRows[target].openCount = sums.open;
+                ledgerRows[target].newOpen = sums.newOpen;
+                ledgerRows[target].perf = sums.performance;
+                ledgerRows[target].prize = sums.prizeRedemption;
+                autoSaveToCloud();
+                showToast('已同步汇总到台账', 'success');
+            };
+            window.addLedgerRow = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                const prev = ledgerRows.length ? ledgerRows[ledgerRows.length - 1] : null;
+                const newRow = createBlankRow(TODAY);
+                if (prev) newRow.yesterday = prev.todayBalance;
+                ledgerRows.push(newRow);
+                autoSaveToCloud();
+                showToast('已添加台账行', 'success');
+            };
+            window.saveAllData = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                recalcLedger();
+                renderAll();
+                pushToCloud();
+                showToast('已保存并同步', 'success');
+            };
+            window.quickFinish = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                syncAllToLedger();
+                saveAllData();
+                showToast('✅ 今日已结算，数据已同步', 'success');
+            };
+            window.refreshAllCalc = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                $$('#ledgerBody input').forEach(inp => {
+                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
+                    if (isNaN(i)) return;
+                    const v = inp.value;
+                    if (f === 'date') ledgerRows[i].date = v || TODAY;
+                    else if (f === 'notes') ledgerRows[i].notes = v;
+                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
+                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
+                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
+                });
+                autoSaveToCloud();
+                showToast('已刷新', 'success');
+            };
+            window.clearAllData = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                if (confirm('⚠️ 清空所有台账数据？此操作不可恢复！') && confirm('再次确认：所有数据将被永久删除！')) {
+                    ledgerRows = [createBlankRow(TODAY)];
+                    autoSaveToCloud();
+                    showToast('已清空', 'warn');
+                }
+            };
+            window.exportCSV = function() {
+                syncAllInputs();
+                recalcLedger();
+                const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注'];
+                const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']);
+                downloadCSVFile(headers, rows, `竞彩足球台账_${TODAY}.csv`);
+                showToast('CSV已导出', 'success');
+            };
+            window.openImportModal = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
+                dom.importModal.classList.add('active');
+                dom.csvFileName.textContent = '📁 点击选择 CSV 文件';
+                dom.csvFileInput.value = '';
+            };
+            window.handleCsvFileSelect = function(event) {
+                const file = event.target.files[0];
+                if (file) dom.csvFileName.textContent = '📄 ' + file.name;
+            };
+            window.importCSV = function() {
+                const file = dom.csvFileInput.files[0];
+                if (!file) { showToast('请选择CSV文件', 'warn'); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(l => l.trim());
+                    if (lines.length < 2) return showToast('CSV格式无效', 'warn');
+                    const dataRows = lines.slice(1);
+                    const newLedger = dataRows.map(line => {
+                        const cols = line.split(',');
+                        return {
+                            date: cols[0] || TODAY,
+                            openCount: parseInt(cols[1]) || 0,
+                            newOpen: parseInt(cols[2]) || 0,
+                            perf: parseFloat(cols[3]) || 0,
+                            prize: parseFloat(cols[4]) || 0,
+                            actual: 0,
+                            expenses: parseFloat(cols[6]) || 0,
+                            yesterday: parseFloat(cols[7]) || 0,
+                            todayBalance: 0,
+                            totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0,
+                            notes: cols[13] || ''
+                        };
+                    });
+                    ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)];
+                    recalcLedger();
+                    renderAll();
+                    pushToCloud();
+                    dom.importModal.classList.remove('active');
+                    showToast('✅ CSV已导入并同步', 'success');
+                };
+                reader.readAsText(file);
+            };
+            function downloadCSVFile(headers, rows, filename) {
+                const BOM = '\uFEFF';
+                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            }
+            function syncAllInputs() {
+                $$('#ledgerBody input').forEach(inp => {
+                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
+                    if (isNaN(i)) return;
+                    const v = inp.value;
+                    if (f === 'date') ledgerRows[i].date = v || TODAY;
+                    else if (f === 'notes') ledgerRows[i].notes = v;
+                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
+                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
+                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
+                });
+            }
 
             // 关闭模态框
             [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal].forEach(modal => {
@@ -810,7 +945,7 @@
                         renderAll();
                         bindEvents();
                         startCloudListener();
-                        if (adminCredentials && !dom.adminSetupModal.classList.contains('active')) {
+                        if (!dom.adminSetupModal.classList.contains('active')) {
                             showToast('☁️ 系统就绪，请登录', 'success');
                         }
                     });
