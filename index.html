@@ -195,6 +195,20 @@
         </div>
     </div>
 
+    <!-- 二次鉴权模态框 (新增) -->
+    <div class="modal-overlay" id="reAuthModal">
+        <div class="modal-box">
+            <h3>🔐 操作验证</h3>
+            <p style="font-size:13px;color:#475569;margin-bottom:10px;">请输入管理员密码以继续</p>
+            <input type="password" id="reAuthPassword" placeholder="管理员密码">
+            <div class="login-error" id="reAuthError" style="display:none;">密码错误</div>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="closeReAuth()">取消</button>
+                <button class="btn btn-primary" onclick="submitReAuth()">确认</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CSV 导入模态框 -->
     <div class="modal-overlay" id="importModal">
         <div class="modal-box" style="width:500px;">
@@ -203,7 +217,7 @@
                 <span id="csvFileName">📁 点击选择 CSV 文件</span>
                 <input type="file" id="csvFileInput" accept=".csv" onchange="handleCsvFileSelect(event)">
             </div>
-            <button class="login-submit" onclick="importCSV()">导入到云台账</button>
+            <button class="login-submit" onclick="triggerImportCSV()">导入到云台账</button>
         </div>
     </div>
 
@@ -232,8 +246,8 @@
                 </table>
             </div>
             <div class="section-footer">
-                <button class="btn btn-purple btn-sm" id="btnAddEmp" onclick="addEmployee()">➕ 添加员工</button>
-                <button class="btn btn-outline btn-sm" id="btnResetEmp" onclick="resetAllEmployee()">🔄 重置全部数据</button>
+                <button class="btn btn-purple btn-sm" id="btnAddEmp" onclick="reAuth(addEmployee)">➕ 添加员工</button>
+                <button class="btn btn-outline btn-sm" id="btnResetEmp" onclick="reAuth(resetAllEmployee)">🔄 重置全部数据</button>
                 <span style="flex:1;"></span>
                 <div class="stat-inline">
                     <div class="stat-item"><span class="label">总开单：</span><span class="amount" id="empOpenTotal">0</span></div>
@@ -241,18 +255,19 @@
                     <div class="stat-item"><span class="label">总业绩：</span><span class="amount" id="empTotalInline">¥0.00</span></div>
                     <div class="stat-item"><span class="label">总兑奖：</span><span class="amount" style="color:#b45309;" id="empPrizeTotalInline">¥0.00</span></div>
                 </div>
-                <button class="btn btn-primary btn-sm" id="btnSyncAll" onclick="syncAllToLedger()">📤 一键同步到台账</button>
+                <button class="btn btn-primary btn-sm" id="btnSyncAll" onclick="doSyncWithUndo()">📤 一键同步到台账</button>
             </div>
         </div>
 
         <div class="toolbar" id="toolbar">
-            <button class="btn btn-primary" id="btnAddRow" onclick="addLedgerRow()">➕ 添加台账行</button>
+            <button class="btn btn-primary" id="btnAddRow" onclick="reAuth(addLedgerRow)">➕ 添加台账行</button>
             <button class="btn btn-success" id="btnSave" onclick="saveAllData()">💾 保存并同步</button>
-            <button class="btn btn-outline" id="btnExport" onclick="exportCSV()">📥 导出CSV</button>
+            <button class="btn btn-outline" id="btnExport" onclick="reAuth(exportCSV)">📥 导出CSV</button>
             <button class="btn btn-outline" id="btnImport" onclick="openImportModal()">📤 导入CSV</button>
             <span class="sep"></span>
             <button class="btn btn-outline" id="btnRefresh" onclick="refreshAllCalc()">🔄 刷新计算</button>
-            <button class="btn btn-danger" id="btnClear" onclick="clearAllData()">🗑️ 清空台账</button>
+            <button class="btn btn-danger" id="btnClear" onclick="reAuth(clearAllData)">🗑️ 清空台账</button>
+            <button class="btn btn-amber btn-sm" id="btnUndo" onclick="undoLastSync()" style="display:none;" disabled>↩ 撤销同步</button>
             <span style="margin-left:auto;">
                 <button class="btn btn-success" onclick="quickFinish()">✅ 今日结算</button>
             </span>
@@ -293,7 +308,7 @@
 
     <script>
         (function() {
-            // ==================== 请替换为您自己的 Firebase 配置 ====================
+            // ==================== Firebase 配置 (请替换为您自己的信息) ====================
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
                 authDomain: "haixuanqi-16ad1.firebaseapp.com",
@@ -307,8 +322,8 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            const STORAGE_LEDGER = 'football_ledger_cloud_v4';
-            const STORAGE_EMPLOYEES = 'football_employees_cloud_v4';
+            const STORAGE_LEDGER = 'football_ledger_cloud_v5';
+            const STORAGE_EMPLOYEES = 'football_employees_cloud_v5';
             const TODAY = new Date().toISOString().split('T')[0];
             const DEFAULT_EMPLOYEES = [
                 { id: 'emp_1', name: '阿伦', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
@@ -323,6 +338,8 @@
             let isLoggedIn = false;
             let adminCredentials = null;
             let ignoreNextSnapshot = false;
+            let undoSnapshot = null; // 存储同步前的数据 { ledger, employees }
+            let currentReAuthCallback = null; // 当前待执行的二次鉴权回调
 
             const $ = s => document.querySelector(s);
             const $$ = s => document.querySelectorAll(s);
@@ -338,6 +355,9 @@
                 adminSetupModal: $('#adminSetupModal'),
                 changePwdModal: $('#changePwdModal'),
                 changePwdError: $('#changePwdError'),
+                reAuthModal: $('#reAuthModal'),
+                reAuthPassword: $('#reAuthPassword'),
+                reAuthError: $('#reAuthError'),
                 importModal: $('#importModal'),
                 csvFileName: $('#csvFileName'),
                 csvFileInput: $('#csvFileInput'),
@@ -359,6 +379,7 @@
                 cardTotalExpenses: $('#cardTotalExpenses'),
                 emptyLedger: $('#emptyLedger'),
                 emptyCumulative: $('#emptyCumulative'),
+                btnUndo: $('#btnUndo')
             };
 
             const fmtMoney = v => {
@@ -441,7 +462,6 @@
                     } else {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        // 尝试写入初始数据（无需登录）
                         db.ref('/appData').set({ ledger: ledgerRows, employees: employees }).catch(e => console.warn);
                     }
                     callback();
@@ -457,25 +477,108 @@
                 });
             }
 
-            // ★ 确保弹窗一定出现
             function loadAdminCredentials(callback) {
                 db.ref('/admin').once('value').then(snapshot => {
                     const val = snapshot.val();
                     if (val && val.username && val.password) {
                         adminCredentials = val;
                     } else {
-                        // 无管理员，显示设置框
                         dom.adminSetupModal.classList.add('active');
                     }
                     if (callback) callback();
                 }).catch(err => {
                     console.error('管理员数据加载失败', err);
                     showToast('⚠️ 无法连接云端，请设置管理员', 'warn');
-                    // 网络错误仍弹出设置框
                     dom.adminSetupModal.classList.add('active');
                     if (callback) callback();
                 });
             }
+
+            // ==================== 二次鉴权逻辑 ====================
+            window.reAuth = function(callback) {
+                if (!isLoggedIn || !adminCredentials) {
+                    showToast('请先登录', 'warn');
+                    return;
+                }
+                currentReAuthCallback = callback;
+                dom.reAuthPassword.value = '';
+                dom.reAuthError.style.display = 'none';
+                dom.reAuthModal.classList.add('active');
+                setTimeout(() => dom.reAuthPassword.focus(), 100);
+            };
+
+            window.closeReAuth = function() {
+                dom.reAuthModal.classList.remove('active');
+                currentReAuthCallback = null;
+            };
+
+            window.submitReAuth = function() {
+                const pwd = dom.reAuthPassword.value.trim();
+                if (pwd === adminCredentials.password) {
+                    dom.reAuthModal.classList.remove('active');
+                    if (currentReAuthCallback) {
+                        currentReAuthCallback();
+                        currentReAuthCallback = null;
+                    }
+                } else {
+                    dom.reAuthError.style.display = 'block';
+                    dom.reAuthPassword.value = '';
+                }
+            };
+
+            // ==================== 同步与撤销 ====================
+            function saveUndoSnapshot() {
+                undoSnapshot = {
+                    ledger: JSON.parse(JSON.stringify(ledgerRows)),
+                    employees: JSON.parse(JSON.stringify(employees))
+                };
+                dom.btnUndo.style.display = '';
+                dom.btnUndo.disabled = false;
+            }
+
+            window.doSyncWithUndo = function() {
+                if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
+                if (!ledgerRows.length) { showToast('请先添加台账行', 'warn'); return; }
+                // 保存快照
+                saveUndoSnapshot();
+                // 执行原有的同步逻辑
+                const sums = getEmpSums();
+                let target = ledgerRows.length - 1;
+                for (let i = ledgerRows.length - 1; i >= 0; i--) {
+                    if (ledgerRows[i].date === TODAY) { target = i; break; }
+                }
+                ledgerRows[target].openCount = sums.open;
+                ledgerRows[target].newOpen = sums.newOpen;
+                ledgerRows[target].perf = sums.performance;
+                ledgerRows[target].prize = sums.prizeRedemption;
+                recalcLedger();
+                renderAll();
+                pushToCloud();
+                showToast('✅ 已同步汇总到台账 (可撤销)', 'success');
+            };
+
+            window.undoLastSync = function() {
+                if (!undoSnapshot) {
+                    showToast('没有可撤销的操作', 'warn');
+                    return;
+                }
+                if (confirm('↩ 撤销上一次同步，恢复到同步前的数据？')) {
+                    ledgerRows = undoSnapshot.ledger;
+                    employees = undoSnapshot.employees;
+                    undoSnapshot = null;
+                    dom.btnUndo.disabled = true;
+                    recalcLedger();
+                    renderAll();
+                    pushToCloud();
+                    showToast('已撤销同步，数据已恢复', 'success');
+                }
+            };
+
+            // ==================== 导入 CSV 的重新包装（需要二次鉴权） ====================
+            window.triggerImportCSV = function() {
+                // 这里直接调用 importCSV，但 importCSV 内部会检查登录，我们加上二次鉴权
+                reAuth(importCSV);
+            };
 
             // ==================== 管理员设置 ====================
             window.setupAdmin = function() {
@@ -486,21 +589,18 @@
                     return;
                 }
                 adminCredentials = { username, password };
-                // 保存到云端
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.adminSetupModal.classList.remove('active');
                     isLoggedIn = true;
                     updateLoginUI();
-                    // 此时台账数据可能还未写入，但无关紧要
                     if (!ledgerRows.length) {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        pushToCloud(); // 现在已登录，可以保存
+                        pushToCloud();
                     }
                     renderAll();
-                    showToast('管理员已设置并登录，云端已保存', 'success');
+                    showToast('管理员已设置并登录', 'success');
                 }).catch(err => {
-                    console.error('云端保存管理员失败', err);
                     dom.adminSetupModal.classList.remove('active');
                     isLoggedIn = true;
                     updateLoginUI();
@@ -548,7 +648,6 @@
                 }
             };
 
-            // ==================== 修改密码 ====================
             window.changePassword = function() {
                 const old = $('#oldPassword').value.trim();
                 const newP = $('#newPassword').value.trim();
@@ -564,7 +663,7 @@
                 adminCredentials.password = newP;
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.changePwdModal.classList.remove('active');
-                    showToast('🔑 密码已修改，云端已更新', 'success');
+                    showToast('🔑 密码已修改', 'success');
                 }).catch(() => {
                     showToast('密码已本地修改，但云端同步失败', 'warn');
                 });
@@ -597,6 +696,10 @@
                     dom.lockBanner.style.display = 'flex';
                     const btn = document.getElementById('btnChangePwd');
                     if (btn) btn.remove();
+                    // 撤销快照清空
+                    undoSnapshot = null;
+                    dom.btnUndo.style.display = 'none';
+                    dom.btnUndo.disabled = true;
                 }
                 setEditable(!isLoggedIn);
             }
@@ -774,9 +877,14 @@
                     const i = +btn.dataset.edel;
                     if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1); pushToCloud(); renderEmployees(); showToast('已删除', 'warn'); }
                 };
+
+                // 二次鉴权模态框回车键
+                dom.reAuthPassword.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') submitReAuth();
+                });
             }
 
-            // ==================== 全局操作函数 ====================
+            // ==================== 全局操作函数 (部分已加二次鉴权) ====================
             window.addEmployee = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
@@ -793,19 +901,8 @@
                     showToast('已重置', 'success');
                 }
             };
-            window.syncAllToLedger = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                if (!ledgerRows.length) return showToast('请先添加台账行', 'warn');
-                const sums = getEmpSums();
-                let target = ledgerRows.length - 1;
-                for (let i = ledgerRows.length - 1; i >= 0; i--) { if (ledgerRows[i].date === TODAY) { target = i; break; } }
-                ledgerRows[target].openCount = sums.open;
-                ledgerRows[target].newOpen = sums.newOpen;
-                ledgerRows[target].perf = sums.performance;
-                ledgerRows[target].prize = sums.prizeRedemption;
-                autoSaveToCloud();
-                showToast('已同步汇总到台账', 'success');
-            };
+            // 同步已改用 doSyncWithUndo
+            window.syncAllToLedger = function() { doSyncWithUndo(); };
             window.addLedgerRow = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 const prev = ledgerRows.length ? ledgerRows[ledgerRows.length - 1] : null;
@@ -824,7 +921,7 @@
             };
             window.quickFinish = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
-                syncAllToLedger();
+                doSyncWithUndo();
                 saveAllData();
                 showToast('✅ 今日已结算，数据已同步', 'success');
             };
@@ -852,6 +949,7 @@
                 }
             };
             window.exportCSV = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
                 syncAllInputs();
                 recalcLedger();
                 const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注'];
@@ -870,6 +968,7 @@
                 if (file) dom.csvFileName.textContent = '📄 ' + file.name;
             };
             window.importCSV = function() {
+                if (!isLoggedIn) return showToast('请先登录', 'warn');
                 const file = dom.csvFileInput.files[0];
                 if (!file) { showToast('请选择CSV文件', 'warn'); return; }
                 const reader = new FileReader();
@@ -925,7 +1024,7 @@
             }
 
             // 关闭模态框
-            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal].forEach(modal => {
+            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal].forEach(modal => {
                 modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
             });
             document.addEventListener('keydown', function(e) {
