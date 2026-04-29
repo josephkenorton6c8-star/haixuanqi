@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚽ 竞彩销售台账 · 听海版 (云同步)</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://www.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src *;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src *;">
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
-        /* 样式与之前版本完全相同，为节省篇幅此处省略，您之前复制的样式可直接沿用 */
         :root {
             --bg: #f0f4f8;
             --surface: #ffffff;
@@ -51,45 +50,18 @@
         }
         input, textarea { -webkit-user-select: text; user-select: text; }
         .app-header {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-            padding: 0 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+            background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.7); padding: 0 20px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         }
-        .header-inner {
-            max-width: 1440px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 60px;
-            gap: 16px;
-        }
+        .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
         .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, #2563eb, #0d9488);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: #fff;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #0d9488); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
         .logo-title { font-size: 18px; font-weight: 700; color: #1e293b; }
         .logo-subtitle { font-size: 11px; color: #64748b; }
         .header-right { display: flex; align-items: center; gap: 10px; }
-        .header-date {
-            background: #f1f5f9; padding: 7px 15px; border-radius: 20px;
-            font-size: 13px; color: #475569; border: 1px solid #e2e8f0;
-        }
-        .btn-login {
-            padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 13px;
-            cursor: pointer; border: none; transition: all var(--transition); font-family: inherit;
-        }
+        .header-date { background: #f1f5f9; padding: 7px 15px; border-radius: 20px; font-size: 13px; color: #475569; border: 1px solid #e2e8f0; }
+        .btn-login { padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; transition: all var(--transition); font-family: inherit; }
         .btn-login.locked { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
         .btn-login.locked:hover { background: #f8fafc; }
         .btn-login.unlocked { background: #0d9488; color: #fff; box-shadow: 0 2px 8px rgba(13,148,136,0.25); }
@@ -99,10 +71,7 @@
         .banner-lock { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
         .banner-guide { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; cursor: pointer; }
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
-        .summary-card {
-            background: var(--surface); border-radius: var(--radius); padding: 16px 18px;
-            box-shadow: var(--shadow); border: 1px solid var(--border-light); transition: all var(--transition);
-        }
+        .summary-card { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); border: 1px solid var(--border-light); transition: all var(--transition); }
         .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .summary-card .card-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
         .summary-card .card-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); }
@@ -111,37 +80,22 @@
         .card-accent-amber { border-left: 3px solid #d97706; background: #fffdf8; }
         .card-accent-purple { border-left: 3px solid #7c3aed; background: #fdfaff; }
         .val-positive { color: #0d9488; } .val-negative { color: #dc2626; } .val-purple { color: #6d28d9; }
-        .section {
-            background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow);
-            border: 1px solid var(--border-light); overflow: hidden; margin-bottom: 18px;
-        }
-        .section-header {
-            background: #f8fafc; padding: 14px 18px; border-bottom: 1px solid #e2e8f0;
-            font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-        }
+        .section { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border-light); overflow: hidden; margin-bottom: 18px; }
+        .section-header { background: #f8fafc; padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .badge { background: #e0e7ff; color: #4338ca; font-size: 11px; padding: 4px 11px; border-radius: 20px; font-weight: 600; }
         .badge-purple { background: #ede9fe; color: #6d28d9; }
-        .section-footer {
-            background: #fafafa; padding: 12px 18px; border-top: 1px solid #e2e8f0;
-            display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
-        }
+        .section-footer { background: #fafafa; padding: 12px 18px; border-top: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
         .table-wrap { overflow-x: auto; max-height: 52vh; overflow-y: auto; }
         .table-wrap.short { max-height: 35vh; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         table thead { position: sticky; top: 0; z-index: 4; }
-        table thead th {
-            background: #1e293b; color: #e2e8f0; padding: 11px 7px; text-align: center;
-            font-weight: 600; font-size: 11px; white-space: nowrap; border-right: 1px solid #334155;
-        }
+        table thead th { background: #1e293b; color: #e2e8f0; padding: 11px 7px; text-align: center; font-weight: 600; font-size: 11px; white-space: nowrap; border-right: 1px solid #334155; }
         table thead th:last-child { border-right: none; }
         table thead th.th-auto { background: #1e3a5f; color: #bae6fd; }
         table thead th.th-cum { background: #064e3b; color: #a7f3d0; }
         table tbody td { padding: 5px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         table tbody tr:hover { background: #fafcfd; }
-        table tbody td input {
-            width: 100%; padding: 8px 7px; border: 1.5px solid #e2e8f0; border-radius: 6px;
-            text-align: center; font-size: 13px; background: #fff; transition: all var(--transition); color: #1e293b;
-        }
+        table tbody td input { width: 100%; padding: 8px 7px; border: 1.5px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 13px; background: #fff; transition: all var(--transition); color: #1e293b; }
         table tbody td input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.07); }
         table tbody td input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
         .input-date { cursor: pointer; min-width: 125px; }
@@ -153,11 +107,7 @@
         .btn-del { background: none; border: none; cursor: pointer; font-size: 17px; color: #cbd5e1; padding: 4px 8px; border-radius: 5px; transition: all var(--transition); }
         .btn-del:hover:not(:disabled) { color: #dc2626; background: #fee2e2; }
         .btn-del:disabled { opacity: 0.35; cursor: not-allowed; }
-        .btn {
-            display: inline-flex; align-items: center; gap: 5px; padding: 9px 16px; border-radius: 7px;
-            font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent;
-            transition: all var(--transition); font-family: inherit;
-        }
+        .btn { display: inline-flex; align-items: center; gap: 5px; padding: 9px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); font-family: inherit; }
         .btn:active { transform: scale(0.96); }
         .btn:disabled { opacity: 0.45; pointer-events: none; }
         .btn-primary { background: #2563eb; color: #fff; } .btn-primary:hover:not(:disabled) { background: #1d4ed8; }
@@ -169,48 +119,23 @@
         .btn-highlight { background: #fef3c7; color: #92400e; border-color: #fde68a; font-weight: 700; }
         .btn-highlight:hover:not(:disabled) { background: #fef08a; border-color: #fcd34d; }
         .btn-sm { padding: 6px 13px; font-size: 12px; border-radius: 6px; }
-        .toolbar {
-            display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #fff;
-            padding: 10px 16px; border-radius: var(--radius); box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light); margin-bottom: 16px;
-        }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #fff; padding: 10px 16px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 16px; }
         .toolbar .sep { width: 1px; height: 22px; background: #e2e8f0; margin: 0 4px; }
         .toolbar .hint { margin-left: auto; font-size: 11px; color: #94a3b8; }
         .empty-state { text-align: center; padding: 50px 20px; color: #94a3b8; }
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center; z-index: 200;
-            visibility: hidden; opacity: 0; transition: all var(--transition);
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; visibility: hidden; opacity: 0; transition: all var(--transition); }
         .modal-overlay.active { visibility: visible; opacity: 1; }
-        .modal-box {
-            background: #fff; border-radius: var(--radius-lg); padding: 28px 26px; width: 440px;
-            max-width: 92vw; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center;
-        }
+        .modal-box { background: #fff; border-radius: var(--radius-lg); padding: 28px 26px; width: 440px; max-width: 92vw; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; }
         .modal-box h3 { font-size: 19px; margin-bottom: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .modal-box input {
-            width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0;
-            border-radius: 8px; font-size: 14px; font-family: inherit;
-        }
-        .modal-box .login-submit {
-            width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none;
-            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; margin-top: 4px; font-family: inherit;
-        }
+        .modal-box input { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .modal-box .login-submit { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; margin-top: 4px; font-family: inherit; }
         .modal-box .login-submit:hover { background: #1d4ed8; }
         .modal-box .login-error { color: #dc2626; font-size: 13px; margin-bottom: 8px; display: none; }
-        .file-area {
-            border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; margin-bottom: 14px;
-            cursor: pointer; transition: all var(--transition); font-size: 14px; color: #64748b;
-        }
+        .file-area { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; margin-bottom: 14px; cursor: pointer; transition: all var(--transition); font-size: 14px; color: #64748b; }
         .file-area:hover { border-color: #2563eb; background: #faf9ff; }
         .file-area input[type="file"] { display: none; }
         .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-        .toast {
-            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: #1e293b; color: #fff; padding: 12px 26px; border-radius: 28px;
-            font-size: 14px; font-weight: 600; z-index: 300; pointer-events: none;
-            transition: transform 0.35s; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-        }
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1e293b; color: #fff; padding: 12px 26px; border-radius: 28px; font-size: 14px; font-weight: 600; z-index: 300; pointer-events: none; transition: transform 0.35s; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.toast-success { background: #0d9488; } .toast.toast-warn { background: #d97706; }
         .stat-inline { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
@@ -246,17 +171,7 @@
             <input type="text" id="usernameInput" placeholder="用户名" autocomplete="off">
             <input type="password" id="passwordInput" placeholder="密码">
             <button class="login-submit" onclick="handleLogin()">登 录</button>
-        </div>
-    </div>
-
-    <!-- 首次设置管理员模态框 -->
-    <div class="modal-overlay" id="adminSetupModal">
-        <div class="modal-box">
-            <h3>🔧 首次设置管理员</h3>
-            <p style="font-size:13px;color:#475569;margin-bottom:10px;">请输入管理员账号和密码（至少4位）</p>
-            <input type="text" id="setupUsername" placeholder="设置用户名">
-            <input type="password" id="setupPassword" placeholder="设置密码">
-            <button class="login-submit" onclick="setupAdmin()">保存并登录</button>
+            <p style="margin-top:14px;font-size:11px;color:#94a3b8;">初始账号: admin / 密码: admin123</p>
         </div>
     </div>
 
@@ -286,7 +201,7 @@
     <div class="main-container">
         <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角“管理员登录”</strong>后解锁编辑权限。</div>
         <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。点击关闭。
+            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。初始账号 admin / admin123
         </div>
 
         <div class="summary-grid">
@@ -300,9 +215,7 @@
         </div>
 
         <div class="section">
-            <div class="section-header">
-                👥 员工今日业绩管理 <span class="badge badge-purple" id="empBadge">5 名员工</span>
-            </div>
+            <div class="section-header">👥 员工今日业绩管理 <span class="badge badge-purple" id="empBadge">5 名员工</span></div>
             <div class="table-wrap short">
                 <table>
                     <thead><tr><th>#</th><th>👤 姓名</th><th>👥 开单人数</th><th>🌟 新人开单</th><th>💰 今日业绩</th><th>🎫 兑奖金额</th><th>操作</th></tr></thead>
@@ -371,7 +284,7 @@
 
     <script>
         (function() {
-            // ==================== 您自己的 Firebase 配置 (已添加 databaseURL) ====================
+            // ==================== Firebase 配置 ====================
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
                 authDomain: "haixuanqi-16ad1.firebaseapp.com",
@@ -385,8 +298,8 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            const STORAGE_LEDGER = 'football_ledger_cloud';
-            const STORAGE_EMPLOYEES = 'football_employees_cloud';
+            const STORAGE_LEDGER = 'football_ledger_cloud_v2';
+            const STORAGE_EMPLOYEES = 'football_employees_cloud_v2';
             const TODAY = new Date().toISOString().split('T')[0];
             const DEFAULT_EMPLOYEES = [
                 { id: 'emp_1', name: '阿伦', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
@@ -396,10 +309,13 @@
                 { id: 'emp_5', name: '斌斌', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 }
             ];
 
+            // ★ 初始管理员账号（硬编码，云端会覆盖）
+            const DEFAULT_ADMIN = { username: 'admin', password: 'admin123' };
+
             let ledgerRows = [];
             let employees = [];
             let isLoggedIn = false;
-            let adminCredentials = null;
+            let adminCredentials = { ...DEFAULT_ADMIN }; // 本地默认凭据
             let ignoreNextSnapshot = false;
 
             const $ = s => document.querySelector(s);
@@ -413,7 +329,6 @@
                 loginBtn: $('#loginBtn'),
                 loginModal: $('#loginModal'),
                 loginError: $('#loginError'),
-                adminSetupModal: $('#adminSetupModal'),
                 changePwdModal: $('#changePwdModal'),
                 changePwdError: $('#changePwdError'),
                 importModal: $('#importModal'),
@@ -457,11 +372,9 @@
                 employees.forEach(e => { open += parseInt(e.openCount) || 0; newO += parseInt(e.newOpen) || 0; perf += parseFloat(e.performance) || 0; prize += parseFloat(e.prizeRedemption) || 0; });
                 return { open, newOpen: newO, performance: +perf.toFixed(2), prizeRedemption: +prize.toFixed(2) };
             };
-
             function createBlankRow(date) {
                 return { date: date || TODAY, openCount: 0, newOpen: 0, perf: 0, prize: 0, actual: 0, expenses: 0, yesterday: 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: '' };
             }
-
             function recalcLedger() {
                 if (!ledgerRows.length) return;
                 let prevToday = null;
@@ -519,7 +432,8 @@
                     } else {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        pushToCloud();
+                        // 直接将初始数据写入云端（无需登录）
+                        db.ref('/appData').set({ ledger: ledgerRows, employees: employees }).catch(e => console.warn);
                     }
                     callback();
                 }).catch(err => {
@@ -534,45 +448,27 @@
                 });
             }
 
+            // ★ 管理员凭据加载：云端有则用云端，否则用默认，并尝试写入云端
             function loadAdminCredentials(callback) {
                 db.ref('/admin').once('value').then(snapshot => {
-                    adminCredentials = snapshot.val();
-                    if (!adminCredentials) {
-                        dom.adminSetupModal.classList.add('active');
+                    const val = snapshot.val();
+                    if (val && val.username && val.password) {
+                        adminCredentials = val;
+                    } else {
+                        // 云端没有，写入默认管理员
+                        adminCredentials = { ...DEFAULT_ADMIN };
+                        db.ref('/admin').set(adminCredentials).catch(e => console.warn);
                     }
                     if (callback) callback();
                 }).catch(err => {
-                    console.error('管理员数据加载失败', err);
-                    showToast('⚠️ 无法连接云端，请检查网络或Firebase配置。您仍可设置临时管理员。', 'warn');
-                    dom.adminSetupModal.classList.add('active');
+                    console.error('管理员数据加载失败，使用本地默认凭据', err);
+                    adminCredentials = { ...DEFAULT_ADMIN };
+                    showToast('⚠️ 无法连接云端，使用默认管理员账号', 'warn');
                     if (callback) callback();
                 });
             }
 
-            window.setupAdmin = function() {
-                const username = $('#setupUsername').value.trim();
-                const password = $('#setupPassword').value.trim();
-                if (!username || password.length < 4) {
-                    showToast('用户名不能为空，密码至少4位', 'warn');
-                    return;
-                }
-                adminCredentials = { username, password };
-                db.ref('/admin').set(adminCredentials).then(() => {
-                    dom.adminSetupModal.classList.remove('active');
-                    isLoggedIn = true;
-                    updateLoginUI();
-                    renderAll();
-                    showToast('管理员已设置并登录', 'success');
-                }).catch(err => {
-                    console.error('云端保存管理员失败', err);
-                    dom.adminSetupModal.classList.remove('active');
-                    isLoggedIn = true;
-                    updateLoginUI();
-                    renderAll();
-                    showToast('已在本地设置管理员（云端暂未同步）', 'warn');
-                });
-            };
-
+            // ==================== 登录相关 ====================
             window.toggleLogin = function() {
                 if (isLoggedIn) {
                     isLoggedIn = false;
@@ -580,10 +476,6 @@
                     renderAll();
                     showToast('已登出', 'warn');
                 } else {
-                    if (!adminCredentials) {
-                        showToast('管理员信息尚未加载，请稍后重试或刷新页面', 'warn');
-                        return;
-                    }
                     dom.loginModal.classList.add('active');
                     $('#usernameInput').value = '';
                     $('#passwordInput').value = '';
@@ -609,7 +501,6 @@
             window.changePassword = function() {
                 const old = $('#oldPassword').value.trim();
                 const newP = $('#newPassword').value.trim();
-                if (!adminCredentials) return;
                 if (old !== adminCredentials.password) {
                     $('#changePwdError').style.display = 'block';
                     return;
@@ -621,7 +512,7 @@
                 adminCredentials.password = newP;
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.changePwdModal.classList.remove('active');
-                    showToast('🔑 密码已修改', 'success');
+                    showToast('🔑 密码已修改，云端已更新', 'success');
                 }).catch(() => {
                     showToast('密码已本地修改，但云端同步失败', 'warn');
                 });
@@ -647,6 +538,7 @@
                 $$('.btn-del').forEach(b => b.disabled = dis);
             }
 
+            // ==================== 渲染与数据操作 ====================
             function renderAll() {
                 recalcLedger();
                 renderLedger();
@@ -655,7 +547,6 @@
                 updateCards();
                 updateHeaderDate();
             }
-
             function renderLedger() {
                 dom.ledgerBody.innerHTML = '';
                 if (!ledgerRows.length) { dom.emptyLedger.style.display = 'block'; dom.rowBadge.textContent = '0 条'; return; }
@@ -684,7 +575,6 @@
                     dom.ledgerBody.appendChild(tr);
                 });
             }
-
             function refreshLedgerDisplay() {
                 $$('[data-lfield]').forEach(el => {
                     const i = +el.dataset.lidx, f = el.dataset.lfield;
@@ -696,7 +586,6 @@
                         el.textContent = fmtMoney(r.yesterday);
                 });
             }
-
             function renderCumulative() {
                 dom.cumulativeBody.innerHTML = '';
                 if (!ledgerRows.length) { dom.emptyCumulative.style.display = 'block'; return; }
@@ -707,7 +596,6 @@
                     dom.cumulativeBody.appendChild(tr);
                 });
             }
-
             function renderEmployees() {
                 dom.employeeBody.innerHTML = '';
                 dom.empBadge.textContent = employees.length + ' 名员工';
@@ -727,7 +615,6 @@
                 });
                 updateEmployeeSummaries();
             }
-
             function updateEmployeeSummaries() {
                 const sums = getEmpSums();
                 dom.empOpenTotal.textContent = sums.open;
@@ -737,14 +624,9 @@
                 dom.cardEmpTotal.textContent = fmtMoney(sums.performance);
                 dom.cardTotalPrizeEmp.textContent = fmtMoney(sums.prizeRedemption);
             }
-
             function updateCards() {
                 if (!ledgerRows.length) {
-                    dom.cardBalance.textContent = '¥0.00';
-                    dom.cardTotalPerf.textContent = '¥0.00';
-                    dom.cardTotalPrizeLedger.textContent = '¥0.00';
-                    dom.cardTotalActual.textContent = '¥0.00';
-                    dom.cardTotalExpenses.textContent = '¥0.00';
+                    ['cardBalance','cardTotalPerf','cardTotalPrizeLedger','cardTotalActual','cardTotalExpenses'].forEach(id => dom[id].textContent='¥0.00');
                     return;
                 }
                 const last = ledgerRows[ledgerRows.length - 1];
@@ -754,11 +636,9 @@
                 dom.cardTotalActual.textContent = fmtMoney(last.totalActual);
                 dom.cardTotalExpenses.textContent = fmtMoney(last.totalExpenses);
             }
-
             function updateHeaderDate() {
                 dom.headerDate.textContent = '📅 ' + new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
             }
-
             function autoSaveToCloud() {
                 if (!isLoggedIn) return;
                 clearTimeout(window._st);
@@ -772,6 +652,7 @@
                 }, 300);
             }
 
+            // ==================== 事件绑定 ====================
             function bindEvents() {
                 dom.ledgerBody.oninput = function(e) {
                     if (!isLoggedIn) return;
@@ -815,144 +696,36 @@
                     const i = +btn.dataset.edel;
                     if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1); pushToCloud(); renderEmployees(); showToast('已删除', 'warn'); }
                 };
-            }
 
-            window.addEmployee = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
-                pushToCloud(); renderEmployees(); showToast('已添加员工', 'success');
-            };
-            window.resetAllEmployee = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                if (confirm('重置所有员工数据为零？')) {
-                    employees.forEach(e => { e.openCount = 0; e.newOpen = 0; e.performance = 0; e.prizeRedemption = 0; });
-                    pushToCloud(); renderEmployees(); showToast('已重置', 'success');
-                }
-            };
-            window.syncAllToLedger = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                if (!ledgerRows.length) return showToast('请先添加台账行', 'warn');
-                const sums = getEmpSums();
-                let target = ledgerRows.length - 1;
-                for (let i = ledgerRows.length - 1; i >= 0; i--) { if (ledgerRows[i].date === TODAY) { target = i; break; } }
-                ledgerRows[target].openCount = sums.open;
-                ledgerRows[target].newOpen = sums.newOpen;
-                ledgerRows[target].perf = sums.performance;
-                ledgerRows[target].prize = sums.prizeRedemption;
-                autoSaveToCloud(); showToast('已同步汇总到台账', 'success');
-            };
-            window.addLedgerRow = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                const prev = ledgerRows.length ? ledgerRows[ledgerRows.length - 1] : null;
-                const newRow = createBlankRow(TODAY);
-                if (prev) newRow.yesterday = prev.todayBalance;
-                ledgerRows.push(newRow);
-                autoSaveToCloud(); showToast('已添加台账行', 'success');
-            };
-            window.saveAllData = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                recalcLedger(); renderAll(); pushToCloud(); showToast('已保存并同步', 'success');
-            };
-            window.quickFinish = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                syncAllToLedger(); saveAllData(); showToast('✅ 今日已结算，数据已同步', 'success');
-            };
-            window.refreshAllCalc = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                $$('#ledgerBody input').forEach(inp => {
-                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
-                    if (isNaN(i)) return;
-                    const v = inp.value;
-                    if (f === 'date') ledgerRows[i].date = v || TODAY;
-                    else if (f === 'notes') ledgerRows[i].notes = v;
-                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
-                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
-                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
-                });
-                autoSaveToCloud(); showToast('已刷新', 'success');
-            };
-            window.clearAllData = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                if (confirm('⚠️ 清空所有台账数据？此操作不可恢复！') && confirm('再次确认：所有数据将被永久删除！')) {
-                    ledgerRows = [createBlankRow(TODAY)];
-                    autoSaveToCloud(); showToast('已清空', 'warn');
-                }
-            };
-            window.exportCSV = function() {
-                syncAllInputs(); recalcLedger();
-                const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注'];
-                const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']);
-                downloadCSVFile(headers, rows, `竞彩足球台账_${TODAY}.csv`);
-                showToast('CSV已导出', 'success');
-            };
-            window.openImportModal = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                dom.importModal.classList.add('active');
-                dom.csvFileName.textContent = '📁 点击选择 CSV 文件';
-                dom.csvFileInput.value = '';
-            };
-            window.handleCsvFileSelect = function(event) {
-                const file = event.target.files[0];
-                if (file) dom.csvFileName.textContent = '📄 ' + file.name;
-            };
-            window.importCSV = function() {
-                const file = dom.csvFileInput.files[0];
-                if (!file) { showToast('请选择CSV文件', 'warn'); return; }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const text = e.target.result;
-                    const lines = text.split('\n').filter(l => l.trim());
-                    if (lines.length < 2) return showToast('CSV格式无效', 'warn');
-                    const headers = lines[0].split(',');
-                    const dataRows = lines.slice(1);
-                    const newLedger = dataRows.map(line => {
-                        const cols = line.split(',');
-                        return {
-                            date: cols[0] || TODAY,
-                            openCount: parseInt(cols[1]) || 0,
-                            newOpen: parseInt(cols[2]) || 0,
-                            perf: parseFloat(cols[3]) || 0,
-                            prize: parseFloat(cols[4]) || 0,
-                            actual: 0,
-                            expenses: parseFloat(cols[6]) || 0,
-                            yesterday: parseFloat(cols[7]) || 0,
-                            todayBalance: 0,
-                            totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0,
-                            notes: cols[13] || ''
-                        };
-                    });
-                    ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)];
-                    recalcLedger(); renderAll(); pushToCloud();
-                    dom.importModal.classList.remove('active');
-                    showToast('✅ CSV已导入并同步', 'success');
+                // 修改密码按钮
+                const changePwdBtn = document.getElementById('btnChangePwd');
+                if (changePwdBtn) changePwdBtn.onclick = () => {
+                    if (!isLoggedIn) return showToast('请先登录', 'warn');
+                    $('#oldPassword').value = '';
+                    $('#newPassword').value = '';
+                    $('#changePwdError').style.display = 'none';
+                    dom.changePwdModal.classList.add('active');
                 };
-                reader.readAsText(file);
-            };
-
-            function downloadCSVFile(headers, rows, filename) {
-                const BOM = '\uFEFF';
-                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n');
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = filename;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
             }
 
-            function syncAllInputs() {
-                $$('#ledgerBody input').forEach(inp => {
-                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
-                    if (isNaN(i)) return;
-                    const v = inp.value;
-                    if (f === 'date') ledgerRows[i].date = v || TODAY;
-                    else if (f === 'notes') ledgerRows[i].notes = v;
-                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
-                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
-                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
-                });
-            }
+            // ==================== 全局操作函数 ====================
+            window.addEmployee = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 }); pushToCloud(); renderEmployees(); showToast('已添加员工', 'success'); };
+            window.resetAllEmployee = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); if (confirm('重置所有员工数据为零？')) { employees.forEach(e => { e.openCount = 0; e.newOpen = 0; e.performance = 0; e.prizeRedemption = 0; }); pushToCloud(); renderEmployees(); showToast('已重置', 'success'); } };
+            window.syncAllToLedger = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); if (!ledgerRows.length) return showToast('请先添加台账行', 'warn'); const sums = getEmpSums(); let target = ledgerRows.length - 1; for (let i = ledgerRows.length - 1; i >= 0; i--) { if (ledgerRows[i].date === TODAY) { target = i; break; } } ledgerRows[target].openCount = sums.open; ledgerRows[target].newOpen = sums.newOpen; ledgerRows[target].perf = sums.performance; ledgerRows[target].prize = sums.prizeRedemption; autoSaveToCloud(); showToast('已同步汇总到台账', 'success'); };
+            window.addLedgerRow = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); const prev = ledgerRows.length ? ledgerRows[ledgerRows.length - 1] : null; const newRow = createBlankRow(TODAY); if (prev) newRow.yesterday = prev.todayBalance; ledgerRows.push(newRow); autoSaveToCloud(); showToast('已添加台账行', 'success'); };
+            window.saveAllData = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); recalcLedger(); renderAll(); pushToCloud(); showToast('已保存并同步', 'success'); };
+            window.quickFinish = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); syncAllToLedger(); saveAllData(); showToast('✅ 今日已结算，数据已同步', 'success'); };
+            window.refreshAllCalc = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); $$('#ledgerBody input').forEach(inp => { const i = +inp.dataset.lidx, f = inp.dataset.lfield; if (isNaN(i)) return; const v = inp.value; if (f === 'date') ledgerRows[i].date = v || TODAY; else if (f === 'notes') ledgerRows[i].notes = v; else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0; else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0; else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0; }); autoSaveToCloud(); showToast('已刷新', 'success'); };
+            window.clearAllData = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); if (confirm('⚠️ 清空所有台账数据？此操作不可恢复！') && confirm('再次确认：所有数据将被永久删除！')) { ledgerRows = [createBlankRow(TODAY)]; autoSaveToCloud(); showToast('已清空', 'warn'); } };
+            window.exportCSV = function() { syncAllInputs(); recalcLedger(); const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注']; const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']); downloadCSVFile(headers, rows, `竞彩足球台账_${TODAY}.csv`); showToast('CSV已导出', 'success'); };
+            window.openImportModal = function() { if (!isLoggedIn) return showToast('请先登录', 'warn'); dom.importModal.classList.add('active'); dom.csvFileName.textContent = '📁 点击选择 CSV 文件'; dom.csvFileInput.value = ''; };
+            window.handleCsvFileSelect = function(event) { const file = event.target.files[0]; if (file) dom.csvFileName.textContent = '📄 ' + file.name; };
+            window.importCSV = function() { const file = dom.csvFileInput.files[0]; if (!file) { showToast('请选择CSV文件', 'warn'); return; } const reader = new FileReader(); reader.onload = function(e) { const text = e.target.result; const lines = text.split('\n').filter(l => l.trim()); if (lines.length < 2) return showToast('CSV格式无效', 'warn'); const headers = lines[0].split(','); const dataRows = lines.slice(1); const newLedger = dataRows.map(line => { const cols = line.split(','); return { date: cols[0] || TODAY, openCount: parseInt(cols[1]) || 0, newOpen: parseInt(cols[2]) || 0, perf: parseFloat(cols[3]) || 0, prize: parseFloat(cols[4]) || 0, actual: 0, expenses: parseFloat(cols[6]) || 0, yesterday: parseFloat(cols[7]) || 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: cols[13] || '' }; }); ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)]; recalcLedger(); renderAll(); pushToCloud(); dom.importModal.classList.remove('active'); showToast('✅ CSV已导入并同步', 'success'); }; reader.readAsText(file); };
+            function downloadCSVFile(headers, rows, filename) { const BOM = '\uFEFF'; const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n'); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+            function syncAllInputs() { $$('#ledgerBody input').forEach(inp => { const i = +inp.dataset.lidx, f = inp.dataset.lfield; if (isNaN(i)) return; const v = inp.value; if (f === 'date') ledgerRows[i].date = v || TODAY; else if (f === 'notes') ledgerRows[i].notes = v; else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0; else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0; else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0; }); }
 
             // 关闭模态框
-            [dom.loginModal, dom.adminSetupModal, dom.changePwdModal, dom.importModal].forEach(modal => {
+            [dom.loginModal, dom.changePwdModal, dom.importModal].forEach(modal => {
                 modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
             });
             document.addEventListener('keydown', function(e) {
