@@ -37,14 +37,8 @@
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', 'Menlo', monospace;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 40%, #f5f3ff 100%);
@@ -56,669 +50,115 @@
             -webkit-user-select: none;
             user-select: none;
         }
-        input,
-        textarea {
-            -webkit-user-select: text;
-            user-select: text;
-        }
+        input, textarea { -webkit-user-select: text; user-select: text; }
         .app-header {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-            padding: 0 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
-        }
-        .header-inner {
-            max-width: 1440px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 60px;
-            gap: 16px;
-        }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #2563eb, #0d9488);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-        .logo-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .logo-subtitle {
-            font-size: 11px;
-            color: #64748b;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header-date {
-            background: #f1f5f9;
-            padding: 7px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: #475569;
-            border: 1px solid #e2e8f0;
-        }
-        .btn-login {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            border: none;
-            transition: all var(--transition);
-            font-family: inherit;
-        }
-        .btn-login.locked {
-            background: #fff;
-            color: #475569;
-            border: 1.5px solid #e2e8f0;
-        }
-        .btn-login.locked:hover {
-            background: #f8fafc;
-        }
-        .btn-login.unlocked {
-            background: #0d9488;
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
-        }
-        .btn-login.unlocked:hover {
-            background: #0f766e;
-        }
-        .main-container {
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 16px 20px 40px;
-        }
-        .banner {
-            border-radius: var(--radius);
-            padding: 12px 18px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-        }
-        .banner-lock {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            color: #92400e;
-        }
-        .banner-guide {
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
-            color: #3730a3;
-            cursor: pointer;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-        .summary-card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 16px 18px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-light);
-            transition: all var(--transition);
-        }
-        .summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-        .summary-card .card-label {
-            font-size: 11px;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        .summary-card .card-value {
-            font-size: 24px;
-            font-weight: 700;
-            font-family: var(--font-mono);
-        }
-        .card-accent-blue {
-            border-left: 3px solid #2563eb;
-            background: #faf9ff;
-        }
-        .card-accent-green {
-            border-left: 3px solid #0d9488;
-            background: #fafdfb;
-        }
-        .card-accent-amber {
-            border-left: 3px solid #d97706;
-            background: #fffdf8;
-        }
-        .card-accent-purple {
-            border-left: 3px solid #7c3aed;
-            background: #fdfaff;
-        }
-        .val-positive {
-            color: #0d9488;
-        }
-        .val-negative {
-            color: #dc2626;
-        }
-        .val-purple {
-            color: #6d28d9;
-        }
-        .section {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-light);
-            overflow: hidden;
-            margin-bottom: 18px;
-        }
-        .section-header {
-            background: #f8fafc;
-            padding: 14px 18px;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 700;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .badge {
-            background: #e0e7ff;
-            color: #4338ca;
-            font-size: 11px;
-            padding: 4px 11px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .badge-purple {
-            background: #ede9fe;
-            color: #6d28d9;
-        }
-        .badge-today {
-            background: #d1fae5;
-            color: #065f46;
-            font-size: 10px;
-            padding: 3px 9px;
-            border-radius: 12px;
-            font-weight: 700;
-            margin-left: 4px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
-        }
-        .section-footer {
-            background: #fafafa;
-            padding: 12px 18px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 16px;
-        }
-        .table-wrap {
-            overflow-x: auto;
-            max-height: 52vh;
-            overflow-y: auto;
-        }
-        .table-wrap.short {
-            max-height: 35vh;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        table thead {
-            position: sticky;
-            top: 0;
-            z-index: 4;
-        }
-        table thead th {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 11px 7px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 11px;
-            white-space: nowrap;
-            border-right: 1px solid #334155;
-        }
-        table thead th:last-child {
-            border-right: none;
-        }
-        table thead th.th-auto {
-            background: #1e3a5f;
-            color: #bae6fd;
-        }
-        table thead th.th-cum {
-            background: #064e3b;
-            color: #a7f3d0;
-        }
-        table tbody td {
-            padding: 5px;
-            text-align: center;
-            border-bottom: 1px solid #f1f5f9;
-            position: relative;
-        }
-        table tbody tr:hover {
-            background: #fafcfd;
-        }
-        table tbody tr.row-today {
-            background: #fffbeb !important;
-            border-left: 3px solid #f59e0b;
-        }
-        table tbody tr.row-today:hover {
-            background: #fef3c7 !important;
-        }
-        table tbody tr.row-today td:first-child::before {
-            content: '📌 ';
-            font-size: 10px;
-            position: absolute;
-            left: 2px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        table tbody td input {
-            width: 100%;
-            padding: 8px 7px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 13px;
-            background: #fff;
-            transition: all var(--transition);
-            color: #1e293b;
-        }
-        table tbody td input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.07);
-        }
-        table tbody td input:disabled {
-            background: #f8fafc;
-            color: #94a3b8;
-            cursor: not-allowed;
-        }
-        .input-date {
-            cursor: pointer;
-            min-width: 125px;
-            text-align: center;
-        }
-        .input-money {
-            text-align: right;
-            font-weight: 500;
-            font-family: var(--font-mono);
-        }
-        .input-name {
-            text-align: left;
-            font-weight: 500;
-        }
-        td.cell-auto {
-            background: #f8fafc;
-            font-weight: 600;
-            font-family: var(--font-mono);
-            padding: 8px 6px;
-            color: #334155;
-        }
-        td.cell-auto.highlight {
-            background: #eef2ff;
-            color: #3730a3;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        td.cell-cum {
-            background: #f0fdf6;
-            font-weight: 600;
-            color: #065f46;
-            font-family: var(--font-mono);
-            padding: 8px 6px;
-        }
-        .btn-del {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 17px;
-            color: #cbd5e1;
-            padding: 4px 8px;
-            border-radius: 5px;
-            transition: all var(--transition);
-        }
-        .btn-del:hover:not(:disabled) {
-            color: #dc2626;
-            background: #fee2e2;
-        }
-        .btn-del:disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 9px 16px;
-            border-radius: 7px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1.5px solid transparent;
-            transition: all var(--transition);
-            font-family: inherit;
-        }
-        .btn:active {
-            transform: scale(0.96);
-        }
-        .btn:disabled {
-            opacity: 0.45;
-            pointer-events: none;
-        }
-        .btn-primary {
-            background: #2563eb;
-            color: #fff;
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: #1d4ed8;
-        }
-        .btn-success {
-            background: #0d9488;
-            color: #fff;
-        }
-        .btn-success:hover:not(:disabled) {
-            background: #0f766e;
-        }
-        .btn-outline {
-            background: #fff;
-            color: #475569;
-            border-color: #e2e8f0;
-        }
-        .btn-outline:hover:not(:disabled) {
-            background: #f8fafc;
-        }
-        .btn-danger {
-            background: #fff;
-            color: #dc2626;
-            border-color: #fecaca;
-        }
-        .btn-danger:hover:not(:disabled) {
-            background: #fef2f2;
-        }
-        .btn-purple {
-            background: #7c3aed;
-            color: #fff;
-        }
-        .btn-purple:hover:not(:disabled) {
-            background: #6d28d9;
-        }
-        .btn-amber {
-            background: #d97706;
-            color: #fff;
-        }
-        .btn-amber:hover:not(:disabled) {
-            background: #b45309;
-        }
-        .btn-highlight {
-            background: #fef3c7;
-            color: #92400e;
-            border-color: #fde68a;
-            font-weight: 700;
-        }
-        .btn-highlight:hover:not(:disabled) {
-            background: #fef08a;
-            border-color: #fcd34d;
-        }
-        .btn-sm {
-            padding: 6px 13px;
-            font-size: 12px;
-            border-radius: 6px;
-        }
-        .btn-xs {
-            padding: 3px 8px;
-            font-size: 11px;
-            border-radius: 4px;
-            background: #e2e8f0;
-            color: #334155;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-xs:hover {
-            background: #cbd5e1;
-        }
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            background: #fff;
-            padding: 10px 16px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light);
-            margin-bottom: 16px;
-        }
-        .toolbar .sep {
-            width: 1px;
-            height: 22px;
-            background: #e2e8f0;
-            margin: 0 4px;
-        }
-        .toolbar .hint {
-            margin-left: auto;
-            font-size: 11px;
-            color: #94a3b8;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #94a3b8;
-        }
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            visibility: hidden;
-            opacity: 0;
-            transition: all var(--transition);
-        }
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .modal-box {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 28px 26px;
-            width: 480px;
-            max-width: 92vw;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .modal-box h3 {
-            font-size: 19px;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .modal-box input {
-            width: 100%;
-            padding: 11px 14px;
-            margin-bottom: 12px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        .modal-box .login-submit {
-            width: 100%;
-            padding: 12px;
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 15px;
-            margin-top: 4px;
-            font-family: inherit;
-        }
-        .modal-box .login-submit:hover {
-            background: #1d4ed8;
-        }
-        .modal-box .login-error {
-            color: #dc2626;
-            font-size: 13px;
-            margin-bottom: 8px;
-            display: none;
-        }
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 12px;
-        }
-        .btn-row .btn {
-            flex: 1;
-            justify-content: center;
-        }
-        .file-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 14px;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-size: 14px;
-            color: #64748b;
-        }
-        .file-area:hover {
-            border-color: #2563eb;
-            background: #faf9ff;
-        }
-        .file-area input[type="file"] {
-            display: none;
-        }
-        .toast {
-            position: fixed;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%) translateY(120px);
-            background: #1e293b;
-            color: #fff;
-            padding: 12px 26px;
-            border-radius: 28px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 300;
-            pointer-events: none;
-            transition: transform 0.35s;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        }
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-        .toast.toast-success {
-            background: #0d9488;
-        }
-        .toast.toast-warn {
-            background: #d97706;
-        }
-        .stat-inline {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-            color: #1e293b;
-            font-size: 14px;
-        }
-        .stat-item .label {
-            color: #475569;
-        }
-        .stat-item .amount {
-            font-family: var(--font-mono);
-            font-size: 17px;
-            color: #6d28d9;
-        }
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        .history-table th,
-        .history-table td {
-            padding: 8px 10px;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-        .history-table th {
-            background: #f8fafc;
-            font-weight: 600;
-        }
+            background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.7); padding: 0 20px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+        }
+        .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #0d9488); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .logo-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .logo-subtitle { font-size: 11px; color: #64748b; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .header-date { background: #f1f5f9; padding: 7px 15px; border-radius: 20px; font-size: 13px; color: #475569; border: 1px solid #e2e8f0; }
+        .btn-login { padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; transition: all var(--transition); font-family: inherit; }
+        .btn-login.locked { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
+        .btn-login.locked:hover { background: #f8fafc; }
+        .btn-login.unlocked { background: #0d9488; color: #fff; box-shadow: 0 2px 8px rgba(13,148,136,0.25); }
+        .btn-login.unlocked:hover { background: #0f766e; }
+        .main-container { max-width: 1440px; margin: 0 auto; padding: 16px 20px 40px; }
+        .banner { border-radius: var(--radius); padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .banner-lock { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+        .banner-guide { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; cursor: pointer; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .summary-card { background: var(--surface); border-radius: var(--radius); padding: 12px 15px; box-shadow: var(--shadow); border: 1px solid var(--border-light); transition: all var(--transition); }
+        .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .summary-card .card-label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
+        .summary-card .card-value { font-size: 20px; font-weight: 700; font-family: var(--font-mono); }
+        .card-accent-blue { border-left: 3px solid #2563eb; background: #faf9ff; }
+        .card-accent-green { border-left: 3px solid #0d9488; background: #fafdfb; }
+        .card-accent-amber { border-left: 3px solid #d97706; background: #fffdf8; }
+        .card-accent-purple { border-left: 3px solid #7c3aed; background: #fdfaff; }
+        .val-positive { color: #0d9488; } .val-negative { color: #dc2626; } .val-purple { color: #6d28d9; }
+        .section { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border-light); overflow: hidden; margin-bottom: 16px; }
+        .section-header { background: #f8fafc; padding: 10px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .badge { background: #e0e7ff; color: #4338ca; font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
+        .badge-purple { background: #ede9fe; color: #6d28d9; }
+        .badge-today { background: #d1fae5; color: #065f46; font-size: 10px; padding: 3px 9px; border-radius: 12px; font-weight: 700; margin-left: 4px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .section-footer { background: #fafafa; padding: 8px 16px; border-top: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .table-wrap { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
+        .table-wrap.short { max-height: 26vh; } /* 员工表高度缩小 */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table thead { position: sticky; top: 0; z-index: 4; }
+        table thead th { background: #1e293b; color: #e2e8f0; padding: 8px 5px; text-align: center; font-weight: 600; font-size: 10px; white-space: nowrap; border-right: 1px solid #334155; }
+        table thead th:last-child { border-right: none; }
+        table thead th.th-auto { background: #1e3a5f; color: #bae6fd; }
+        table thead th.th-cum { background: #064e3b; color: #a7f3d0; }
+        table tbody td { padding: 4px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; position: relative; }
+        table tbody tr:hover { background: #fafcfd; }
+        table tbody tr.row-today { background: #fffbeb !important; border-left: 3px solid #f59e0b; }
+        table tbody tr.row-today:hover { background: #fef3c7 !important; }
+        table tbody tr.row-today td:first-child::before { content: '📌 '; font-size: 10px; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); }
+        table tbody td input { width: 100%; padding: 6px 5px; border: 1.5px solid #e2e8f0; border-radius: 5px; text-align: center; font-size: 12px; background: #fff; transition: all var(--transition); color: #1e293b; }
+        table tbody td input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.07); }
+        table tbody td input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+        .input-date { cursor: pointer; min-width: 115px; }
+        .input-money { text-align: right; font-weight: 500; font-family: var(--font-mono); }
+        .input-name { text-align: left; font-weight: 500; }
+        td.cell-auto { background: #f8fafc; font-weight: 600; font-family: var(--font-mono); padding: 6px 4px; color: #334155; font-size: 12px; }
+        td.cell-auto.highlight { background: #eef2ff; color: #3730a3; font-weight: 700; font-size: 13px; }
+        td.cell-cum { background: #f0fdf6; font-weight: 600; color: #065f46; font-family: var(--font-mono); padding: 6px 4px; font-size: 12px; }
+        .btn-del { background: none; border: none; cursor: pointer; font-size: 15px; color: #cbd5e1; padding: 2px 6px; border-radius: 5px; transition: all var(--transition); }
+        .btn-del:hover:not(:disabled) { color: #dc2626; background: #fee2e2; }
+        .btn-del:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn { display: inline-flex; align-items: center; gap: 4px; padding: 7px 13px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); font-family: inherit; }
+        .btn:active { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.45; pointer-events: none; }
+        .btn-primary { background: #2563eb; color: #fff; } .btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+        .btn-success { background: #0d9488; color: #fff; } .btn-success:hover:not(:disabled) { background: #0f766e; }
+        .btn-outline { background: #fff; color: #475569; border-color: #e2e8f0; } .btn-outline:hover:not(:disabled) { background: #f8fafc; }
+        .btn-danger { background: #fff; color: #dc2626; border-color: #fecaca; } .btn-danger:hover:not(:disabled) { background: #fef2f2; }
+        .btn-purple { background: #7c3aed; color: #fff; } .btn-purple:hover:not(:disabled) { background: #6d28d9; }
+        .btn-amber { background: #d97706; color: #fff; } .btn-amber:hover:not(:disabled) { background: #b45309; }
+        .btn-highlight { background: #fef3c7; color: #92400e; border-color: #fde68a; font-weight: 700; }
+        .btn-highlight:hover:not(:disabled) { background: #fef08a; border-color: #fcd34d; }
+        .btn-sm { padding: 5px 11px; font-size: 11px; border-radius: 5px; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: #fff; padding: 8px 14px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 14px; }
+        .toolbar .sep { width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px; }
+        .toolbar .hint { margin-left: auto; font-size: 10px; color: #94a3b8; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 13px; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; visibility: hidden; opacity: 0; transition: all var(--transition); }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-box { background: #fff; border-radius: var(--radius-lg); padding: 24px 22px; width: 460px; max-width: 92vw; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; max-height: 80vh; overflow-y: auto; }
+        .modal-box h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .modal-box input { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .modal-box .login-submit { width: 100%; padding: 11px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 4px; font-family: inherit; }
+        .modal-box .login-submit:hover { background: #1d4ed8; }
+        .modal-box .login-error { color: #dc2626; font-size: 12px; margin-bottom: 6px; display: none; }
+        .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+        .btn-row .btn { flex: 1; justify-content: center; }
+        .file-area { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: all var(--transition); font-size: 13px; color: #64748b; }
+        .file-area:hover { border-color: #2563eb; background: #faf9ff; }
+        .file-area input[type="file"] { display: none; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1e293b; color: #fff; padding: 10px 22px; border-radius: 28px; font-size: 13px; font-weight: 600; z-index: 300; pointer-events: none; transition: transform 0.35s; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.toast-success { background: #0d9488; } .toast.toast-warn { background: #d97706; }
+        .stat-inline { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .stat-item { display: flex; align-items: center; gap: 4px; font-weight: 600; color: #1e293b; font-size: 13px; }
+        .stat-item .label { color: #475569; }
+        .stat-item .amount { font-family: var(--font-mono); font-size: 15px; color: #6d28d9; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+        .history-table th, .history-table td { padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; }
+        .history-table th { background: #f8fafc; font-weight: 600; }
+        .employee-name { cursor: pointer; color: #2563eb; font-weight: 600; text-decoration: underline; transition: color 0.2s; }
+        .employee-name:hover { color: #1d4ed8; }
         @media (max-width: 768px) {
-            .header-inner {
-                height: 52px;
-                gap: 8px;
-            }
-            .logo-title {
-                font-size: 15px;
-            }
-            .btn-login {
-                font-size: 11px;
-                padding: 6px 12px;
-            }
-            .summary-card .card-value {
-                font-size: 20px;
-            }
-            .btn {
-                padding: 7px 12px;
-                font-size: 11px;
-            }
-            .toolbar .hint {
-                display: none;
-            }
+            .header-inner { height: 48px; gap: 6px; } .logo-title { font-size: 15px; }
+            .btn-login { font-size: 10px; padding: 5px 10px; } .summary-card .card-value { font-size: 18px; }
+            .btn { padding: 6px 10px; font-size: 11px; } .toolbar .hint { display: none; }
         }
     </style>
 </head>
@@ -727,10 +167,7 @@
         <div class="header-inner">
             <div class="logo-area">
                 <div class="logo-icon">⚽</div>
-                <div>
-                    <div class="logo-title">竞彩销售台账</div>
-                    <div class="logo-subtitle">云同步版 · 多端实时</div>
-                </div>
+                <div><div class="logo-title">竞彩销售台账</div><div class="logo-subtitle">云同步版 · 多端实时</div></div>
             </div>
             <div class="header-right">
                 <div class="header-date" id="headerDate">📅 加载中...</div>
@@ -739,18 +176,16 @@
         </div>
     </header>
 
-    <!-- 首次设置管理员模态框 -->
     <div class="modal-overlay" id="adminSetupModal">
         <div class="modal-box">
             <h3>🔧 首次设置管理员</h3>
-            <p style="font-size:13px;color:#475569;margin-bottom:10px;">请输入管理员账号和密码（至少4位）</p>
+            <p style="font-size:13px;color:#475569;margin-bottom:8px;">请输入管理员账号和密码（至少4位）</p>
             <input type="text" id="setupUsername" placeholder="设置用户名">
             <input type="password" id="setupPassword" placeholder="设置密码">
             <button class="login-submit" onclick="setupAdmin()">保存并登录</button>
         </div>
     </div>
 
-    <!-- 登录模态框 -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
             <h3>🔐 管理员登录</h3>
@@ -761,7 +196,6 @@
         </div>
     </div>
 
-    <!-- 修改密码模态框 -->
     <div class="modal-overlay" id="changePwdModal">
         <div class="modal-box">
             <h3>🔑 修改密码</h3>
@@ -772,11 +206,10 @@
         </div>
     </div>
 
-    <!-- 二次鉴权模态框 -->
     <div class="modal-overlay" id="reAuthModal">
         <div class="modal-box">
             <h3>🔐 操作验证</h3>
-            <p style="font-size:13px;color:#475569;margin-bottom:10px;">请输入管理员密码以继续</p>
+            <p style="font-size:13px;color:#475569;margin-bottom:8px;">请输入管理员密码以继续</p>
             <input type="password" id="reAuthPassword" placeholder="管理员密码">
             <div class="login-error" id="reAuthError" style="display:none;">密码错误</div>
             <div class="btn-row">
@@ -786,9 +219,8 @@
         </div>
     </div>
 
-    <!-- CSV 导入模态框 -->
     <div class="modal-overlay" id="importModal">
-        <div class="modal-box" style="width:500px;">
+        <div class="modal-box" style="width:480px;">
             <h3>📥 导入 CSV 数据</h3>
             <div class="file-area" onclick="document.getElementById('csvFileInput').click()">
                 <span id="csvFileName">📁 点击选择 CSV 文件</span>
@@ -798,31 +230,28 @@
         </div>
     </div>
 
-    <!-- 员工历史记录模态框 -->
     <div class="modal-overlay" id="historyModal">
-        <div class="modal-box" style="width:550px; text-align:left;">
+        <div class="modal-box" style="width:520px; text-align:left;">
             <h3 id="historyTitle" style="text-align:center;">📋 员工历史业绩</h3>
             <div id="historyContent" style="max-height:50vh; overflow-y:auto;"></div>
-            <div class="btn-row" style="margin-top:16px;">
+            <div class="btn-row" style="margin-top:14px;">
                 <button class="btn btn-outline" onclick="closeHistoryModal()">关闭</button>
             </div>
         </div>
     </div>
 
     <div class="main-container">
-        <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角"管理员登录"</strong>后解锁编辑权限。</div>
+        <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角“管理员登录”</strong>后解锁编辑权限。</div>
         <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点"✅今日结算" → ④数据自动同步至云端。新一天会自动创建新行。
+            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。新一天会自动创建新行。
         </div>
 
-        <!-- 卡片顺序已交换：累计总支出 与 累计实际业绩 位置互换 -->
         <div class="summary-grid">
             <div class="summary-card card-accent-blue"><div class="card-label">🏦 当前结余</div><div class="card-value" id="cardBalance">¥0.00</div></div>
             <div class="summary-card card-accent-purple"><div class="card-label">👥 员工总业绩</div><div class="card-value val-purple" id="cardEmpTotal">¥0.00</div></div>
             <div class="summary-card card-accent-amber"><div class="card-label">🎫 员工总兑奖</div><div class="card-value" style="color:#b45309;" id="cardTotalPrizeEmp">¥0.00</div></div>
             <div class="summary-card"><div class="card-label">💰 累计总业绩</div><div class="card-value" id="cardTotalPerf">¥0.00</div></div>
             <div class="summary-card"><div class="card-label">🎫 累计总兑奖</div><div class="card-value" id="cardTotalPrizeLedger">¥0.00</div></div>
-            <!-- 交换后的位置：原“累计实际业绩”与“累计总支出”互换 -->
             <div class="summary-card"><div class="card-label">💸 累计总支出</div><div class="card-value" id="cardTotalExpenses">¥0.00</div></div>
             <div class="summary-card card-accent-green"><div class="card-label">📈 累计实际业绩</div><div class="card-value val-positive" id="cardTotalActual">¥0.00</div></div>
         </div>
@@ -833,14 +262,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>👤 姓名</th>
-                            <th>👥 开单人数</th>
-                            <!-- 已去除“新人开单”列 -->
-                            <th>💰 今日业绩</th>
-                            <th>🎫 兑奖金额</th>
-                            <th>📆 当月总业绩</th>
-                            <th>操作</th>
+                            <th>#</th><th>👤 姓名</th><th>👥 开单人数</th><th>💰 今日业绩</th><th>🎫 兑奖金额</th><th>📆 当月总业绩</th><th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="employeeBody"></tbody>
@@ -848,15 +270,14 @@
             </div>
             <div class="section-footer">
                 <button class="btn btn-purple btn-sm" id="btnAddEmp" onclick="reAuth(addEmployee)">➕ 添加员工</button>
-                <button class="btn btn-outline btn-sm" id="btnResetEmp" onclick="reAuth(resetAllEmployee)">🔄 重置全部数据</button>
+                <button class="btn btn-outline btn-sm" id="btnResetEmp" onclick="reAuth(resetAllEmployee)">🔄 重置</button>
                 <span style="flex:1;"></span>
                 <div class="stat-inline">
                     <div class="stat-item"><span class="label">总开单：</span><span class="amount" id="empOpenTotal">0</span></div>
-                    <!-- 总新人统计已移除 -->
                     <div class="stat-item"><span class="label">总业绩：</span><span class="amount" id="empTotalInline">¥0.00</span></div>
                     <div class="stat-item"><span class="label">总兑奖：</span><span class="amount" style="color:#b45309;" id="empPrizeTotalInline">¥0.00</span></div>
                 </div>
-                <button class="btn btn-primary btn-sm" id="btnSyncAll" onclick="doSyncWithUndo()">📤 一键同步到台账</button>
+                <button class="btn btn-primary btn-sm" id="btnSyncAll" onclick="doSyncWithUndo()">📤 同步到台账</button>
             </div>
         </div>
 
@@ -935,7 +356,7 @@
 
             let ledgerRows = [];
             let employees = [];
-            let employeePerformanceHistory = {}; // 新增：存储每日员工业绩 { "2024-01-01": { "emp_1": 100, ... } }
+            let employeePerformanceHistory = {};
             let isLoggedIn = false;
             let adminCredentials = null;
             let ignoreNextSnapshot = false;
@@ -972,7 +393,6 @@
                 todayBadge: $('#todayBadge'),
                 empBadge: $('#empBadge'),
                 empOpenTotal: $('#empOpenTotal'),
-                empNewTotal: $('#empNewTotal'),
                 empTotalInline: $('#empTotalInline'),
                 empPrizeTotalInline: $('#empPrizeTotalInline'),
                 cardBalance: $('#cardBalance'),
@@ -1001,12 +421,11 @@
                 window._tt = setTimeout(() => { dom.toast.className = 'toast'; }, 2500);
             };
             const getEmpSums = () => {
-                let open = 0, newO = 0, perf = 0, prize = 0;
-                employees.forEach(e => { open += parseInt(e.openCount) || 0; newO += parseInt(e.newOpen) || 0; perf += parseFloat(e.performance) || 0; prize += parseFloat(e.prizeRedemption) || 0; });
-                return { open, newOpen: newO, performance: +perf.toFixed(2), prizeRedemption: +prize.toFixed(2) };
+                let open = 0, perf = 0, prize = 0;
+                employees.forEach(e => { open += parseInt(e.openCount) || 0; perf += parseFloat(e.performance) || 0; prize += parseFloat(e.prizeRedemption) || 0; });
+                return { open, performance: +perf.toFixed(2), prizeRedemption: +prize.toFixed(2) };
             };
 
-            // 获取指定员工当月总业绩
             function getEmployeeMonthlyPerformance(empId) {
                 const now = new Date();
                 const year = now.getFullYear();
@@ -1032,19 +451,22 @@
                     const newRow = createBlankRow(TODAY);
                     newRow.yesterday = prev.todayBalance || 0;
                     ledgerRows.push(newRow);
-                    if (!silent) showToast('📅 已自动创建今日台账行 (' + TODAY + ')', 'success');
+                    if (!silent) showToast('📅 已自动创建今日台账行', 'success');
                     return true;
                 }
                 if (!ledgerRows.length) {
                     ledgerRows.push(createBlankRow(TODAY));
-                    if (!silent) showToast('📅 已创建初始台账行 (' + TODAY + ')', 'success');
+                    if (!silent) showToast('📅 已创建初始台账行', 'success');
                     return true;
                 }
                 return false;
             }
 
+            // 核心：重算前按日期排序
             function recalcLedger() {
                 if (!ledgerRows.length) return;
+                // 按日期升序排序，确保累计与顺序正确
+                ledgerRows.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
                 let prevToday = null;
                 ledgerRows.forEach((r, i) => {
                     r.actual = +((r.perf || 0) - (r.prize || 0)).toFixed(2);
@@ -1071,7 +493,7 @@
                 ignoreNextSnapshot = true;
                 db.ref('/appData').set({ ledger: ledgerRows, employees: employees, performanceHistory: employeePerformanceHistory }).catch(err => {
                     console.error('云保存失败', err);
-                    showToast('⚠️ 云端保存失败，请检查网络', 'warn');
+                    showToast('⚠️ 云端保存失败', 'warn');
                 });
                 localStorage.setItem(STORAGE_LEDGER, JSON.stringify(ledgerRows));
                 localStorage.setItem(STORAGE_EMPLOYEES, JSON.stringify(employees));
@@ -1110,7 +532,7 @@
                     ensureTodayRow(true);
                     callback();
                 }).catch(err => {
-                    console.warn('云端数据加载失败，使用本地缓存', err);
+                    console.warn('云端加载失败，使用本地缓存', err);
                     const rawL = localStorage.getItem(STORAGE_LEDGER);
                     const rawE = localStorage.getItem(STORAGE_EMPLOYEES);
                     const rawH = localStorage.getItem('football_perf_history');
@@ -1135,7 +557,7 @@
                     if (callback) callback();
                 }).catch(err => {
                     console.error('管理员数据加载失败', err);
-                    showToast('⚠️ 无法连接云端，请设置管理员', 'warn');
+                    showToast('⚠️ 无法连接云端', 'warn');
                     dom.adminSetupModal.classList.add('active');
                     if (callback) callback();
                 });
@@ -1149,10 +571,7 @@
                 dom.reAuthModal.classList.add('active');
                 setTimeout(() => dom.reAuthPassword.focus(), 100);
             };
-            window.closeReAuth = function() {
-                dom.reAuthModal.classList.remove('active');
-                currentReAuthCallback = null;
-            };
+            window.closeReAuth = function() { dom.reAuthModal.classList.remove('active'); currentReAuthCallback = null; };
             window.submitReAuth = function() {
                 const pwd = dom.reAuthPassword.value.trim();
                 if (pwd === adminCredentials.password) {
@@ -1187,11 +606,10 @@
                     if (ledgerRows[i].date === TODAY) { target = i; break; }
                 }
                 ledgerRows[target].openCount = sums.open;
-                ledgerRows[target].newOpen = sums.newOpen;
                 ledgerRows[target].perf = sums.performance;
                 ledgerRows[target].prize = sums.prizeRedemption;
+                ledgerRows[target].newOpen = 0; // 新人不在此表维护
 
-                // 保存今日员工业绩到历史记录
                 if (!employeePerformanceHistory[TODAY]) employeePerformanceHistory[TODAY] = {};
                 employees.forEach(emp => {
                     employeePerformanceHistory[TODAY][emp.id] = parseFloat(emp.performance) || 0;
@@ -1200,13 +618,12 @@
                 recalcLedger();
                 renderAll();
                 pushToCloud();
-                const msg = created ? '✅ 已创建今日行并同步汇总到台账 (可撤销)' : '✅ 已同步汇总到台账 (可撤销)';
-                showToast(msg, 'success');
+                showToast(created ? '✅ 已创建今日行并同步' : '✅ 已同步汇总到台账', 'success');
             };
 
             window.undoLastSync = function() {
                 if (!undoSnapshot) { showToast('没有可撤销的操作', 'warn'); return; }
-                if (confirm('↩ 撤销上一次同步，恢复到同步前的数据？')) {
+                if (confirm('↩ 撤销上一次同步？')) {
                     ledgerRows = undoSnapshot.ledger;
                     employees = undoSnapshot.employees;
                     employeePerformanceHistory = undoSnapshot.performanceHistory;
@@ -1215,7 +632,7 @@
                     recalcLedger();
                     renderAll();
                     pushToCloud();
-                    showToast('已撤销同步，数据已恢复', 'success');
+                    showToast('已撤销同步', 'success');
                 }
             };
 
@@ -1238,7 +655,7 @@
                     }
                     renderAll();
                     showToast('管理员已设置并登录', 'success');
-                }).catch(err => {
+                }).catch(() => {
                     dom.adminSetupModal.classList.remove('active');
                     isLoggedIn = true;
                     updateLoginUI();
@@ -1248,7 +665,7 @@
                         employeePerformanceHistory = {};
                     }
                     renderAll();
-                    showToast('已在本地设置管理员（云端暂未同步）', 'warn');
+                    showToast('已在本地设置管理员', 'warn');
                 });
             };
 
@@ -1259,7 +676,7 @@
                     renderAll();
                     showToast('已登出', 'warn');
                 } else {
-                    if (!adminCredentials) { showToast('请先设置管理员账号', 'warn'); dom.adminSetupModal.classList.add('active'); return; }
+                    if (!adminCredentials) { showToast('请先设置管理员', 'warn'); dom.adminSetupModal.classList.add('active'); return; }
                     dom.loginModal.classList.add('active');
                     $('#usernameInput').value = '';
                     $('#passwordInput').value = '';
@@ -1292,7 +709,7 @@
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.changePwdModal.classList.remove('active');
                     showToast('🔑 密码已修改', 'success');
-                }).catch(() => { showToast('密码已本地修改，但云端同步失败', 'warn'); });
+                }).catch(() => showToast('密码已本地修改', 'warn'));
             };
 
             function updateLoginUI() {
@@ -1380,7 +797,7 @@
                 dom.cumulativeBody.innerHTML = '';
                 if (!ledgerRows.length) { dom.emptyCumulative.style.display = 'block'; return; }
                 dom.emptyCumulative.style.display = 'none';
-                ledgerRows.forEach((r, i) => {
+                ledgerRows.forEach(r => {
                     const tr = document.createElement('tr');
                     if (r.date === TODAY) tr.classList.add('row-today');
                     tr.innerHTML = `<td>${r.date||''}</td><td>${fmtMoney(r.totalPerf)}</td><td>${fmtMoney(r.totalPrize)}</td><td>${fmtMoney(r.totalActual)}</td><td>${fmtMoney(r.totalExpenses)}</td>`;
@@ -1397,9 +814,7 @@
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${i+1}</td>
-                        <td>
-                            <span class="employee-name" style="cursor:pointer; color:#2563eb; font-weight:600;" data-eid="${e.id}" title="点击查看历史业绩">${e.name||'未命名'}</span>
-                        </td>
+                        <td><span class="employee-name" data-eid="${e.id}" title="点击查看历史业绩">${e.name||'未命名'}</span></td>
                         <td><input type="number" data-eidx="${i}" data-efield="openCount" value="${e.openCount||0}" min="0" step="1" ${dis}></td>
                         <td><input type="number" class="input-money" data-eidx="${i}" data-efield="performance" value="${e.performance||0}" step="0.01" ${dis}></td>
                         <td><input type="number" class="input-money" data-eidx="${i}" data-efield="prizeRedemption" value="${e.prizeRedemption||0}" step="0.01" ${dis}></td>
@@ -1408,7 +823,6 @@
                     `;
                     dom.employeeBody.appendChild(tr);
                 });
-                // 绑定员工姓名点击事件
                 $$('.employee-name').forEach(el => {
                     el.onclick = function() {
                         const eid = this.dataset.eid;
@@ -1422,7 +836,6 @@
             function updateEmployeeSummaries() {
                 const sums = getEmpSums();
                 dom.empOpenTotal.textContent = sums.open;
-                // 不再显示总新人
                 dom.empTotalInline.textContent = fmtMoney(sums.performance);
                 dom.empPrizeTotalInline.textContent = fmtMoney(sums.prizeRedemption);
                 dom.cardEmpTotal.textContent = fmtMoney(sums.performance);
@@ -1459,34 +872,23 @@
                 }, 5000);
             }
 
-            // 显示员工历史记录
             window.showEmployeeHistory = function(emp) {
                 const history = [];
                 for (const [date, dayData] of Object.entries(employeePerformanceHistory)) {
-                    if (dayData[emp.id] !== undefined) {
-                        history.push({ date, performance: parseFloat(dayData[emp.id]) || 0 });
-                    }
+                    if (dayData[emp.id] !== undefined) history.push({ date, performance: parseFloat(dayData[emp.id]) || 0 });
                 }
                 history.sort((a, b) => a.date.localeCompare(b.date));
                 dom.historyTitle.textContent = `📋 ${emp.name} 的历史业绩`;
-                let html = '';
-                if (history.length === 0) {
-                    html = '<p style="text-align:center;color:#94a3b8;">暂无历史记录</p>';
-                } else {
-                    html = `<table class="history-table"><thead><tr><th>日期</th><th>业绩金额</th></tr></thead><tbody>`;
-                    history.forEach(h => {
-                        html += `<tr><td>${h.date}</td><td style="font-family:var(--font-mono);">${fmtMoney(h.performance)}</td></tr>`;
-                    });
+                let html = history.length ? `<table class="history-table"><thead><tr><th>日期</th><th>业绩金额</th></tr></thead><tbody>` : '<p style="text-align:center;">暂无历史记录</p>';
+                if (history.length) {
+                    history.forEach(h => html += `<tr><td>${h.date}</td><td style="font-family:var(--font-mono);">${fmtMoney(h.performance)}</td></tr>`);
                     const total = history.reduce((s, h) => s + h.performance, 0);
-                    html += `<tr style="font-weight:700; background:#f8fafc;"><td>合计</td><td style="font-family:var(--font-mono); color:#0d9488;">${fmtMoney(total)}</td></tr>`;
-                    html += `</tbody></table>`;
+                    html += `<tr style="font-weight:700;"><td>合计</td><td style="color:#0d9488;">${fmtMoney(total)}</td></tr></tbody></table>`;
                 }
                 dom.historyContent.innerHTML = html;
                 dom.historyModal.classList.add('active');
             };
-            window.closeHistoryModal = function() {
-                dom.historyModal.classList.remove('active');
-            };
+            window.closeHistoryModal = function() { dom.historyModal.classList.remove('active'); };
 
             function bindEvents() {
                 dom.ledgerBody.oninput = function(e) {
@@ -1508,10 +910,10 @@
                     if (!isLoggedIn) { showToast('🔒 请先登录', 'warn'); return; }
                     const i = +btn.dataset.ldel;
                     if (ledgerRows.length <= 1) {
-                        if (confirm('⚠️ 清空所有台账数据？')) { ledgerRows = [createBlankRow(TODAY)]; autoSaveToCloud(); showToast('已重置', 'warn'); }
+                        if (confirm('⚠️ 清空所有台账数据？')) { ledgerRows = [createBlankRow(TODAY)]; recalcLedger(); renderAll(); pushToCloud(); showToast('已重置', 'warn'); }
                         return;
                     }
-                    if (confirm('⚠️ 确认删除？')) { ledgerRows.splice(i, 1); autoSaveToCloud(); showToast('已删除', 'warn'); }
+                    if (confirm('⚠️ 确认删除？')) { ledgerRows.splice(i, 1); recalcLedger(); renderAll(); pushToCloud(); showToast('已删除', 'warn'); }
                 };
                 dom.employeeBody.oninput = function(e) {
                     if (!isLoggedIn) return;
@@ -1519,7 +921,7 @@
                     if (!t.dataset.eidx) return;
                     const i = +t.dataset.eidx, f = t.dataset.efield;
                     if (f === 'name') employees[i].name = t.value;
-                    else if (f === 'openCount' || f === 'newOpen') employees[i][f] = parseInt(t.value) || 0;
+                    else if (f === 'openCount') employees[i].openCount = parseInt(t.value) || 0;
                     else if (f === 'performance' || f === 'prizeRedemption') employees[i][f] = parseFloat(t.value) || 0;
                     updateEmployeeSummaries();
                     pushToCloud();
@@ -1531,14 +933,12 @@
                     const i = +btn.dataset.edel;
                     if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1); pushToCloud(); renderEmployees(); showToast('已删除', 'warn'); }
                 };
-                dom.reAuthPassword.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') submitReAuth();
-                });
+                dom.reAuthPassword.addEventListener('keydown', function(e) { if (e.key === 'Enter') submitReAuth(); });
             }
 
             window.addEmployee = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
-                employees.push({ id: 'e' + Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
+                employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
                 pushToCloud();
                 renderEmployees();
                 showToast('已添加员工', 'success');
@@ -1559,7 +959,9 @@
                 const newRow = createBlankRow(TODAY);
                 if (prev) newRow.yesterday = prev.todayBalance;
                 ledgerRows.push(newRow);
-                autoSaveToCloud();
+                recalcLedger();
+                renderAll();
+                pushToCloud();
                 showToast('已添加台账行', 'success');
             };
             window.saveAllData = function() {
@@ -1573,7 +975,7 @@
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 doSyncWithUndo();
                 saveAllData();
-                showToast('✅ 今日已结算，数据已同步', 'success');
+                showToast('✅ 今日已结算', 'success');
             };
             window.refreshAllCalc = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
@@ -1587,14 +989,18 @@
                     else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
                     else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
                 });
-                autoSaveToCloud();
+                recalcLedger();
+                renderAll();
+                pushToCloud();
                 showToast('已刷新', 'success');
             };
             window.clearAllData = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 if (confirm('⚠️ 清空所有台账数据？此操作不可恢复！') && confirm('再次确认：所有数据将被永久删除！')) {
                     ledgerRows = [createBlankRow(TODAY)];
-                    autoSaveToCloud();
+                    recalcLedger();
+                    renderAll();
+                    pushToCloud();
                     showToast('已清空', 'warn');
                 }
             };
@@ -1613,10 +1019,7 @@
                 dom.csvFileName.textContent = '📁 点击选择 CSV 文件';
                 dom.csvFileInput.value = '';
             };
-            window.handleCsvFileSelect = function(event) {
-                const file = event.target.files[0];
-                if (file) dom.csvFileName.textContent = '📄 ' + file.name;
-            };
+            window.handleCsvFileSelect = function(event) { if (event.target.files[0]) dom.csvFileName.textContent = '📄 ' + event.target.files[0].name; };
             window.importCSV = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 const file = dom.csvFileInput.files[0];
@@ -1630,10 +1033,10 @@
                     const newLedger = dataRows.map(line => {
                         const cols = line.split(',');
                         return {
-                            date: cols[0] || TODAY, openCount: parseInt(cols[1]) || 0, newOpen: parseInt(cols[2]) || 0,
-                            perf: parseFloat(cols[3]) || 0, prize: parseFloat(cols[4]) || 0, actual: 0,
-                            expenses: parseFloat(cols[6]) || 0, yesterday: parseFloat(cols[7]) || 0, todayBalance: 0,
-                            totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: cols[13] || ''
+                            date: cols[0] || TODAY, openCount: parseInt(cols[1])||0, newOpen: parseInt(cols[2])||0,
+                            perf: parseFloat(cols[3])||0, prize: parseFloat(cols[4])||0, actual:0,
+                            expenses: parseFloat(cols[6])||0, yesterday: parseFloat(cols[7])||0, todayBalance:0,
+                            totalPerf:0, totalPrize:0, totalActual:0, totalExpenses:0, notes: cols[13]||''
                         };
                     });
                     ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)];
@@ -1647,7 +1050,7 @@
             };
             function downloadCSVFile(headers, rows, filename) {
                 const BOM = '\uFEFF';
-                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' + String(v).replace(/"/g,'""') + '"' : v).join(',')).join('\n');
+                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"'+String(v).replace(/"/g,'""')+'"' : v).join(',')).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url; a.download = filename;
@@ -1660,20 +1063,20 @@
                     const v = inp.value;
                     if (f === 'date') ledgerRows[i].date = v || TODAY;
                     else if (f === 'notes') ledgerRows[i].notes = v;
-                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
-                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
-                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
+                    else if (f === 'yesterday' && i===0) ledgerRows[i].yesterday = +v || 0;
+                    else if (['openCount','newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
+                    else if (['perf','prize','expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
                 });
             }
 
-            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal, dom.historyModal].forEach(modal => {
-                modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
+            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal, dom.historyModal].forEach(m => {
+                m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('active'); });
             });
             document.addEventListener('keydown', function(e) {
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (isLoggedIn) saveAllData(); else showToast('请先登录', 'warn'); }
             });
             document.addEventListener('contextmenu', function(e) {
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); }
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
             });
             window.dismissGuide = () => { dom.guideBanner.style.display = 'none'; localStorage.setItem('guide_off', '1'); };
 
@@ -1686,13 +1089,11 @@
                         renderAll();
                         bindEvents();
                         startCloudListener();
-                        if (!dom.adminSetupModal.classList.contains('active')) {
-                            showToast('☁️ 系统就绪，请登录', 'success');
-                        }
+                        if (!dom.adminSetupModal.classList.contains('active')) showToast('☁️ 系统就绪，请登录', 'success');
                     });
                 });
                 if (localStorage.getItem('guide_off') === '1') dom.guideBanner.style.display = 'none';
-                console.log('⚽ 竞彩销售台账 · 云同步版 已就绪 (员工历史与月度业绩)');
+                console.log('⚽ 竞彩销售台账 · 优化版就绪');
             }
             init();
         })();
