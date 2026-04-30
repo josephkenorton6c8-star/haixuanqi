@@ -333,7 +333,6 @@
         table tbody tr:hover {
             background: #fafcfd;
         }
-        /* 今日行高亮 */
         table tbody tr.row-today {
             background: #fffbeb !important;
             border-left: 3px solid #f59e0b;
@@ -501,6 +500,18 @@
             font-size: 12px;
             border-radius: 6px;
         }
+        .btn-xs {
+            padding: 3px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-xs:hover {
+            background: #cbd5e1;
+        }
         .toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -550,10 +561,12 @@
             background: #fff;
             border-radius: var(--radius-lg);
             padding: 28px 26px;
-            width: 440px;
+            width: 480px;
             max-width: 92vw;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .modal-box h3 {
             font-size: 19px;
@@ -668,6 +681,22 @@
             font-size: 17px;
             color: #6d28d9;
         }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .history-table th,
+        .history-table td {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .history-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
         @media (max-width: 768px) {
             .header-inner {
                 height: 52px;
@@ -769,27 +798,51 @@
         </div>
     </div>
 
+    <!-- 员工历史记录模态框 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box" style="width:550px; text-align:left;">
+            <h3 id="historyTitle" style="text-align:center;">📋 员工历史业绩</h3>
+            <div id="historyContent" style="max-height:50vh; overflow-y:auto;"></div>
+            <div class="btn-row" style="margin-top:16px;">
+                <button class="btn btn-outline" onclick="closeHistoryModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <div class="main-container">
         <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角"管理员登录"</strong>后解锁编辑权限。</div>
         <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点"✅今日结算" → ④数据自动同步至云端。新一天会自动创建新行，不会覆盖历史。
+            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点"✅今日结算" → ④数据自动同步至云端。新一天会自动创建新行。
         </div>
 
+        <!-- 卡片顺序已交换：累计总支出 与 累计实际业绩 位置互换 -->
         <div class="summary-grid">
             <div class="summary-card card-accent-blue"><div class="card-label">🏦 当前结余</div><div class="card-value" id="cardBalance">¥0.00</div></div>
             <div class="summary-card card-accent-purple"><div class="card-label">👥 员工总业绩</div><div class="card-value val-purple" id="cardEmpTotal">¥0.00</div></div>
             <div class="summary-card card-accent-amber"><div class="card-label">🎫 员工总兑奖</div><div class="card-value" style="color:#b45309;" id="cardTotalPrizeEmp">¥0.00</div></div>
             <div class="summary-card"><div class="card-label">💰 累计总业绩</div><div class="card-value" id="cardTotalPerf">¥0.00</div></div>
             <div class="summary-card"><div class="card-label">🎫 累计总兑奖</div><div class="card-value" id="cardTotalPrizeLedger">¥0.00</div></div>
-            <div class="summary-card card-accent-green"><div class="card-label">📈 累计实际业绩</div><div class="card-value val-positive" id="cardTotalActual">¥0.00</div></div>
+            <!-- 交换后的位置：原“累计实际业绩”与“累计总支出”互换 -->
             <div class="summary-card"><div class="card-label">💸 累计总支出</div><div class="card-value" id="cardTotalExpenses">¥0.00</div></div>
+            <div class="summary-card card-accent-green"><div class="card-label">📈 累计实际业绩</div><div class="card-value val-positive" id="cardTotalActual">¥0.00</div></div>
         </div>
 
         <div class="section">
             <div class="section-header">👥 员工今日业绩管理 <span class="badge badge-purple" id="empBadge">5 名员工</span></div>
             <div class="table-wrap short">
                 <table>
-                    <thead><tr><th>#</th><th>👤 姓名</th><th>👥 开单人数</th><th>🌟 新人开单</th><th>💰 今日业绩</th><th>🎫 兑奖金额</th><th>操作</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>👤 姓名</th>
+                            <th>👥 开单人数</th>
+                            <!-- 已去除“新人开单”列 -->
+                            <th>💰 今日业绩</th>
+                            <th>🎫 兑奖金额</th>
+                            <th>📆 当月总业绩</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
                     <tbody id="employeeBody"></tbody>
                 </table>
             </div>
@@ -799,7 +852,7 @@
                 <span style="flex:1;"></span>
                 <div class="stat-inline">
                     <div class="stat-item"><span class="label">总开单：</span><span class="amount" id="empOpenTotal">0</span></div>
-                    <div class="stat-item"><span class="label">总新人：</span><span class="amount" id="empNewTotal">0</span></div>
+                    <!-- 总新人统计已移除 -->
                     <div class="stat-item"><span class="label">总业绩：</span><span class="amount" id="empTotalInline">¥0.00</span></div>
                     <div class="stat-item"><span class="label">总兑奖：</span><span class="amount" style="color:#b45309;" id="empPrizeTotalInline">¥0.00</span></div>
                 </div>
@@ -856,7 +909,6 @@
 
     <script>
         (function() {
-            // ==================== Firebase 配置 (请替换为您自己的信息) ====================
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
                 authDomain: "haixuanqi-16ad1.firebaseapp.com",
@@ -883,6 +935,7 @@
 
             let ledgerRows = [];
             let employees = [];
+            let employeePerformanceHistory = {}; // 新增：存储每日员工业绩 { "2024-01-01": { "emp_1": 100, ... } }
             let isLoggedIn = false;
             let adminCredentials = null;
             let ignoreNextSnapshot = false;
@@ -909,6 +962,9 @@
                 importModal: $('#importModal'),
                 csvFileName: $('#csvFileName'),
                 csvFileInput: $('#csvFileInput'),
+                historyModal: $('#historyModal'),
+                historyTitle: $('#historyTitle'),
+                historyContent: $('#historyContent'),
                 lockBanner: $('#lockBanner'),
                 guideBanner: $('#guideBanner'),
                 headerDate: $('#headerDate'),
@@ -940,50 +996,48 @@
             };
             const showToast = (m, t) => {
                 dom.toast.textContent = m;
-                dom.toast.className = 'toast ' + (t === 'success' ? 'toast-success' : t === 'warn' ? 'toast-warn' :
-                    '') + ' show';
+                dom.toast.className = 'toast ' + (t === 'success' ? 'toast-success' : t === 'warn' ? 'toast-warn' : '') + ' show';
                 clearTimeout(window._tt);
                 window._tt = setTimeout(() => { dom.toast.className = 'toast'; }, 2500);
             };
             const getEmpSums = () => {
-                let open = 0,
-                    newO = 0,
-                    perf = 0,
-                    prize = 0;
-                employees.forEach(e => { open += parseInt(e.openCount) || 0;
-                    newO += parseInt(e.newOpen) || 0;
-                    perf += parseFloat(e.performance) || 0;
-                    prize += parseFloat(e.prizeRedemption) || 0; });
+                let open = 0, newO = 0, perf = 0, prize = 0;
+                employees.forEach(e => { open += parseInt(e.openCount) || 0; newO += parseInt(e.newOpen) || 0; perf += parseFloat(e.performance) || 0; prize += parseFloat(e.prizeRedemption) || 0; });
                 return { open, newOpen: newO, performance: +perf.toFixed(2), prizeRedemption: +prize.toFixed(2) };
             };
 
-            function createBlankRow(date) {
-                return { date: date || TODAY, openCount: 0, newOpen: 0, perf: 0, prize: 0, actual: 0, expenses: 0,
-                    yesterday: 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0,
-                    notes: '' };
+            // 获取指定员工当月总业绩
+            function getEmployeeMonthlyPerformance(empId) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const monthPrefix = `${year}-${month}`;
+                let total = 0;
+                for (const [date, dayData] of Object.entries(employeePerformanceHistory)) {
+                    if (date.startsWith(monthPrefix) && dayData[empId]) {
+                        total += parseFloat(dayData[empId]) || 0;
+                    }
+                }
+                return +total.toFixed(2);
             }
 
-            // ==================== 【核心修复】确保台账中有今天的行 ====================
+            function createBlankRow(date) {
+                return { date: date || TODAY, openCount: 0, newOpen: 0, perf: 0, prize: 0, actual: 0, expenses: 0, yesterday: 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: '' };
+            }
+
             function ensureTodayRow(silent = false) {
-                // 检查是否已有今天日期的行
                 const hasToday = ledgerRows.some(r => r.date === TODAY);
                 if (!hasToday && ledgerRows.length > 0) {
                     const prev = ledgerRows[ledgerRows.length - 1];
                     const newRow = createBlankRow(TODAY);
-                    // 继承上一行的今日结余作为本行的昨日结余
                     newRow.yesterday = prev.todayBalance || 0;
                     ledgerRows.push(newRow);
-                    if (!silent) {
-                        showToast('📅 已自动创建今日台账行 (' + TODAY + ')', 'success');
-                    }
-                    return true; // 表示创建了新行
+                    if (!silent) showToast('📅 已自动创建今日台账行 (' + TODAY + ')', 'success');
+                    return true;
                 }
-                // 如果台账完全为空，也创建一行
                 if (!ledgerRows.length) {
                     ledgerRows.push(createBlankRow(TODAY));
-                    if (!silent) {
-                        showToast('📅 已创建初始台账行 (' + TODAY + ')', 'success');
-                    }
+                    if (!silent) showToast('📅 已创建初始台账行 (' + TODAY + ')', 'success');
                     return true;
                 }
                 return false;
@@ -1015,12 +1069,13 @@
             function pushToCloud() {
                 if (!isLoggedIn) return;
                 ignoreNextSnapshot = true;
-                db.ref('/appData').set({ ledger: ledgerRows, employees: employees }).catch(err => {
+                db.ref('/appData').set({ ledger: ledgerRows, employees: employees, performanceHistory: employeePerformanceHistory }).catch(err => {
                     console.error('云保存失败', err);
                     showToast('⚠️ 云端保存失败，请检查网络', 'warn');
                 });
                 localStorage.setItem(STORAGE_LEDGER, JSON.stringify(ledgerRows));
                 localStorage.setItem(STORAGE_EMPLOYEES, JSON.stringify(employees));
+                try { localStorage.setItem('football_perf_history', JSON.stringify(employeePerformanceHistory)); } catch (e) {}
             }
 
             function startCloudListener() {
@@ -1030,7 +1085,7 @@
                     if (val && val.ledger && val.employees) {
                         ledgerRows = val.ledger;
                         employees = val.employees;
-                        // 云端数据加载后也确保有今天的行
+                        employeePerformanceHistory = val.performanceHistory || {};
                         ensureTodayRow(true);
                         recalcLedger();
                         renderAll();
@@ -1045,21 +1100,23 @@
                     if (val && val.ledger && val.employees) {
                         ledgerRows = val.ledger;
                         employees = val.employees;
+                        employeePerformanceHistory = val.performanceHistory || {};
                     } else {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        db.ref('/appData').set({ ledger: ledgerRows, employees: employees }).catch(e => console
-                            .warn);
+                        employeePerformanceHistory = {};
+                        db.ref('/appData').set({ ledger: ledgerRows, employees: employees, performanceHistory: employeePerformanceHistory }).catch(e => console.warn);
                     }
-                    // 【修复】确保有今天的行（静默模式，因为可能会在init中显示其他提示）
                     ensureTodayRow(true);
                     callback();
                 }).catch(err => {
                     console.warn('云端数据加载失败，使用本地缓存', err);
                     const rawL = localStorage.getItem(STORAGE_LEDGER);
                     const rawE = localStorage.getItem(STORAGE_EMPLOYEES);
+                    const rawH = localStorage.getItem('football_perf_history');
                     if (rawL) ledgerRows = JSON.parse(rawL);
                     if (rawE) employees = JSON.parse(rawE);
+                    if (rawH) employeePerformanceHistory = JSON.parse(rawH);
                     if (!ledgerRows.length) ledgerRows = [createBlankRow(TODAY)];
                     if (!employees.length) employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
                     ensureTodayRow(true);
@@ -1084,60 +1141,47 @@
                 });
             }
 
-            // ==================== 二次鉴权逻辑 ====================
             window.reAuth = function(callback) {
-                if (!isLoggedIn || !adminCredentials) {
-                    showToast('请先登录', 'warn');
-                    return;
-                }
+                if (!isLoggedIn || !adminCredentials) { showToast('请先登录', 'warn'); return; }
                 currentReAuthCallback = callback;
                 dom.reAuthPassword.value = '';
                 dom.reAuthError.style.display = 'none';
                 dom.reAuthModal.classList.add('active');
                 setTimeout(() => dom.reAuthPassword.focus(), 100);
             };
-
             window.closeReAuth = function() {
                 dom.reAuthModal.classList.remove('active');
                 currentReAuthCallback = null;
             };
-
             window.submitReAuth = function() {
                 const pwd = dom.reAuthPassword.value.trim();
                 if (pwd === adminCredentials.password) {
                     dom.reAuthModal.classList.remove('active');
-                    if (currentReAuthCallback) {
-                        currentReAuthCallback();
-                        currentReAuthCallback = null;
-                    }
+                    if (currentReAuthCallback) { currentReAuthCallback(); currentReAuthCallback = null; }
                 } else {
                     dom.reAuthError.style.display = 'block';
                     dom.reAuthPassword.value = '';
                 }
             };
 
-            // ==================== 同步与撤销 ====================
             function saveUndoSnapshot() {
                 undoSnapshot = {
                     ledger: JSON.parse(JSON.stringify(ledgerRows)),
-                    employees: JSON.parse(JSON.stringify(employees))
+                    employees: JSON.parse(JSON.stringify(employees)),
+                    performanceHistory: JSON.parse(JSON.stringify(employeePerformanceHistory))
                 };
                 dom.btnUndo.style.display = '';
                 dom.btnUndo.disabled = false;
             }
 
-            // 【核心修复】doSyncWithUndo - 自动确保有今天日期的行
             window.doSyncWithUndo = function() {
                 if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
                 if (!ledgerRows.length) { showToast('请先添加台账行', 'warn'); return; }
-
-                // 【修复】确保有今天的行，然后再保存快照
                 const created = ensureTodayRow();
-                recalcLedger(); // 确保新行的yesterday等被正确计算
+                recalcLedger();
                 saveUndoSnapshot();
 
                 const sums = getEmpSums();
-                // 查找今天日期的行（现在一定存在）
                 let target = ledgerRows.length - 1;
                 for (let i = ledgerRows.length - 1; i >= 0; i--) {
                     if (ledgerRows[i].date === TODAY) { target = i; break; }
@@ -1146,23 +1190,26 @@
                 ledgerRows[target].newOpen = sums.newOpen;
                 ledgerRows[target].perf = sums.performance;
                 ledgerRows[target].prize = sums.prizeRedemption;
+
+                // 保存今日员工业绩到历史记录
+                if (!employeePerformanceHistory[TODAY]) employeePerformanceHistory[TODAY] = {};
+                employees.forEach(emp => {
+                    employeePerformanceHistory[TODAY][emp.id] = parseFloat(emp.performance) || 0;
+                });
+
                 recalcLedger();
                 renderAll();
                 pushToCloud();
-                const msg = created ?
-                    '✅ 已创建今日行并同步汇总到台账 (可撤销)' :
-                    '✅ 已同步汇总到台账 (可撤销)';
+                const msg = created ? '✅ 已创建今日行并同步汇总到台账 (可撤销)' : '✅ 已同步汇总到台账 (可撤销)';
                 showToast(msg, 'success');
             };
 
             window.undoLastSync = function() {
-                if (!undoSnapshot) {
-                    showToast('没有可撤销的操作', 'warn');
-                    return;
-                }
+                if (!undoSnapshot) { showToast('没有可撤销的操作', 'warn'); return; }
                 if (confirm('↩ 撤销上一次同步，恢复到同步前的数据？')) {
                     ledgerRows = undoSnapshot.ledger;
                     employees = undoSnapshot.employees;
+                    employeePerformanceHistory = undoSnapshot.performanceHistory;
                     undoSnapshot = null;
                     dom.btnUndo.disabled = true;
                     recalcLedger();
@@ -1172,19 +1219,12 @@
                 }
             };
 
-            // ==================== 导入 CSV 的重新包装（需要二次鉴权） ====================
-            window.triggerImportCSV = function() {
-                reAuth(importCSV);
-            };
+            window.triggerImportCSV = function() { reAuth(importCSV); };
 
-            // ==================== 管理员设置 ====================
             window.setupAdmin = function() {
                 const username = $('#setupUsername').value.trim();
                 const password = $('#setupPassword').value.trim();
-                if (!username || password.length < 4) {
-                    showToast('用户名不能为空，密码至少4位', 'warn');
-                    return;
-                }
+                if (!username || password.length < 4) { showToast('用户名不能为空，密码至少4位', 'warn'); return; }
                 adminCredentials = { username, password };
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.adminSetupModal.classList.remove('active');
@@ -1193,6 +1233,7 @@
                     if (!ledgerRows.length) {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
+                        employeePerformanceHistory = {};
                         pushToCloud();
                     }
                     renderAll();
@@ -1204,13 +1245,13 @@
                     if (!ledgerRows.length) {
                         ledgerRows = [createBlankRow(TODAY)];
                         employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
+                        employeePerformanceHistory = {};
                     }
                     renderAll();
                     showToast('已在本地设置管理员（云端暂未同步）', 'warn');
                 });
             };
 
-            // ==================== 登录/登出 ====================
             window.toggleLogin = function() {
                 if (isLoggedIn) {
                     isLoggedIn = false;
@@ -1218,18 +1259,13 @@
                     renderAll();
                     showToast('已登出', 'warn');
                 } else {
-                    if (!adminCredentials) {
-                        showToast('请先设置管理员账号', 'warn');
-                        dom.adminSetupModal.classList.add('active');
-                        return;
-                    }
+                    if (!adminCredentials) { showToast('请先设置管理员账号', 'warn'); dom.adminSetupModal.classList.add('active'); return; }
                     dom.loginModal.classList.add('active');
                     $('#usernameInput').value = '';
                     $('#passwordInput').value = '';
                     dom.loginError.style.display = 'none';
                 }
             };
-
             window.handleLogin = function() {
                 const u = $('#usernameInput').value.trim();
                 const p = $('#passwordInput').value.trim();
@@ -1237,12 +1273,8 @@
                     isLoggedIn = true;
                     dom.loginModal.classList.remove('active');
                     updateLoginUI();
-                    // 登录后检查是否需要为今天创建行
                     const created = ensureTodayRow(true);
-                    if (created) {
-                        recalcLedger();
-                        pushToCloud();
-                    }
+                    if (created) { recalcLedger(); pushToCloud(); }
                     renderAll();
                     showToast('✅ 登录成功', 'success');
                 } else {
@@ -1250,26 +1282,17 @@
                     $('#passwordInput').value = '';
                 }
             };
-
             window.changePassword = function() {
                 const old = $('#oldPassword').value.trim();
                 const newP = $('#newPassword').value.trim();
                 if (!adminCredentials) return;
-                if (old !== adminCredentials.password) {
-                    $('#changePwdError').style.display = 'block';
-                    return;
-                }
-                if (newP.length < 4) {
-                    showToast('新密码至少4位', 'warn');
-                    return;
-                }
+                if (old !== adminCredentials.password) { $('#changePwdError').style.display = 'block'; return; }
+                if (newP.length < 4) { showToast('新密码至少4位', 'warn'); return; }
                 adminCredentials.password = newP;
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.changePwdModal.classList.remove('active');
                     showToast('🔑 密码已修改', 'success');
-                }).catch(() => {
-                    showToast('密码已本地修改，但云端同步失败', 'warn');
-                });
+                }).catch(() => { showToast('密码已本地修改，但云端同步失败', 'warn'); });
             };
 
             function updateLoginUI() {
@@ -1284,9 +1307,7 @@
                         btn.textContent = '🔑 修改密码';
                         btn.onclick = function() {
                             if (!isLoggedIn) return showToast('请先登录', 'warn');
-                            $('#oldPassword').value = '';
-                            $('#newPassword').value = '';
-                            $('#changePwdError').style.display = 'none';
+                            $('#oldPassword').value = ''; $('#newPassword').value = ''; $('#changePwdError').style.display = 'none';
                             dom.changePwdModal.classList.add('active');
                         };
                         const toolbar = document.getElementById('toolbar');
@@ -1307,15 +1328,12 @@
             }
 
             function setEditable(dis) {
-                const btns = ['#btnAddEmp', '#btnResetEmp', '#btnSyncAll', '#btnAddRow', '#btnSave', '#btnRefresh',
-                    '#btnClear', '#btnExport', '#btnImport'
-                ];
+                const btns = ['#btnAddEmp', '#btnResetEmp', '#btnSyncAll', '#btnAddRow', '#btnSave', '#btnRefresh', '#btnClear', '#btnExport', '#btnImport'];
                 btns.forEach(s => { const el = $(s); if (el) el.disabled = dis; });
                 $$('#ledgerBody input, #employeeBody input').forEach(i => i.disabled = dis);
                 $$('.btn-del').forEach(b => b.disabled = dis);
             }
 
-            // ==================== 渲染函数 ====================
             function renderAll() {
                 recalcLedger();
                 renderLedger();
@@ -1327,12 +1345,9 @@
 
             function renderLedger() {
                 dom.ledgerBody.innerHTML = '';
-                if (!ledgerRows.length) { dom.emptyLedger.style.display = 'block';
-                    dom.rowBadge.textContent = '0 条';
-                    dom.todayBadge.style.display = 'none'; return; }
+                if (!ledgerRows.length) { dom.emptyLedger.style.display = 'block'; dom.rowBadge.textContent = '0 条'; dom.todayBadge.style.display = 'none'; return; }
                 dom.emptyLedger.style.display = 'none';
                 dom.rowBadge.textContent = ledgerRows.length + ' 条';
-                // 检查是否有今日行，显示/隐藏今日标记
                 const hasToday = ledgerRows.some(r => r.date === TODAY);
                 dom.todayBadge.style.display = hasToday ? 'inline' : 'none';
                 const dis = isLoggedIn ? '' : 'disabled';
@@ -1361,20 +1376,6 @@
                 });
             }
 
-            function refreshLedgerDisplay() {
-                $$('[data-lfield]').forEach(el => {
-                    const i = +el.dataset.lidx,
-                        f = el.dataset.lfield;
-                    if (isNaN(i) || i >= ledgerRows.length) return;
-                    const r = ledgerRows[i];
-                    if (['actual', 'todayBalance', 'totalPerf', 'totalPrize', 'totalActual', 'totalExpenses']
-                        .includes(f))
-                        el.textContent = fmtMoney(r[f]);
-                    else if (f === 'yesterday' && i > 0 && el.tagName === 'SPAN')
-                        el.textContent = fmtMoney(r.yesterday);
-                });
-            }
-
             function renderCumulative() {
                 dom.cumulativeBody.innerHTML = '';
                 if (!ledgerRows.length) { dom.emptyCumulative.style.display = 'block'; return; }
@@ -1382,8 +1383,7 @@
                 ledgerRows.forEach((r, i) => {
                     const tr = document.createElement('tr');
                     if (r.date === TODAY) tr.classList.add('row-today');
-                    tr.innerHTML =
-                        `<td>${r.date||''}</td><td>${fmtMoney(r.totalPerf)}</td><td>${fmtMoney(r.totalPrize)}</td><td>${fmtMoney(r.totalActual)}</td><td>${fmtMoney(r.totalExpenses)}</td>`;
+                    tr.innerHTML = `<td>${r.date||''}</td><td>${fmtMoney(r.totalPerf)}</td><td>${fmtMoney(r.totalPrize)}</td><td>${fmtMoney(r.totalActual)}</td><td>${fmtMoney(r.totalExpenses)}</td>`;
                     dom.cumulativeBody.appendChild(tr);
                 });
             }
@@ -1393,17 +1393,28 @@
                 dom.empBadge.textContent = employees.length + ' 名员工';
                 const dis = isLoggedIn ? '' : 'disabled';
                 employees.forEach((e, i) => {
+                    const monthlyPerf = getEmployeeMonthlyPerformance(e.id);
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${i+1}</td>
-                        <td><input type="text" class="input-name" data-eidx="${i}" data-efield="name" value="${e.name||''}" placeholder="姓名" ${dis}></td>
+                        <td>
+                            <span class="employee-name" style="cursor:pointer; color:#2563eb; font-weight:600;" data-eid="${e.id}" title="点击查看历史业绩">${e.name||'未命名'}</span>
+                        </td>
                         <td><input type="number" data-eidx="${i}" data-efield="openCount" value="${e.openCount||0}" min="0" step="1" ${dis}></td>
-                        <td><input type="number" data-eidx="${i}" data-efield="newOpen" value="${e.newOpen||0}" min="0" step="1" ${dis}></td>
                         <td><input type="number" class="input-money" data-eidx="${i}" data-efield="performance" value="${e.performance||0}" step="0.01" ${dis}></td>
                         <td><input type="number" class="input-money" data-eidx="${i}" data-efield="prizeRedemption" value="${e.prizeRedemption||0}" step="0.01" ${dis}></td>
+                        <td class="cell-auto" style="font-weight:700; color:#0d9488;">${fmtMoney(monthlyPerf)}</td>
                         <td><button class="btn-del" data-edel="${i}" ${dis}>✕</button></td>
                     `;
                     dom.employeeBody.appendChild(tr);
+                });
+                // 绑定员工姓名点击事件
+                $$('.employee-name').forEach(el => {
+                    el.onclick = function() {
+                        const eid = this.dataset.eid;
+                        const emp = employees.find(e => e.id === eid);
+                        if (emp) showEmployeeHistory(emp);
+                    };
                 });
                 updateEmployeeSummaries();
             }
@@ -1411,7 +1422,7 @@
             function updateEmployeeSummaries() {
                 const sums = getEmpSums();
                 dom.empOpenTotal.textContent = sums.open;
-                dom.empNewTotal.textContent = sums.newOpen;
+                // 不再显示总新人
                 dom.empTotalInline.textContent = fmtMoney(sums.performance);
                 dom.empPrizeTotalInline.textContent = fmtMoney(sums.prizeRedemption);
                 dom.cardEmpTotal.textContent = fmtMoney(sums.performance);
@@ -1420,8 +1431,7 @@
 
             function updateCards() {
                 if (!ledgerRows.length) {
-                    ['cardBalance', 'cardTotalPerf', 'cardTotalPrizeLedger', 'cardTotalActual', 'cardTotalExpenses']
-                    .forEach(id => dom[id].textContent = '¥0.00');
+                    ['cardBalance','cardTotalPerf','cardTotalPrizeLedger','cardTotalActual','cardTotalExpenses'].forEach(id => dom[id].textContent='¥0.00');
                     return;
                 }
                 const last = ledgerRows[ledgerRows.length - 1];
@@ -1433,8 +1443,7 @@
             }
 
             function updateHeaderDate() {
-                dom.headerDate.textContent = '📅 ' + new Date().toLocaleDateString('zh-CN', { year: 'numeric',
-                    month: 'long', day: 'numeric', weekday: 'long' });
+                dom.headerDate.textContent = '📅 ' + new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
             }
 
             function autoSaveToCloud() {
@@ -1450,14 +1459,41 @@
                 }, 5000);
             }
 
-            // ==================== 事件绑定 ====================
+            // 显示员工历史记录
+            window.showEmployeeHistory = function(emp) {
+                const history = [];
+                for (const [date, dayData] of Object.entries(employeePerformanceHistory)) {
+                    if (dayData[emp.id] !== undefined) {
+                        history.push({ date, performance: parseFloat(dayData[emp.id]) || 0 });
+                    }
+                }
+                history.sort((a, b) => a.date.localeCompare(b.date));
+                dom.historyTitle.textContent = `📋 ${emp.name} 的历史业绩`;
+                let html = '';
+                if (history.length === 0) {
+                    html = '<p style="text-align:center;color:#94a3b8;">暂无历史记录</p>';
+                } else {
+                    html = `<table class="history-table"><thead><tr><th>日期</th><th>业绩金额</th></tr></thead><tbody>`;
+                    history.forEach(h => {
+                        html += `<tr><td>${h.date}</td><td style="font-family:var(--font-mono);">${fmtMoney(h.performance)}</td></tr>`;
+                    });
+                    const total = history.reduce((s, h) => s + h.performance, 0);
+                    html += `<tr style="font-weight:700; background:#f8fafc;"><td>合计</td><td style="font-family:var(--font-mono); color:#0d9488;">${fmtMoney(total)}</td></tr>`;
+                    html += `</tbody></table>`;
+                }
+                dom.historyContent.innerHTML = html;
+                dom.historyModal.classList.add('active');
+            };
+            window.closeHistoryModal = function() {
+                dom.historyModal.classList.remove('active');
+            };
+
             function bindEvents() {
                 dom.ledgerBody.oninput = function(e) {
                     if (!isLoggedIn) return;
                     const t = e.target;
                     if (!t.dataset.lidx) return;
-                    const i = +t.dataset.lidx,
-                        f = t.dataset.lfield;
+                    const i = +t.dataset.lidx, f = t.dataset.lfield;
                     const v = t.value;
                     if (f === 'date') ledgerRows[i].date = v || TODAY;
                     else if (f === 'notes') ledgerRows[i].notes = v;
@@ -1472,25 +1508,19 @@
                     if (!isLoggedIn) { showToast('🔒 请先登录', 'warn'); return; }
                     const i = +btn.dataset.ldel;
                     if (ledgerRows.length <= 1) {
-                        if (confirm('⚠️ 清空所有台账数据？')) { ledgerRows = [createBlankRow(TODAY)];
-                            autoSaveToCloud();
-                            showToast('已重置', 'warn'); }
+                        if (confirm('⚠️ 清空所有台账数据？')) { ledgerRows = [createBlankRow(TODAY)]; autoSaveToCloud(); showToast('已重置', 'warn'); }
                         return;
                     }
-                    if (confirm('⚠️ 确认删除？')) { ledgerRows.splice(i, 1);
-                        autoSaveToCloud();
-                        showToast('已删除', 'warn'); }
+                    if (confirm('⚠️ 确认删除？')) { ledgerRows.splice(i, 1); autoSaveToCloud(); showToast('已删除', 'warn'); }
                 };
                 dom.employeeBody.oninput = function(e) {
                     if (!isLoggedIn) return;
                     const t = e.target;
                     if (!t.dataset.eidx) return;
-                    const i = +t.dataset.eidx,
-                        f = t.dataset.efield;
+                    const i = +t.dataset.eidx, f = t.dataset.efield;
                     if (f === 'name') employees[i].name = t.value;
                     else if (f === 'openCount' || f === 'newOpen') employees[i][f] = parseInt(t.value) || 0;
-                    else if (f === 'performance' || f === 'prizeRedemption') employees[i][f] = parseFloat(t.value) ||
-                        0;
+                    else if (f === 'performance' || f === 'prizeRedemption') employees[i][f] = parseFloat(t.value) || 0;
                     updateEmployeeSummaries();
                     pushToCloud();
                 };
@@ -1499,23 +1529,16 @@
                     if (!btn) return;
                     if (!isLoggedIn) { showToast('🔒 请先登录', 'warn'); return; }
                     const i = +btn.dataset.edel;
-                    if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1);
-                        pushToCloud();
-                        renderEmployees();
-                        showToast('已删除', 'warn'); }
+                    if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1); pushToCloud(); renderEmployees(); showToast('已删除', 'warn'); }
                 };
-
-                // 二次鉴权模态框回车键
                 dom.reAuthPassword.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') submitReAuth();
                 });
             }
 
-            // ==================== 全局操作函数 ====================
             window.addEmployee = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
-                employees.push({ id: 'e' + Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0,
-                    prizeRedemption: 0 });
+                employees.push({ id: 'e' + Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
                 pushToCloud();
                 renderEmployees();
                 showToast('已添加员工', 'success');
@@ -1523,10 +1546,7 @@
             window.resetAllEmployee = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 if (confirm('重置所有员工数据为零？')) {
-                    employees.forEach(e => { e.openCount = 0;
-                        e.newOpen = 0;
-                        e.performance = 0;
-                        e.prizeRedemption = 0; });
+                    employees.forEach(e => { e.openCount = 0; e.newOpen = 0; e.performance = 0; e.prizeRedemption = 0; });
                     pushToCloud();
                     renderEmployees();
                     showToast('已重置', 'success');
@@ -1558,8 +1578,7 @@
             window.refreshAllCalc = function() {
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 $$('#ledgerBody input').forEach(inp => {
-                    const i = +inp.dataset.lidx,
-                        f = inp.dataset.lfield;
+                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
                     if (isNaN(i)) return;
                     const v = inp.value;
                     if (f === 'date') ledgerRows[i].date = v || TODAY;
@@ -1583,13 +1602,8 @@
                 if (!isLoggedIn) return showToast('请先登录', 'warn');
                 syncAllInputs();
                 recalcLedger();
-                const headers = ['日期', '开单人数', '新人开单', '员工业绩', '兑奖', '实际业绩', '支出费用', '昨日结余', '今日结余', '累计业绩',
-                    '累计兑奖', '累计实际', '累计支出', '备注'
-                ];
-                const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses,
-                    r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r
-                    .notes || ''
-                ]);
+                const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注'];
+                const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']);
                 downloadCSVFile(headers, rows, `竞彩足球台账_${TODAY}.csv`);
                 showToast('CSV已导出', 'success');
             };
@@ -1616,20 +1630,10 @@
                     const newLedger = dataRows.map(line => {
                         const cols = line.split(',');
                         return {
-                            date: cols[0] || TODAY,
-                            openCount: parseInt(cols[1]) || 0,
-                            newOpen: parseInt(cols[2]) || 0,
-                            perf: parseFloat(cols[3]) || 0,
-                            prize: parseFloat(cols[4]) || 0,
-                            actual: 0,
-                            expenses: parseFloat(cols[6]) || 0,
-                            yesterday: parseFloat(cols[7]) || 0,
-                            todayBalance: 0,
-                            totalPerf: 0,
-                            totalPrize: 0,
-                            totalActual: 0,
-                            totalExpenses: 0,
-                            notes: cols[13] || ''
+                            date: cols[0] || TODAY, openCount: parseInt(cols[1]) || 0, newOpen: parseInt(cols[2]) || 0,
+                            perf: parseFloat(cols[3]) || 0, prize: parseFloat(cols[4]) || 0, actual: 0,
+                            expenses: parseFloat(cols[6]) || 0, yesterday: parseFloat(cols[7]) || 0, todayBalance: 0,
+                            totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: cols[13] || ''
                         };
                     });
                     ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)];
@@ -1641,26 +1645,17 @@
                 };
                 reader.readAsText(file);
             };
-
             function downloadCSVFile(headers, rows, filename) {
                 const BOM = '\uFEFF';
-                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' +
-                    String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n');
+                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"' + String(v).replace(/"/g,'""') + '"' : v).join(',')).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                const a = document.createElement('a'); a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
             }
-
             function syncAllInputs() {
                 $$('#ledgerBody input').forEach(inp => {
-                    const i = +inp.dataset.lidx,
-                        f = inp.dataset.lfield;
+                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
                     if (isNaN(i)) return;
                     const v = inp.value;
                     if (f === 'date') ledgerRows[i].date = v || TODAY;
@@ -1671,28 +1666,22 @@
                 });
             }
 
-            // 关闭模态框
-            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal].forEach(
-            modal => {
-                modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove(
-                        'active'); });
+            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal, dom.historyModal].forEach(modal => {
+                modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
             });
             document.addEventListener('keydown', function(e) {
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (isLoggedIn) saveAllData();
-                    else showToast('请先登录', 'warn'); }
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (isLoggedIn) saveAllData(); else showToast('请先登录', 'warn'); }
             });
             document.addEventListener('contextmenu', function(e) {
                 if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); }
             });
-            window.dismissGuide = () => { dom.guideBanner.style.display = 'none';
-                localStorage.setItem('guide_off', '1'); };
+            window.dismissGuide = () => { dom.guideBanner.style.display = 'none'; localStorage.setItem('guide_off', '1'); };
 
             function init() {
                 updateHeaderDate();
                 showToast('正在连接云服务器…', '');
                 loadAdminCredentials(() => {
                     loadFromCloud(() => {
-                        // ensureTodayRow 已在 loadFromCloud 中调用（静默模式）
                         recalcLedger();
                         renderAll();
                         bindEvents();
@@ -1703,7 +1692,7 @@
                     });
                 });
                 if (localStorage.getItem('guide_off') === '1') dom.guideBanner.style.display = 'none';
-                console.log('⚽ 竞彩销售台账 · 云同步版 已就绪 (修复版：自动创建每日新行)');
+                console.log('⚽ 竞彩销售台账 · 云同步版 已就绪 (员工历史与月度业绩)');
             }
             init();
         })();
