@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚽ 竞彩销售台账 · 听海版 (云同步)</title>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src *;">
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg: #f0f4f8;
@@ -90,7 +88,7 @@
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
         .section-footer { background: #fafafa; padding: 8px 16px; border-top: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
         .table-wrap { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
-        .table-wrap.short { max-height: 26vh; } /* 员工表高度缩小 */
+        .table-wrap.short { max-height: 26vh; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         table thead { position: sticky; top: 0; z-index: 4; }
         table thead th { background: #1e293b; color: #e2e8f0; padding: 8px 5px; text-align: center; font-weight: 600; font-size: 10px; white-space: nowrap; border-right: 1px solid #334155; }
@@ -134,7 +132,7 @@
         .modal-overlay.active { visibility: visible; opacity: 1; }
         .modal-box { background: #fff; border-radius: var(--radius-lg); padding: 24px 22px; width: 460px; max-width: 92vw; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; max-height: 80vh; overflow-y: auto; }
         .modal-box h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .modal-box input { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .modal-box input, .modal-box select { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; }
         .modal-box .login-submit { width: 100%; padding: 11px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 4px; font-family: inherit; }
         .modal-box .login-submit:hover { background: #1d4ed8; }
         .modal-box .login-error { color: #dc2626; font-size: 12px; margin-bottom: 6px; display: none; }
@@ -156,45 +154,11 @@
         .employee-name { cursor: pointer; color: #2563eb; font-weight: 600; text-decoration: underline; transition: color 0.2s; }
         .employee-name:hover { color: #1d4ed8; }
 
-        /* ========== 仅手机端样式覆盖（≤768px） ========== */
         @media (max-width: 768px) {
-            .header-inner { height: 50px; gap: 8px; padding: 0 8px; }
-            .logo-icon { width: 32px; height: 32px; font-size: 16px; }
-            .logo-title { font-size: 15px; }
-            .logo-subtitle { display: none; }
-            .header-date { display: none; }
-            .btn-login { padding: 6px 12px; font-size: 11px; }
-
-            .main-container { padding: 8px 8px 30px; }
-
-            .summary-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 6px; }
-            .summary-card { padding: 8px 10px; }
-            .summary-card .card-value { font-size: 16px; }
-
-            .btn { padding: 6px 10px; font-size: 10px; gap: 2px; }
-            .btn-sm { padding: 4px 8px; font-size: 9px; }
-
-            .toolbar { padding: 6px 8px; gap: 4px; }
-            .toolbar .hint { display: none; }
-
-            .section-header { font-size: 11px; padding: 8px 10px; }
-            .section-footer { padding: 6px 10px; gap: 6px; }
-
-            table { font-size: 10px; }
-            table thead th { font-size: 8px; padding: 5px 2px; }
-            table tbody td { padding: 3px 2px; }
-            table tbody td input { font-size: 11px; padding: 5px 3px; }
-            .input-date { min-width: auto; }
-            td.cell-auto, td.cell-cum { font-size: 10px; padding: 4px 2px; }
-            td.cell-auto.highlight { font-size: 11px; }
-
-            .modal-box { width: 95vw; padding: 16px 14px; }
-            .modal-box h3 { font-size: 16px; }
-            .modal-box input { font-size: 16px; padding: 10px; }
-            .modal-box .login-submit { font-size: 14px; padding: 10px; }
-
-            .table-wrap { max-height: 45vh; }
-            .table-wrap.short { max-height: 25vh; }
+            .header-inner { height: 48px; gap: 6px; } .logo-title { font-size: 15px; }
+            .btn-login { font-size: 10px; padding: 5px 10px; } .summary-card .card-value { font-size: 18px; }
+            .btn { padding: 6px 10px; font-size: 11px; } .toolbar .hint { display: none; }
+            .modal-box { padding: 18px 16px; } .modal-box h3 { font-size: 16px; }
         }
     </style>
 </head>
@@ -276,10 +240,23 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="historyPerfModal">
+        <div class="modal-box">
+            <h3>📥 添加往日业绩</h3>
+            <select id="historyEmpSelect" style="margin-bottom:10px;">
+                <option value="">-- 选择员工 --</option>
+            </select>
+            <input type="date" id="historyPerfDate" value="" max="">
+            <input type="number" id="historyPerfAmount" placeholder="业绩金额" step="0.01" min="0">
+            <input type="number" id="historyPrizeAmount" placeholder="兑奖金额" step="0.01" min="0">
+            <button class="login-submit" onclick="submitHistoryPerformance()">确 认 添 加</button>
+        </div>
+    </div>
+
     <div class="main-container">
         <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角“管理员登录”</strong>后解锁编辑权限。</div>
         <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。新一天会自动创建新行。
+            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。新一天会自动创建新行。 <br>📥 补录往日：点击员工区域的“📥 往日业绩”按钮。
         </div>
 
         <div class="summary-grid">
@@ -307,6 +284,7 @@
             <div class="section-footer">
                 <button class="btn btn-purple btn-sm" id="btnAddEmp" onclick="reAuth(addEmployee)">➕ 添加员工</button>
                 <button class="btn btn-outline btn-sm" id="btnResetEmp" onclick="reAuth(resetAllEmployee)">🔄 重置</button>
+                <button class="btn btn-amber btn-sm" id="btnHistoryPerf" onclick="openHistoryPerfModal()">📥 往日业绩</button>
                 <span style="flex:1;"></span>
                 <div class="stat-inline">
                     <div class="stat-item"><span class="label">总开单：</span><span class="amount" id="empOpenTotal">0</span></div>
@@ -422,6 +400,11 @@
                 historyModal: $('#historyModal'),
                 historyTitle: $('#historyTitle'),
                 historyContent: $('#historyContent'),
+                historyPerfModal: $('#historyPerfModal'),
+                historyEmpSelect: $('#historyEmpSelect'),
+                historyPerfDate: $('#historyPerfDate'),
+                historyPerfAmount: $('#historyPerfAmount'),
+                historyPrizeAmount: $('#historyPrizeAmount'),
                 lockBanner: $('#lockBanner'),
                 guideBanner: $('#guideBanner'),
                 headerDate: $('#headerDate'),
@@ -529,7 +512,6 @@
                     console.error('云保存失败', err);
                     showToast('⚠️ 云端保存失败', 'warn');
                 });
-                // 注意：移除了所有 localStorage.setItem 调用，不再缓存本地
             }
 
             function startCloudListener() {
@@ -564,12 +546,16 @@
                     ensureTodayRow(true);
                     callback();
                 }).catch(err => {
-                    console.warn('云端加载失败', err);
-                    // 不回退本地缓存，只显示提示并初始化空数据
-                    ledgerRows = [createBlankRow(TODAY)];
-                    employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                    employeePerformanceHistory = {};
-                    showToast('⚠️ 无法连接云端，请检查网络', 'warn');
+                    console.warn('云端加载失败，使用本地缓存', err);
+                    const rawL = localStorage.getItem(STORAGE_LEDGER);
+                    const rawE = localStorage.getItem(STORAGE_EMPLOYEES);
+                    const rawH = localStorage.getItem('football_perf_history');
+                    if (rawL) ledgerRows = JSON.parse(rawL);
+                    if (rawE) employees = JSON.parse(rawE);
+                    if (rawH) employeePerformanceHistory = JSON.parse(rawH);
+                    if (!ledgerRows.length) ledgerRows = [createBlankRow(TODAY)];
+                    if (!employees.length) employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
+                    ensureTodayRow(true);
                     callback();
                 });
             }
@@ -693,7 +679,7 @@
                         employeePerformanceHistory = {};
                     }
                     renderAll();
-                    showToast('已在云端设置管理员', 'warn');
+                    showToast('已在本地设置管理员', 'warn');
                 });
             };
 
@@ -737,7 +723,7 @@
                 db.ref('/admin').set(adminCredentials).then(() => {
                     dom.changePwdModal.classList.remove('active');
                     showToast('🔑 密码已修改', 'success');
-                }).catch(() => showToast('密码已云端修改', 'warn'));
+                }).catch(() => showToast('密码已本地修改', 'warn'));
             };
 
             function updateLoginUI() {
@@ -918,6 +904,55 @@
             };
             window.closeHistoryModal = function() { dom.historyModal.classList.remove('active'); };
 
+            window.openHistoryPerfModal = function() {
+                if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
+                // 填充员工下拉
+                dom.historyEmpSelect.innerHTML = '<option value="">-- 选择员工 --</option>';
+                employees.forEach(e => {
+                    const opt = document.createElement('option');
+                    opt.value = e.id;
+                    opt.textContent = e.name || '未命名';
+                    dom.historyEmpSelect.appendChild(opt);
+                });
+                dom.historyPerfDate.value = '';
+                dom.historyPerfDate.max = TODAY;
+                dom.historyPerfAmount.value = '';
+                dom.historyPrizeAmount.value = '';
+                dom.historyPerfModal.classList.add('active');
+            };
+
+            window.submitHistoryPerformance = function() {
+                if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
+                const empId = dom.historyEmpSelect.value;
+                const date = dom.historyPerfDate.value;
+                const perf = parseFloat(dom.historyPerfAmount.value) || 0;
+                const prize = parseFloat(dom.historyPrizeAmount.value) || 0;
+                if (!empId) { showToast('请选择员工', 'warn'); return; }
+                if (!date) { showToast('请选择日期', 'warn'); return; }
+                if (date > TODAY) { showToast('不能选择未来日期', 'warn'); return; }
+                if (perf === 0 && prize === 0) { showToast('请输入业绩或兑奖金额', 'warn'); return; }
+
+                // 更新 employeePerformanceHistory
+                if (!employeePerformanceHistory[date]) employeePerformanceHistory[date] = {};
+                const prevPerf = parseFloat(employeePerformanceHistory[date][empId]) || 0;
+                employeePerformanceHistory[date][empId] = +(prevPerf + perf).toFixed(2);
+
+                // 更新台账行
+                let targetRow = ledgerRows.find(r => r.date === date);
+                if (!targetRow) {
+                    targetRow = createBlankRow(date);
+                    ledgerRows.push(targetRow);
+                }
+                targetRow.perf = +((targetRow.perf || 0) + perf).toFixed(2);
+                targetRow.prize = +((targetRow.prize || 0) + prize).toFixed(2);
+
+                recalcLedger();
+                renderAll();
+                pushToCloud();
+                dom.historyPerfModal.classList.remove('active');
+                showToast(`✅ 已添加 ${date} 的员工往日业绩`, 'success');
+            };
+
             function bindEvents() {
                 dom.ledgerBody.oninput = function(e) {
                     if (!isLoggedIn) return;
@@ -1097,7 +1132,7 @@
                 });
             }
 
-            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal, dom.historyModal].forEach(m => {
+            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal, dom.historyModal, dom.historyPerfModal].forEach(m => {
                 m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('active'); });
             });
             document.addEventListener('keydown', function(e) {
@@ -1121,7 +1156,7 @@
                     });
                 });
                 if (localStorage.getItem('guide_off') === '1') dom.guideBanner.style.display = 'none';
-                console.log('⚽ 竞彩销售台账 · 纯云端版就绪');
+                console.log('⚽ 竞彩销售台账 · 往日业绩版就绪');
             }
             init();
         })();
