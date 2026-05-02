@@ -242,11 +242,11 @@
 
     <div class="modal-overlay" id="historyPerfModal">
         <div class="modal-box">
-            <h3>📥 添加往日业绩</h3>
+            <h3>📥 添加往日业绩 (当月)</h3>
             <select id="historyEmpSelect" style="margin-bottom:10px;">
                 <option value="">-- 选择员工 --</option>
             </select>
-            <input type="date" id="historyPerfDate" value="" max="">
+            <input type="date" id="historyPerfDate">
             <input type="number" id="historyPerfAmount" placeholder="业绩金额" step="0.01" min="0">
             <input type="number" id="historyPrizeAmount" placeholder="兑奖金额" step="0.01" min="0">
             <button class="login-submit" onclick="submitHistoryPerformance()">确 认 添 加</button>
@@ -256,7 +256,7 @@
     <div class="main-container">
         <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角“管理员登录”</strong>后解锁编辑权限。</div>
         <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。新一天会自动创建新行。 <br>📥 补录往日：点击员工区域的“📥 往日业绩”按钮。
+            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。新一天会自动创建新行。 <br>📥 补录往日：点击员工区域的“📥 往日业绩”按钮（仅限当月）。
         </div>
 
         <div class="summary-grid">
@@ -357,8 +357,6 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            const STORAGE_LEDGER = 'football_ledger_cloud_v5';
-            const STORAGE_EMPLOYEES = 'football_employees_cloud_v5';
             const TODAY = new Date().toISOString().split('T')[0];
             const DEFAULT_EMPLOYEES = [
                 { id: 'emp_1', name: '阿伦', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
@@ -512,6 +510,9 @@
                     console.error('云保存失败', err);
                     showToast('⚠️ 云端保存失败', 'warn');
                 });
+                localStorage.setItem('football_ledger_cloud_v5', JSON.stringify(ledgerRows));
+                localStorage.setItem('football_employees_cloud_v5', JSON.stringify(employees));
+                try { localStorage.setItem('football_perf_history', JSON.stringify(employeePerformanceHistory)); } catch (e) {}
             }
 
             function startCloudListener() {
@@ -547,8 +548,8 @@
                     callback();
                 }).catch(err => {
                     console.warn('云端加载失败，使用本地缓存', err);
-                    const rawL = localStorage.getItem(STORAGE_LEDGER);
-                    const rawE = localStorage.getItem(STORAGE_EMPLOYEES);
+                    const rawL = localStorage.getItem('football_ledger_cloud_v5');
+                    const rawE = localStorage.getItem('football_employees_cloud_v5');
                     const rawH = localStorage.getItem('football_perf_history');
                     if (rawL) ledgerRows = JSON.parse(rawL);
                     if (rawE) employees = JSON.parse(rawE);
@@ -906,7 +907,6 @@
 
             window.openHistoryPerfModal = function() {
                 if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
-                // 填充员工下拉
                 dom.historyEmpSelect.innerHTML = '<option value="">-- 选择员工 --</option>';
                 employees.forEach(e => {
                     const opt = document.createElement('option');
@@ -914,7 +914,10 @@
                     opt.textContent = e.name || '未命名';
                     dom.historyEmpSelect.appendChild(opt);
                 });
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
                 dom.historyPerfDate.value = '';
+                dom.historyPerfDate.min = firstDay;
                 dom.historyPerfDate.max = TODAY;
                 dom.historyPerfAmount.value = '';
                 dom.historyPrizeAmount.value = '';
@@ -930,9 +933,12 @@
                 if (!empId) { showToast('请选择员工', 'warn'); return; }
                 if (!date) { showToast('请选择日期', 'warn'); return; }
                 if (date > TODAY) { showToast('不能选择未来日期', 'warn'); return; }
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                if (date < firstDay) { showToast('仅可添加当月数据', 'warn'); return; }
                 if (perf === 0 && prize === 0) { showToast('请输入业绩或兑奖金额', 'warn'); return; }
 
-                // 更新 employeePerformanceHistory
+                // 更新历史业绩记录
                 if (!employeePerformanceHistory[date]) employeePerformanceHistory[date] = {};
                 const prevPerf = parseFloat(employeePerformanceHistory[date][empId]) || 0;
                 employeePerformanceHistory[date][empId] = +(prevPerf + perf).toFixed(2);
@@ -950,7 +956,7 @@
                 renderAll();
                 pushToCloud();
                 dom.historyPerfModal.classList.remove('active');
-                showToast(`✅ 已添加 ${date} 的员工往日业绩`, 'success');
+                showToast(`✅ 已添加 ${date} 员工往日业绩`, 'success');
             };
 
             function bindEvents() {
@@ -1156,7 +1162,7 @@
                     });
                 });
                 if (localStorage.getItem('guide_off') === '1') dom.guideBanner.style.display = 'none';
-                console.log('⚽ 竞彩销售台账 · 往日业绩版就绪');
+                console.log('⚽ 竞彩销售台账 · 当月累积版就绪');
             }
             init();
         })();
