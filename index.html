@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>竞彩足球销售记录管理系统</title>
-
     <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --bg-deep: #08080f;
@@ -60,7 +57,6 @@
             padding-bottom: 40px;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 5px;
             height: 5px;
@@ -76,7 +72,6 @@
             background: #3d3d55;
         }
 
-        /* ============ HEADER ============ */
         .header {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border-glow);
@@ -173,13 +168,8 @@
             animation: pulse-save 1.5s ease-in-out infinite;
         }
         @keyframes pulse-save {
-            0%,
-            100% {
-                box-shadow: 0 0 20px var(--glow-cyan);
-            }
-            50% {
-                box-shadow: 0 0 45px rgba(0, 212, 240, 0.6);
-            }
+            0%, 100% { box-shadow: 0 0 20px var(--glow-cyan); }
+            50% { box-shadow: 0 0 45px rgba(0, 212, 240, 0.6); }
         }
         .btn-login {
             background: transparent;
@@ -204,16 +194,6 @@
             font-size: 0.78rem;
             border-radius: 20px;
         }
-        .btn-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
         .status-dot {
             width: 9px;
             height: 9px;
@@ -235,25 +215,14 @@
             box-shadow: 0 0 8px rgba(255, 59, 92, 0.6);
         }
         @keyframes blink {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.4;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
         @keyframes blink-fast {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.15;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.15; }
         }
 
-        /* ============ MAIN CONTAINER ============ */
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -263,7 +232,6 @@
             gap: 20px;
         }
 
-        /* ============ CARDS ============ */
         .card {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
@@ -301,7 +269,6 @@
             box-shadow: 0 0 10px var(--glow-purple);
         }
 
-        /* ============ SUMMARY GRID ============ */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -360,7 +327,6 @@
             color: var(--accent-cyan);
         }
 
-        /* ============ CHART AREA ============ */
         .chart-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -391,7 +357,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ============ TABLE ============ */
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -500,7 +465,6 @@
             border: 1px solid rgba(100, 100, 140, 0.4);
         }
 
-        /* ============ MODAL ============ */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -514,12 +478,8 @@
             animation: fadeIn 0.2s ease;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .modal {
             background: var(--bg-card);
@@ -532,14 +492,8 @@
             animation: slideUp 0.3s ease;
         }
         @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .modal h3 {
             font-size: 1.2rem;
@@ -592,17 +546,12 @@
             border: 2px solid #4a4a60;
             color: #b0b0c0;
         }
-        .btn-modal.secondary:hover {
-            border-color: #707090;
-            color: #fff;
-        }
         .btn-modal.danger {
             background: transparent;
             border: 2px solid var(--danger-red);
             color: var(--danger-red);
         }
 
-        /* ============ TOAST ============ */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -639,27 +588,14 @@
             color: #7ae0ff;
         }
         @keyframes slideInRight {
-            from {
-                transform: translateX(120%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         @keyframes fadeOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(80%);
-                opacity: 0;
-            }
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(80%); opacity: 0; }
         }
 
-        /* ============ EMPTY STATE ============ */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -669,103 +605,27 @@
             font-size: 3rem;
             margin-bottom: 12px;
         }
-        .empty-state p {
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-        }
 
-        /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
-            .header {
-                padding: 10px 12px;
-                gap: 8px;
-            }
-            .app-title {
-                font-size: 1rem;
-            }
-            .beijing-time {
-                font-size: 0.7rem;
-                padding: 4px 10px;
-            }
-            .btn {
-                padding: 8px 14px;
-                font-size: 0.78rem;
-                border-radius: 20px;
-            }
-            .card {
-                padding: 14px 10px;
-                border-radius: var(--radius-md);
-            }
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            .summary-value {
-                font-size: 1.2rem;
-            }
-            .summary-label {
-                font-size: 0.68rem;
-            }
-            .table-container {
-                border-radius: var(--radius-sm);
-            }
-            table {
-                min-width: 900px;
-                font-size: 0.7rem;
-            }
-            thead th {
-                padding: 8px 4px;
-                font-size: 0.65rem;
-            }
-            tbody td {
-                padding: 7px 3px;
-                font-size: 0.68rem;
-            }
-            tbody td input {
-                width: 55px;
-                padding: 5px 2px;
-                font-size: 0.68rem;
-            }
-            tbody td input.input-note {
-                width: 80px;
-            }
-            .chart-wrapper {
-                min-height: 220px;
-                padding: 8px;
-            }
-            .chart-wrapper canvas {
-                max-height: 240px;
-            }
-            .modal {
-                width: 95%;
-                padding: 20px 16px;
-                border-radius: var(--radius-lg);
-            }
-        }
-        @media (max-width: 400px) {
-            .summary-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-            .summary-item {
-                padding: 10px 8px;
-            }
-            .summary-value {
-                font-size: 1rem;
-            }
-            .btn {
-                padding: 7px 10px;
-                font-size: 0.7rem;
-            }
-            table {
-                min-width: 750px;
-            }
+            .header { padding: 10px 12px; gap: 8px; }
+            .app-title { font-size: 1rem; }
+            .beijing-time { font-size: 0.7rem; padding: 4px 10px; }
+            .btn { padding: 8px 14px; font-size: 0.78rem; border-radius: 20px; }
+            .card { padding: 14px 10px; border-radius: var(--radius-md); }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .summary-value { font-size: 1.2rem; }
+            .summary-label { font-size: 0.68rem; }
+            .table-container { border-radius: var(--radius-sm); }
+            table { min-width: 900px; font-size: 0.7rem; }
+            thead th { padding: 8px 4px; font-size: 0.65rem; }
+            tbody td { padding: 7px 3px; font-size: 0.68rem; }
+            tbody td input { width: 55px; padding: 5px 2px; font-size: 0.68rem; }
+            tbody td input.input-note { width: 80px; }
+            .chart-wrapper { min-height: 220px; padding: 8px; }
         }
     </style>
 </head>
 <body>
-
-    <!-- ==================== HEADER ==================== -->
     <header class="header">
         <div class="header-left">
             <div class="logo-icon">⚽</div>
@@ -778,58 +638,31 @@
             <span class="badge badge-guest" id="roleBadge">👁 游客模式</span>
             <button class="btn btn-login btn-sm" id="btnLogin" onclick="openLoginModal()">🔐 管理员登录</button>
             <button class="btn btn-logout btn-sm" id="btnLogout" onclick="logout()" style="display:none;">🚪 退出</button>
-            <button class="btn btn-save btn-sm" id="btnCloudSave" onclick="manualSave()" title="一键云保存">☁️ 云保存</button>
+            <button class="btn btn-save btn-sm" id="btnCloudSave" onclick="manualSave()">☁️ 云保存</button>
         </div>
     </header>
 
-    <!-- ==================== MAIN CONTENT ==================== -->
-    <div class="main-container" id="mainContainer">
-
+    <div class="main-container">
         <!-- 店铺总结卡片 -->
-        <div class="card" id="summaryCard">
+        <div class="card">
             <div class="card-header">
                 <span class="card-title"><span class="icon-dot"></span>📊 店铺总结（当月）</span>
-                <span style="font-size:0.75rem;color:var(--text-muted);">数据实时计算</span>
             </div>
             <div class="summary-grid" id="summaryGrid">
-                <div class="summary-item">
-                    <div class="summary-label">实际结余</div>
-                    <div class="summary-value neutral" id="sumActualBalance">¥0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">店铺总兑奖</div>
-                    <div class="summary-value" id="sumTotalPrize">¥0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">店铺总实际业绩</div>
-                    <div class="summary-value neutral" id="sumTotalActualPerf">¥0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">店铺总支出</div>
-                    <div class="summary-value" id="sumTotalExpense">¥0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">所有员工总业绩</div>
-                    <div class="summary-value neutral" id="sumTotalPerf">¥0</div>
-                </div>
+                <div class="summary-item"><div class="summary-label">实际结余</div><div class="summary-value neutral" id="sumActualBalance">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">店铺总兑奖</div><div class="summary-value" id="sumTotalPrize">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">店铺总实际业绩</div><div class="summary-value neutral" id="sumTotalActualPerf">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">店铺总支出</div><div class="summary-value" id="sumTotalExpense">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">所有员工总业绩</div><div class="summary-value neutral" id="sumTotalPerf">¥0</div></div>
             </div>
         </div>
 
-        <!-- 图表区域 -->
-        <div class="card" id="chartCard">
-            <div class="card-header">
-                <span class="card-title"><span class="icon-dot"></span>📈 数据图表概览</span>
-                <span style="font-size:0.7rem;color:var(--text-muted);">当月趋势</span>
-            </div>
+        <!-- 图表卡片 -->
+        <div class="card">
+            <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📈 数据图表概览</span></div>
             <div class="chart-grid">
-                <div class="chart-wrapper">
-                    <div class="chart-title-sm">📊 员工当月业绩对比</div>
-                    <canvas id="chartEmployeePerf"></canvas>
-                </div>
-                <div class="chart-wrapper">
-                    <div class="chart-title-sm">📉 店铺每日业绩趋势</div>
-                    <canvas id="chartDailyTrend"></canvas>
-                </div>
+                <div class="chart-wrapper"><div class="chart-title-sm">📊 员工当月业绩对比</div><canvas id="chartEmployeePerf"></canvas></div>
+                <div class="chart-wrapper"><div class="chart-title-sm">📉 店铺每日业绩趋势</div><canvas id="chartDailyTrend"></canvas></div>
             </div>
         </div>
 
@@ -848,34 +681,20 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th>员工姓名</th>
-                            <th>今日开单人数</th>
-                            <th>新人开单人数</th>
-                            <th>员工今日业绩</th>
-                            <th>今日兑奖金额</th>
-                            <th>实际业绩</th>
-                            <th>当月总业绩</th>
-                            <th>支出费用</th>
-                            <th>支出备注</th>
-                            <th>今日结余</th>
-                            <th>备注</th>
-                            <th>操作</th>
+                            <th>员工姓名</th><th>今日开单人数</th><th>新人开单人数</th><th>员工今日业绩</th>
+                            <th>今日兑奖金额</th><th>实际业绩</th><th>当月总业绩</th><th>支出费用</th>
+                            <th>支出备注</th><th>今日结余</th><th>备注</th><th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr class="empty-state">
-                            <td colspan="12">
-                                <div class="icon">📭</div>
-                                <p>暂无记录，请添加员工或选择日期</p>
-                            </td>
-                        </tr>
+                        <tr class="empty-state"><td colspan="12"><div class="icon">📭</div><p>暂无记录</p></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- ==================== 登录弹窗 ==================== -->
+    <!-- 登录弹窗 -->
     <div class="modal-overlay" id="loginModalOverlay" style="display:none;">
         <div class="modal">
             <h3>🔐 管理员登录</h3>
@@ -888,20 +707,16 @@
         </div>
     </div>
 
-    <!-- ==================== 员工管理弹窗 ==================== -->
+    <!-- 员工管理弹窗 -->
     <div class="modal-overlay" id="employeeModalOverlay" style="display:none;">
         <div class="modal" style="max-width:500px;">
             <h3>👥 员工管理</h3>
             <div style="display:flex;gap:8px;margin-bottom:14px;">
                 <input type="text" id="newEmployeeName" placeholder="新员工姓名" style="flex:1;">
-                <button class="btn-modal primary" onclick="addEmployee()" style="white-space:nowrap;">➕ 添加</button>
+                <button class="btn-modal primary" onclick="addEmployee()">➕ 添加</button>
             </div>
-            <div style="max-height:250px;overflow-y:auto;" id="employeeListContainer">
-                <p style="color:var(--text-muted);text-align:center;">加载中...</p>
-            </div>
-            <div class="modal-buttons" style="margin-top:14px;">
-                <button class="btn-modal secondary" onclick="closeEmployeeModal()">关 闭</button>
-            </div>
+            <div style="max-height:250px;overflow-y:auto;" id="employeeListContainer"><p style="color:var(--text-muted);text-align:center;">加载中...</p></div>
+            <div class="modal-buttons" style="margin-top:14px;"><button class="btn-modal secondary" onclick="closeEmployeeModal()">关 闭</button></div>
         </div>
     </div>
 
@@ -909,9 +724,8 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="module">
-        // ==================== FIREBASE INIT ====================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, deleteDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
@@ -922,20 +736,20 @@
             appId: "1:449619714205:web:10ee25d0dc5022d783f474",
             measurementId: "G-E1B32ZW69Y"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ==================== GLOBAL STATE ====================
+        // 全局状态
         let isAdmin = false;
         let isDirty = false;
         let autoSaveTimer = null;
-        let allEmployees = []; // {id, name}
-        let currentRecords = []; // 当前日期下的记录
-        let currentDateStr = ''; // YYYY-MM-DD 北京时间
+        let allEmployees = [];
+        let currentRecords = [];           // 当前选中日期的记录
+        let monthRecordsCache = [];       // 当月所有日期的记录缓存（用于准确计算累计值）
+        let currentDateStr = '';
         let charts = { employeePerf: null, dailyTrend: null };
 
-        // ==================== DOM REFS ====================
+        // DOM元素
         const $beijingTime = document.getElementById('beijingTime');
         const $saveStatusDot = document.getElementById('saveStatusDot');
         const $saveStatusText = document.getElementById('saveStatusText');
@@ -946,7 +760,6 @@
         const $dataTableCard = document.getElementById('dataTableCard');
         const $tableBody = document.getElementById('tableBody');
         const $selectedDate = document.getElementById('selectedDate');
-        const $summaryGrid = document.getElementById('summaryGrid');
         const $loginModalOverlay = document.getElementById('loginModalOverlay');
         const $loginPassword = document.getElementById('loginPassword');
         const $employeeModalOverlay = document.getElementById('employeeModalOverlay');
@@ -954,7 +767,7 @@
         const $employeeListContainer = document.getElementById('employeeListContainer');
         const $toastContainer = document.getElementById('toastContainer');
 
-        // ==================== UTILS ====================
+        // 工具函数
         function getBeijingDate() {
             const now = new Date();
             const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
@@ -963,7 +776,6 @@
             const d = String(beijing.getDate()).padStart(2, '0');
             return `${y}-${m}-${d}`;
         }
-
         function getBeijingDateTimeStr() {
             const now = new Date();
             const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
@@ -975,108 +787,86 @@
             const s = String(beijing.getSeconds()).padStart(2, '0');
             return `${y}-${m}-${d} ${h}:${min}:${s}`;
         }
-
         function updateBeijingTimeDisplay() {
             $beijingTime.textContent = '🕐 ' + getBeijingDateTimeStr() + ' (北京时间)';
         }
-
-        function getMonthKey(dateStr) {
-            return dateStr.substring(0, 7); // YYYY-MM
-        }
-
+        function getMonthKey(dateStr) { return dateStr.substring(0, 7); }
         function formatMoney(val) {
             const num = parseFloat(val);
             if (isNaN(num)) return '¥0';
             return '¥' + num.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
         }
-
-        function parseNum(val) {
-            const n = parseFloat(val);
-            return isNaN(n) ? 0 : n;
-        }
-
+        function parseNum(val) { const n = parseFloat(val); return isNaN(n) ? 0 : n; }
         function showToast(msg, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = msg;
             $toastContainer.appendChild(toast);
-            setTimeout(() => {
-                if (toast.parentNode) toast.parentNode.removeChild(toast);
-            }, 3000);
+            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
         }
 
-        // ==================== FIREBASE OPERATIONS ====================
+        // 数据库操作
         async function loadEmployees() {
             try {
                 const snap = await getDocs(collection(db, 'employees'));
                 allEmployees = [];
-                snap.forEach(doc => {
-                    allEmployees.push({ id: doc.id, name: doc.data().name });
-                });
+                snap.forEach(doc => allEmployees.push({ id: doc.id, name: doc.data().name }));
                 allEmployees.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
-            } catch (e) {
-                console.error('加载员工失败:', e);
-                allEmployees = [];
-            }
+            } catch (e) { console.error('加载员工失败:', e); allEmployees = []; }
         }
-
         async function addEmployeeToDB(name) {
             const docRef = doc(collection(db, 'employees'));
             await setDoc(docRef, { name: name.trim(), createdAt: getBeijingDateTimeStr() });
             await loadEmployees();
         }
-
         async function updateEmployeeNameDB(empId, newName) {
-            await setDoc(doc(db, 'employees', empId), { name: newName.trim(), updatedAt: getBeijingDateTimeStr() },
-                { merge: true });
+            await setDoc(doc(db, 'employees', empId), { name: newName.trim(), updatedAt: getBeijingDateTimeStr() }, { merge: true });
             await loadEmployees();
         }
-
         async function deleteEmployeeDB(empId) {
             await deleteDoc(doc(db, 'employees', empId));
-            // 同时删除该员工的所有记录
             const snap = await getDocs(collection(db, 'dailyRecords'));
             const batch = writeBatch(db);
-            snap.forEach(d => {
-                if (d.data().employeeId === empId) {
-                    batch.delete(doc(db, 'dailyRecords', d.id));
-                }
-            });
+            snap.forEach(d => { if (d.data().employeeId === empId) batch.delete(doc(db, 'dailyRecords', d.id)); });
             await batch.commit();
             await loadEmployees();
         }
 
+        // 加载当月所有记录到缓存
+        async function loadMonthRecordsIntoCache(monthKey) {
+            try {
+                const allDocs = await getDocs(collection(db, 'dailyRecords'));
+                monthRecordsCache = [];
+                allDocs.forEach(d => {
+                    const data = d.data();
+                    if (data.date && data.date.startsWith(monthKey)) {
+                        monthRecordsCache.push({ id: d.id, ...data });
+                    }
+                });
+            } catch (e) {
+                console.error('加载当月记录失败:', e);
+                monthRecordsCache = [];
+            }
+        }
+
+        // 加载指定日期的记录（并刷新当月缓存）
         async function loadRecordsForDate(dateStr) {
             if (!dateStr) dateStr = currentDateStr;
             if (!dateStr) return;
             currentDateStr = dateStr;
             $selectedDate.value = dateStr;
-            currentRecords = [];
-            try {
-                const q = query(collection(db, 'dailyRecords'), where('date', '==', dateStr));
-                const snap = await getDocs(q);
-                snap.forEach(d => {
-                    currentRecords.push({ id: d.id, ...d.data() });
-                });
-            } catch (e) {
-                console.error('加载记录失败:', e);
-                currentRecords = [];
-            }
+            // 刷新当月缓存
+            await loadMonthRecordsIntoCache(getMonthKey(dateStr));
+            // 从缓存中筛选当前日期的记录
+            currentRecords = monthRecordsCache.filter(r => r.date === dateStr);
             renderTable();
             updateAllCalculations();
             updateCharts();
         }
 
-        async function saveRecord(recordData) {
-            const docId = recordData.id || `${recordData.date}_${recordData.employeeId}`;
-            const ref = doc(db, 'dailyRecords', docId);
-            await setDoc(ref, recordData, { merge: true });
-            isDirty = false;
-            updateSaveStatus('saved');
-        }
-
+        // 保存所有当前记录（并刷新缓存）
         async function saveAllCurrentRecords() {
-            if (currentRecords.length === 0 && !isDirty) return;
+            if (!isAdmin) return;
             const batch = writeBatch(db);
             const savedIds = new Set();
             for (const rec of currentRecords) {
@@ -1099,100 +889,50 @@
                 }, { merge: true });
                 savedIds.add(docId);
             }
-            // 删除不在当前记录中的该日期的旧记录
+            // 清理该日期下不再存在的记录
             const snap = await getDocs(query(collection(db, 'dailyRecords'), where('date', '==', currentDateStr)));
             snap.forEach(d => {
-                if (!savedIds.has(d.id) && currentRecords.findIndex(r => (r.id || `${r.date}_${r.employeeId}`) ===
-                        d.id) === -1) {
-                    // 检查是否应该删除（员工已不在当前记录中）
-                    const stillExists = currentRecords.some(r => (r.id || `${r.date}_${r.employeeId}`) === d
-                        .id);
-                    if (!stillExists && d.data().date === currentDateStr) {
-                        batch.delete(doc(db, 'dailyRecords', d.id));
-                    }
+                if (!savedIds.has(d.id) && !currentRecords.some(r => (r.id || `${r.date}_${r.employeeId}`) === d.id)) {
+                    batch.delete(doc(db, 'dailyRecords', d.id));
                 }
             });
             await batch.commit();
+            // 保存后刷新当月缓存，确保后续计算基于最新数据
+            await loadMonthRecordsIntoCache(getMonthKey(currentDateStr));
             isDirty = false;
             updateSaveStatus('saved');
             showToast('✅ 数据已云保存成功', 'success');
-            await loadRecordsForDate(currentDateStr);
-        }
-
-        async function loadMonthRecords(monthKey) {
-            const records = [];
-            try {
-                const snap = await getDocs(collection(db, 'dailyRecords'));
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data.date && data.date.startsWith(monthKey)) {
-                        records.push({ id: d.id, ...data });
-                    }
-                });
-            } catch (e) {
-                console.error('加载月度记录失败:', e);
-            }
-            return records;
         }
 
         async function getAdminPassword() {
             try {
                 const docSnap = await getDoc(doc(db, 'settings', 'admin'));
-                if (docSnap.exists()) {
-                    return docSnap.data().password || 'admin123';
-                }
-                // 初始化默认密码
+                if (docSnap.exists()) return docSnap.data().password || 'admin123';
                 await setDoc(doc(db, 'settings', 'admin'), { password: 'admin123' });
                 return 'admin123';
-            } catch (e) {
-                console.error('获取密码失败:', e);
-                return 'admin123';
-            }
+            } catch (e) { return 'admin123'; }
         }
 
-        // ==================== UI UPDATE ====================
+        // UI 更新
         function updateSaveStatus(status) {
             $saveStatusDot.className = 'status-dot ' + status;
-            if (status === 'saved') {
-                $saveStatusText.textContent = '已保存';
-                $btnCloudSave.textContent = '☁️ 云保存';
-                $btnCloudSave.classList.remove('auto-saving');
-            } else if (status === 'unsaved') {
-                $saveStatusText.textContent = '未保存';
-                $btnCloudSave.textContent = '☁️ 云保存';
-                $btnCloudSave.classList.remove('auto-saving');
-            } else if (status === 'auto-saving') {
-                $saveStatusText.textContent = '自动保存中...';
-                $btnCloudSave.textContent = '🔄 保存中';
-                $btnCloudSave.classList.add('auto-saving');
-            } else if (status === 'error') {
-                $saveStatusText.textContent = '保存失败';
-                $btnCloudSave.textContent = '⚠️ 重试';
-                $btnCloudSave.classList.remove('auto-saving');
-            }
+            if (status === 'saved') { $saveStatusText.textContent = '已保存'; $btnCloudSave.textContent = '☁️ 云保存'; $btnCloudSave.classList.remove('auto-saving'); }
+            else if (status === 'unsaved') { $saveStatusText.textContent = '未保存'; $btnCloudSave.textContent = '☁️ 云保存'; $btnCloudSave.classList.remove('auto-saving'); }
+            else if (status === 'auto-saving') { $saveStatusText.textContent = '自动保存中...'; $btnCloudSave.textContent = '🔄 保存中'; $btnCloudSave.classList.add('auto-saving'); }
+            else if (status === 'error') { $saveStatusText.textContent = '保存失败'; $btnCloudSave.textContent = '⚠️ 重试'; $btnCloudSave.classList.remove('auto-saving'); }
         }
-
         function markDirty() {
             if (!isAdmin) return;
             isDirty = true;
             updateSaveStatus('unsaved');
-            resetAutoSaveTimer();
-        }
-
-        function resetAutoSaveTimer() {
             if (autoSaveTimer) clearTimeout(autoSaveTimer);
             autoSaveTimer = setTimeout(() => {
                 if (isDirty && isAdmin) {
                     updateSaveStatus('auto-saving');
-                    saveAllCurrentRecords().then(() => {
-                        updateSaveStatus('saved');
-                    }).catch(() => {
-                        updateSaveStatus('error');
-                    });
+                    saveAllCurrentRecords().catch(() => updateSaveStatus('error'));
                 }
             }, 5000);
         }
-
         function updateAdminUI() {
             if (isAdmin) {
                 $dataTableCard.style.display = '';
@@ -1209,47 +949,35 @@
             }
         }
 
-        // ==================== TABLE RENDERING ====================
+        // 基于当月缓存计算员工的当月总业绩
+        function getEmployeeMonthTotal(empId) {
+            let total = 0;
+            monthRecordsCache.forEach(r => {
+                if (r.employeeId === empId) total += parseNum(r.performance);
+            });
+            return total;
+        }
+
+        // 表格渲染
         function renderTable() {
             if (!isAdmin) {
-                $tableBody.innerHTML = `
-                <tr class="empty-state">
-                  <td colspan="12">
-                    <div class="icon">🔒</div>
-                    <p>请登录管理员账号以查看和编辑数据</p>
-                  </td>
-                </tr>`;
+                $tableBody.innerHTML = `<tr class="empty-state"><td colspan="12"><div class="icon">🔒</div><p>请登录管理员账号</p></td></tr>`;
                 return;
             }
-            if (currentRecords.length === 0 && allEmployees.length === 0) {
-                $tableBody.innerHTML = `
-                <tr class="empty-state">
-                  <td colspan="12">
-                    <div class="icon">📭</div>
-                    <p>暂无员工，请先添加员工，然后选择日期添加记录</p>
-                  </td>
-                </tr>`;
+            if (allEmployees.length === 0) {
+                $tableBody.innerHTML = `<tr class="empty-state"><td colspan="12"><div class="icon">📭</div><p>暂无员工，请先添加员工</p></td></tr>`;
                 return;
             }
-            // 确保每个员工在当前日期都有记录行
             const recordMap = {};
             currentRecords.forEach(r => { recordMap[r.employeeId] = r; });
-
             let html = '';
             allEmployees.forEach(emp => {
                 const rec = recordMap[emp.id] || {
                     date: currentDateStr,
                     employeeId: emp.id,
                     employeeName: emp.name,
-                    orderCount: 0,
-                    newCustomerCount: 0,
-                    performance: 0,
-                    prizeAmount: 0,
-                    actualPerformance: 0,
-                    expense: 0,
-                    expenseNote: '',
-                    balance: 0,
-                    note: '',
+                    orderCount: 0, newCustomerCount: 0, performance: 0, prizeAmount: 0,
+                    actualPerformance: 0, expense: 0, expenseNote: '', balance: 0, note: ''
                 };
                 const orderCount = parseNum(rec.orderCount);
                 const newCust = parseNum(rec.newCustomerCount);
@@ -1258,95 +986,55 @@
                 const actualPerf = perf - prize;
                 const expense = parseNum(rec.expense);
                 const balance = actualPerf - expense;
-                const monthTotalPerf = computeEmployeeMonthTotal(emp.id, perf);
+                const monthTotal = getEmployeeMonthTotal(emp.id); // 使用缓存计算
 
                 html += `
                 <tr data-employee-id="${emp.id}" data-record-id="${rec.id || ''}">
                   <td><strong>${emp.name}</strong></td>
-                  <td><input type="number" value="${orderCount}" data-field="orderCount" step="1" min="0" onchange="onCellChange(this)" onfocus="this.select()"></td>
-                  <td><input type="number" value="${newCust}" data-field="newCustomerCount" step="1" min="0" onchange="onCellChange(this)" onfocus="this.select()"></td>
+                  <td><input type="number" value="${orderCount}" data-field="orderCount" step="1" onchange="onCellChange(this)" onfocus="this.select()"></td>
+                  <td><input type="number" value="${newCust}" data-field="newCustomerCount" step="1" onchange="onCellChange(this)" onfocus="this.select()"></td>
                   <td><input type="number" value="${perf}" data-field="performance" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
                   <td><input type="number" value="${prize}" data-field="prizeAmount" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
                   <td class="${actualPerf < 0 ? 'negative' : ''}">${formatMoney(actualPerf)}</td>
-                  <td><strong>${formatMoney(monthTotalPerf)}</strong></td>
+                  <td><strong>${formatMoney(monthTotal)}</strong></td>
                   <td><input type="number" value="${expense}" data-field="expense" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
                   <td><input type="text" value="${rec.expenseNote || ''}" data-field="expenseNote" class="input-note" onchange="onCellChange(this)" placeholder="支出备注"></td>
                   <td class="${balance < 0 ? 'negative' : ''}">${formatMoney(balance)}</td>
                   <td><input type="text" value="${rec.note || ''}" data-field="note" class="input-note" onchange="onCellChange(this)" placeholder="备注"></td>
-                  <td>
-                    <button class="btn-table danger" onclick="deleteRecordRow(this)" title="删除此记录">🗑</button>
-                  </td>
+                  <td><button class="btn-table danger" onclick="deleteRecordRow(this)">🗑</button></td>
                 </tr>`;
             });
             $tableBody.innerHTML = html;
         }
 
-        function computeEmployeeMonthTotal(empId, currentDayPerf) {
-            const monthKey = getMonthKey(currentDateStr);
-            let total = 0;
-            // 从当前记录中累加当月其他日期的业绩
-            currentRecords.forEach(r => {
-                if (r.employeeId === empId && r.date && r.date.startsWith(monthKey)) {
-                    total += parseNum(r.performance);
-                }
-            });
-            // 如果当前记录中该员工在当月没有其他记录，total就是0，但当前日期业绩需要计入
-            // 实际上这里用于表格显示当月总业绩，需要累加当月所有记录
-            // 简化处理：从所有已加载的当月记录中计算
-            return total;
-        }
-
-        // 更准确的当月总业绩计算（需要查询当月所有记录）
-        async function getEmployeeMonthTotalAccurate(empId) {
-            const monthKey = getMonthKey(currentDateStr);
-            const allMonthRecords = await loadMonthRecords(monthKey);
-            let total = 0;
-            allMonthRecords.forEach(r => {
-                if (r.employeeId === empId) {
-                    total += parseNum(r.performance);
-                }
-            });
-            return total;
-        }
-
+        // 单元格修改处理（立即更新当前记录，并标记脏数据）
         window.onCellChange = function(inputEl) {
             if (!isAdmin) return;
             const row = inputEl.closest('tr');
             const empId = row.dataset.employeeId;
             const field = inputEl.dataset.field;
             const value = inputEl.value;
-
-            // 更新或创建记录
             let rec = currentRecords.find(r => r.employeeId === empId);
             if (!rec) {
                 const emp = allEmployees.find(e => e.id === empId);
-                rec = {
-                    date: currentDateStr,
-                    employeeId: empId,
-                    employeeName: emp ? emp.name : '',
-                    orderCount: 0,
-                    newCustomerCount: 0,
-                    performance: 0,
-                    prizeAmount: 0,
-                    actualPerformance: 0,
-                    expense: 0,
-                    expenseNote: '',
-                    balance: 0,
-                    note: '',
-                };
+                rec = { date: currentDateStr, employeeId: empId, employeeName: emp ? emp.name : '',
+                    orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0, actualPerformance:0,
+                    expense:0, expenseNote:'', balance:0, note:'' };
                 currentRecords.push(rec);
             }
-            if (field === 'orderCount' || field === 'newCustomerCount') {
-                rec[field] = parseInt(value) || 0;
-            } else if (field === 'performance' || field === 'prizeAmount' || field === 'expense') {
-                rec[field] = parseFloat(value) || 0;
-            } else {
-                rec[field] = value;
-            }
-            // 重新计算
+            if (field === 'orderCount' || field === 'newCustomerCount') rec[field] = parseInt(value) || 0;
+            else if (field === 'performance' || field === 'prizeAmount' || field === 'expense') rec[field] = parseFloat(value) || 0;
+            else rec[field] = value;
             rec.actualPerformance = parseNum(rec.performance) - parseNum(rec.prizeAmount);
             rec.balance = rec.actualPerformance - parseNum(rec.expense);
             markDirty();
+            // 修改后立即更新缓存中的该记录（若有），并刷新界面
+            const cacheIdx = monthRecordsCache.findIndex(r => r.employeeId === empId && r.date === currentDateStr);
+            if (cacheIdx >= 0) {
+                Object.assign(monthRecordsCache[cacheIdx], rec);
+            } else {
+                monthRecordsCache.push({...rec});
+            }
             renderTable();
             updateAllCalculations();
             updateCharts();
@@ -1358,450 +1046,200 @@
             const row = btn.closest('tr');
             const empId = row.dataset.employeeId;
             currentRecords = currentRecords.filter(r => r.employeeId !== empId);
+            // 从缓存中移除
+            monthRecordsCache = monthRecordsCache.filter(r => !(r.employeeId === empId && r.date === currentDateStr));
             markDirty();
             renderTable();
             updateAllCalculations();
             updateCharts();
-            showToast('记录已标记删除，请点击云保存', 'info');
         };
 
         window.addEmployeeRow = function() {
             if (!isAdmin) return;
-            if (allEmployees.length === 0) {
-                showToast('请先添加员工', 'error');
-                openEmployeeManageModal();
-                return;
-            }
-            // 检查是否所有员工都已经有记录
-            const existingEmpIds = new Set(currentRecords.map(r => r.employeeId));
-            const missingEmp = allEmployees.find(e => !existingEmpIds.has(e.id));
+            if (allEmployees.length === 0) { openEmployeeManageModal(); return; }
+            const existingIds = new Set(currentRecords.map(r => r.employeeId));
+            const missingEmp = allEmployees.find(e => !existingIds.has(e.id));
             if (missingEmp) {
-                const newRec = {
-                    date: currentDateStr,
-                    employeeId: missingEmp.id,
-                    employeeName: missingEmp.name,
-                    orderCount: 0,
-                    newCustomerCount: 0,
-                    performance: 0,
-                    prizeAmount: 0,
-                    actualPerformance: 0,
-                    expense: 0,
-                    expenseNote: '',
-                    balance: 0,
-                    note: '',
-                };
+                const newRec = { date: currentDateStr, employeeId: missingEmp.id, employeeName: missingEmp.name,
+                    orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0, actualPerformance:0,
+                    expense:0, expenseNote:'', balance:0, note:'' };
                 currentRecords.push(newRec);
+                monthRecordsCache.push({...newRec});
                 markDirty();
                 renderTable();
                 updateAllCalculations();
                 updateCharts();
-            } else {
-                showToast('所有员工已有当日记录', 'info');
-            }
+            } else { showToast('所有员工已有当日记录', 'info'); }
         };
 
-        // ==================== SUMMARY CALCULATIONS ====================
-        async function updateAllCalculations() {
-            const monthKey = getMonthKey(currentDateStr);
-            const allMonthRecords = await loadMonthRecords(monthKey);
-
-            // 所有员工当月总业绩（累加每日performance）
-            let totalAllPerf = 0;
-            let totalPrize = 0;
-            let totalExpense = 0;
-            let totalActualPerf = 0;
-            // 按日期分组计算
-            const dateGroup = {};
-            allMonthRecords.forEach(r => {
-                const d = r.date;
-                if (!dateGroup[d]) dateGroup[d] = { perf: 0, prize: 0, expense: 0, actualPerf: 0, balance: 0 };
-                dateGroup[d].perf += parseNum(r.performance);
-                dateGroup[d].prize += parseNum(r.prizeAmount);
-                dateGroup[d].expense += parseNum(r.expense);
-                dateGroup[d].actualPerf += parseNum(r.actualPerformance);
-                dateGroup[d].balance += parseNum(r.balance);
+        // 店铺总结计算（基于缓存）
+        function updateAllCalculations() {
+            let totalPerf = 0, totalPrize = 0, totalExpense = 0, runningBalance = 0;
+            const dateGroups = {};
+            monthRecordsCache.forEach(r => {
+                if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, expense:0, actual:0, balance:0 };
+                dateGroups[r.date].perf += parseNum(r.performance);
+                dateGroups[r.date].prize += parseNum(r.prizeAmount);
+                dateGroups[r.date].expense += parseNum(r.expense);
+                dateGroups[r.date].actual += parseNum(r.actualPerformance);
+                dateGroups[r.date].balance += parseNum(r.balance);
             });
-
-            // 累计当月
-            const sortedDates = Object.keys(dateGroup).sort();
-            let runningBalance = 0;
-            for (const d of sortedDates) {
-                totalAllPerf += dateGroup[d].perf;
-                totalPrize += dateGroup[d].prize;
-                totalExpense += dateGroup[d].expense;
-                totalActualPerf += dateGroup[d].actualPerf;
-                runningBalance += dateGroup[d].balance;
-            }
-
-            const actualBalance = runningBalance;
-            const storeTotalActualPerf = totalAllPerf - totalPrize;
-
-            // 更新UI
-            document.getElementById('sumActualBalance').textContent = formatMoney(actualBalance);
-            document.getElementById('sumActualBalance').className = 'summary-value ' + (actualBalance < 0 ? 'negative' :
-                actualBalance > 0 ? 'positive' : 'neutral');
+            const sortedDates = Object.keys(dateGroups).sort();
+            sortedDates.forEach(d => {
+                totalPerf += dateGroups[d].perf;
+                totalPrize += dateGroups[d].prize;
+                totalExpense += dateGroups[d].expense;
+                runningBalance += dateGroups[d].balance;
+            });
+            const storeActualPerf = totalPerf - totalPrize;
+            document.getElementById('sumActualBalance').textContent = formatMoney(runningBalance);
+            document.getElementById('sumActualBalance').className = 'summary-value ' + (runningBalance < 0 ? 'negative' : runningBalance > 0 ? 'positive' : 'neutral');
             document.getElementById('sumTotalPrize').textContent = formatMoney(totalPrize);
-            document.getElementById('sumTotalPrize').className = 'summary-value ' + (totalPrize > 0 ? '' : 'neutral');
-            document.getElementById('sumTotalActualPerf').textContent = formatMoney(storeTotalActualPerf);
-            document.getElementById('sumTotalActualPerf').className = 'summary-value ' + (storeTotalActualPerf < 0 ?
-                'negative' : storeTotalActualPerf > 0 ? 'positive' : 'neutral');
+            document.getElementById('sumTotalActualPerf').textContent = formatMoney(storeActualPerf);
+            document.getElementById('sumTotalActualPerf').className = 'summary-value ' + (storeActualPerf < 0 ? 'negative' : storeActualPerf > 0 ? 'positive' : 'neutral');
             document.getElementById('sumTotalExpense').textContent = formatMoney(totalExpense);
-            document.getElementById('sumTotalExpense').className = 'summary-value ' + (totalExpense > 0 ? '' : 'neutral');
-            document.getElementById('sumTotalPerf').textContent = formatMoney(totalAllPerf);
-            document.getElementById('sumTotalPerf').className = 'summary-value ' + (totalAllPerf > 0 ? 'positive' :
-                'neutral');
+            document.getElementById('sumTotalPerf').textContent = formatMoney(totalPerf);
         }
 
-        // ==================== CHARTS ====================
-        async function updateCharts() {
-            const monthKey = getMonthKey(currentDateStr);
-            const allMonthRecords = await loadMonthRecords(monthKey);
-
-            // Chart 1: 员工当月业绩对比
-            const empPerfMap = {};
-            allEmployees.forEach(e => { empPerfMap[e.id] = { name: e.name, perf: 0 }; });
-            allMonthRecords.forEach(r => {
-                if (empPerfMap[r.employeeId]) {
-                    empPerfMap[r.employeeId].perf += parseNum(r.performance);
-                }
+        // 图表更新
+        function updateCharts() {
+            const empPerf = {};
+            allEmployees.forEach(e => { empPerf[e.id] = { name: e.name, perf: 0 }; });
+            monthRecordsCache.forEach(r => {
+                if (empPerf[r.employeeId]) empPerf[r.employeeId].perf += parseNum(r.performance);
             });
-            const empLabels = Object.values(empPerfMap).map(e => e.name);
-            const empData = Object.values(empPerfMap).map(e => e.perf);
-            const empColors = empData.map(v => v < 0 ? 'rgba(255,59,92,0.8)' : 'rgba(179,71,234,0.7)');
-
+            const empLabels = Object.values(empPerf).map(e => e.name);
+            const empData = Object.values(empPerf).map(e => e.perf);
             const ctx1 = document.getElementById('chartEmployeePerf').getContext('2d');
             if (charts.employeePerf) charts.employeePerf.destroy();
             charts.employeePerf = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: empLabels.length > 0 ? empLabels : ['暂无数据'],
+                    labels: empLabels.length ? empLabels : ['暂无数据'],
                     datasets: [{
-                        label: '当月总业绩',
-                        data: empData.length > 0 ? empData : [0],
-                        backgroundColor: empColors,
-                        borderColor: empColors.map(c => c.replace('0.7', '1').replace('0.8', '1')),
-                        borderWidth: 1.5,
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    }],
+                        label: '当月总业绩', data: empData.length ? empData : [0],
+                        backgroundColor: empData.map(v => v < 0 ? 'rgba(255,59,92,0.8)' : 'rgba(179,71,234,0.7)'),
+                        borderColor: empData.map(v => v < 0 ? '#ff3b5c' : '#b347ea'),
+                        borderWidth: 1.5, borderRadius: 8
+                    }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: true, labels: { color: '#a0a0b8', font: { size: 11 } } },
-                    },
+                    responsive: true, maintainAspectRatio: true,
+                    plugins: { legend: { labels: { color: '#a0a0b8' } } },
                     scales: {
-                        x: {
-                            ticks: { color: '#8a8a9a', font: { size: 10 }, maxRotation: 45 },
-                            grid: { color: 'rgba(255,255,255,0.03)' },
-                        },
-                        y: {
-                            ticks: {
-                                color: '#8a8a9a',
-                                font: { size: 10 },
-                                callback: v => formatMoney(v),
-                            },
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                        },
-                    },
-                },
+                        x: { ticks: { color: '#8a8a9a' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+                        y: { ticks: { color: '#8a8a9a', callback: v => formatMoney(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
             });
-
-            // Chart 2: 店铺每日业绩趋势
-            const dateGroup = {};
-            allMonthRecords.forEach(r => {
-                if (!dateGroup[r.date]) dateGroup[r.date] = { perf: 0, prize: 0, balance: 0 };
-                dateGroup[r.date].perf += parseNum(r.performance);
-                dateGroup[r.date].prize += parseNum(r.prizeAmount);
-                dateGroup[r.date].balance += parseNum(r.balance);
+            const dateGroups = {};
+            monthRecordsCache.forEach(r => {
+                if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, balance:0 };
+                dateGroups[r.date].perf += parseNum(r.performance);
+                dateGroups[r.date].prize += parseNum(r.prizeAmount);
+                dateGroups[r.date].balance += parseNum(r.balance);
             });
-            const sortedDates = Object.keys(dateGroup).sort();
-            const trendLabels = sortedDates.length > 0 ? sortedDates : ['暂无数据'];
-            const trendPerf = sortedDates.map(d => dateGroup[d].perf);
-            const trendPrize = sortedDates.map(d => dateGroup[d].prize);
-            const trendBalance = sortedDates.map(d => dateGroup[d].balance);
-
+            const sortedDates = Object.keys(dateGroups).sort();
             const ctx2 = document.getElementById('chartDailyTrend').getContext('2d');
             if (charts.dailyTrend) charts.dailyTrend.destroy();
             charts.dailyTrend = new Chart(ctx2, {
                 type: 'line',
                 data: {
-                    labels: trendLabels,
+                    labels: sortedDates.length ? sortedDates : ['暂无数据'],
                     datasets: [
-                        {
-                            label: '日总业绩',
-                            data: trendPerf.length > 0 ? trendPerf : [0],
-                            borderColor: '#b347ea',
-                            backgroundColor: 'rgba(179,71,234,0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#b347ea',
-                            borderWidth: 2,
-                        },
-                        {
-                            label: '日总兑奖',
-                            data: trendPrize.length > 0 ? trendPrize : [0],
-                            borderColor: '#ff5c8a',
-                            backgroundColor: 'rgba(255,92,138,0.08)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#ff5c8a',
-                            borderWidth: 2,
-                        },
-                        {
-                            label: '日总结余',
-                            data: trendBalance.length > 0 ? trendBalance : [0],
-                            borderColor: '#00d4f0',
-                            backgroundColor: 'rgba(0,212,240,0.05)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#00d4f0',
-                            borderWidth: 2,
-                            borderDash: [5, 3],
-                        },
-                    ],
+                        { label: '日总业绩', data: sortedDates.map(d => dateGroups[d].perf), borderColor: '#b347ea', backgroundColor: 'rgba(179,71,234,0.1)', fill: true, tension: 0.4, pointRadius: 4 },
+                        { label: '日总兑奖', data: sortedDates.map(d => dateGroups[d].prize), borderColor: '#ff5c8a', backgroundColor: 'rgba(255,92,138,0.08)', fill: true, tension: 0.4, pointRadius: 4 },
+                        { label: '日总结余', data: sortedDates.map(d => dateGroups[d].balance), borderColor: '#00d4f0', borderDash: [5,3], tension: 0.4, pointRadius: 4 }
+                    ]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: true, labels: { color: '#a0a0b8', font: { size: 10 }, usePointStyle: true,
-                                pointStyleWidth: 8 } },
-                    },
+                    plugins: { legend: { labels: { color: '#a0a0b8', usePointStyle: true } } },
                     scales: {
-                        x: {
-                            ticks: { color: '#8a8a9a', font: { size: 9 }, maxRotation: 45 },
-                            grid: { color: 'rgba(255,255,255,0.03)' },
-                        },
-                        y: {
-                            ticks: {
-                                color: '#8a8a9a',
-                                font: { size: 10 },
-                                callback: v => formatMoney(v),
-                            },
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                        },
-                    },
-                },
+                        x: { ticks: { color: '#8a8a9a' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+                        y: { ticks: { color: '#8a8a9a', callback: v => formatMoney(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
             });
         }
 
-        // ==================== MODALS ====================
-        window.openLoginModal = function() {
-            $loginModalOverlay.style.display = 'flex';
-            $loginPassword.value = '';
-            setTimeout(() => $loginPassword.focus(), 150);
-        };
-
-        window.closeLoginModal = function() {
-            $loginModalOverlay.style.display = 'none';
-        };
-
-        window.adminLogin = async function() {
+        // 模态框相关
+        window.openLoginModal = () => { $loginModalOverlay.style.display = 'flex'; $loginPassword.value = ''; $loginPassword.focus(); };
+        window.closeLoginModal = () => { $loginModalOverlay.style.display = 'none'; };
+        window.adminLogin = async () => {
             const pw = $loginPassword.value.trim();
-            const correctPw = await getAdminPassword();
-            if (pw === correctPw) {
-                isAdmin = true;
-                updateAdminUI();
-                closeLoginModal();
+            if (pw === await getAdminPassword()) {
+                isAdmin = true; sessionStorage.setItem('isAdmin', 'true');
+                updateAdminUI(); closeLoginModal();
                 showToast('✅ 管理员登录成功', 'success');
                 await loadEmployees();
                 await loadRecordsForDate(currentDateStr);
-                renderTable();
-                updateAllCalculations();
-                updateCharts();
-                // 持久化登录状态
-                sessionStorage.setItem('isAdmin', 'true');
-            } else {
-                showToast('❌ 密码错误', 'error');
-                $loginPassword.value = '';
-                $loginPassword.focus();
-            }
+            } else { showToast('❌ 密码错误', 'error'); $loginPassword.value = ''; }
         };
-
-        window.logout = function() {
-            isAdmin = false;
-            sessionStorage.removeItem('isAdmin');
-            updateAdminUI();
-            currentRecords = [];
-            renderTable();
-            updateAllCalculations();
-            updateCharts();
+        window.logout = () => {
+            isAdmin = false; sessionStorage.removeItem('isAdmin');
+            updateAdminUI(); currentRecords = []; monthRecordsCache = [];
+            renderTable(); updateAllCalculations(); updateCharts();
             showToast('已退出管理员模式', 'info');
         };
-
-        window.openEmployeeManageModal = function() {
-            if (!isAdmin) return;
-            $employeeModalOverlay.style.display = 'flex';
-            $newEmployeeName.value = '';
-            renderEmployeeList();
-        };
-
-        window.closeEmployeeModal = function() {
-            $employeeModalOverlay.style.display = 'none';
-        };
+        window.openEmployeeManageModal = () => { if(isAdmin) { $employeeModalOverlay.style.display = 'flex'; renderEmployeeList(); } };
+        window.closeEmployeeModal = () => { $employeeModalOverlay.style.display = 'none'; };
 
         function renderEmployeeList() {
-            if (allEmployees.length === 0) {
-                $employeeListContainer.innerHTML =
-                    '<p style="color:var(--text-muted);text-align:center;">暂无员工，请添加</p>';
-                return;
-            }
+            if (!allEmployees.length) { $employeeListContainer.innerHTML = '<p style="color:var(--text-muted);text-align:center;">暂无员工</p>'; return; }
             let html = '';
             allEmployees.forEach(emp => {
-                html += `
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #1e1e30;gap:8px;">
-                  <input type="text" value="${emp.name}" data-emp-id="${emp.id}" class="emp-name-input" style="flex:1;padding:7px 10px;background:var(--bg-input);border:1px solid #2a2a3d;border-radius:6px;color:#e8e8f0;font-size:0.82rem;" onchange="updateEmployeeName(this)">
-                  <button class="btn-table danger" onclick="deleteEmployeeConfirm('${emp.id}')" title="删除员工">🗑</button>
-                </div>`;
+                html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #1e1e30;">
+                    <input type="text" value="${emp.name}" data-emp-id="${emp.id}" class="emp-name-input" style="flex:1;padding:7px 10px;background:var(--bg-input);border:1px solid #2a2a3d;border-radius:6px;color:#e8e8f0;" onchange="updateEmployeeName(this)">
+                    <button class="btn-table danger" onclick="deleteEmployeeConfirm('${emp.id}')">🗑</button></div>`;
             });
             $employeeListContainer.innerHTML = html;
         }
-
-        window.updateEmployeeName = async function(inputEl) {
-            const empId = inputEl.dataset.empId;
-            const newName = inputEl.value.trim();
-            if (!newName) {
-                showToast('姓名不能为空', 'error');
-                renderEmployeeList();
-                return;
-            }
+        window.updateEmployeeName = async (inputEl) => {
+            const empId = inputEl.dataset.empId; const newName = inputEl.value.trim();
+            if (!newName) { showToast('姓名不能为空', 'error'); renderEmployeeList(); return; }
             await updateEmployeeNameDB(empId, newName);
-            showToast('姓名已更新', 'success');
-            renderEmployeeList();
-            renderTable();
-            markDirty();
+            showToast('姓名已更新', 'success'); renderEmployeeList(); renderTable();
         };
-
-        window.deleteEmployeeConfirm = async function(empId) {
-            if (!confirm('确定删除该员工及其所有记录吗？此操作不可撤销！')) return;
+        window.deleteEmployeeConfirm = async (empId) => {
+            if (!confirm('确定删除该员工及其所有记录吗？')) return;
             await deleteEmployeeDB(empId);
             currentRecords = currentRecords.filter(r => r.employeeId !== empId);
-            showToast('员工已删除', 'info');
-            renderEmployeeList();
-            renderTable();
-            markDirty();
-            updateAllCalculations();
-            updateCharts();
+            monthRecordsCache = monthRecordsCache.filter(r => r.employeeId !== empId);
+            renderEmployeeList(); renderTable(); markDirty(); updateAllCalculations(); updateCharts();
         };
-
-        window.addEmployee = async function() {
+        window.addEmployee = async () => {
             const name = $newEmployeeName.value.trim();
-            if (!name) {
-                showToast('请输入员工姓名', 'error');
-                return;
-            }
-            // 检查重复
-            if (allEmployees.some(e => e.name === name)) {
-                showToast('该员工已存在', 'error');
-                return;
-            }
-            await addEmployeeToDB(name);
-            $newEmployeeName.value = '';
-            showToast('✅ 员工添加成功', 'success');
-            renderEmployeeList();
-            markDirty();
+            if (!name) { showToast('请输入姓名', 'error'); return; }
+            if (allEmployees.some(e => e.name === name)) { showToast('员工已存在', 'error'); return; }
+            await addEmployeeToDB(name); $newEmployeeName.value = ''; showToast('✅ 添加成功', 'success'); renderEmployeeList();
         };
 
-        window.loadRecordsForDate = function() {
-            const dateVal = $selectedDate.value;
-            if (dateVal) {
-                currentDateStr = dateVal;
-                loadRecordsForDate(dateVal);
-            }
-        };
-
-        // ==================== MANUAL SAVE ====================
-        window.manualSave = async function() {
-            if (!isAdmin) {
-                showToast('游客模式无法保存', 'error');
-                return;
-            }
+        window.manualSave = async () => {
+            if (!isAdmin) { showToast('游客模式无法保存', 'error'); return; }
             updateSaveStatus('auto-saving');
-            try {
-                await saveAllCurrentRecords();
-                updateSaveStatus('saved');
-                showToast('✅ 数据已云保存成功', 'success');
-            } catch (e) {
-                updateSaveStatus('error');
-                showToast('❌ 保存失败：' + e.message, 'error');
-                console.error(e);
-            }
+            try { await saveAllCurrentRecords(); } catch (e) { updateSaveStatus('error'); showToast('保存失败', 'error'); }
         };
 
-        // ==================== INIT ====================
+        // 初始化
         async function init() {
-            updateBeijingTimeDisplay();
-            setInterval(updateBeijingTimeDisplay, 1000);
-
-            currentDateStr = getBeijingDate();
-            $selectedDate.value = currentDateStr;
-
-            // 检查sessionStorage中的登录状态
-            const savedAdmin = sessionStorage.getItem('isAdmin');
-            if (savedAdmin === 'true') {
-                isAdmin = true;
-            }
-
+            updateBeijingTimeDisplay(); setInterval(updateBeijingTimeDisplay, 1000);
+            currentDateStr = getBeijingDate(); $selectedDate.value = currentDateStr;
+            if (sessionStorage.getItem('isAdmin') === 'true') isAdmin = true;
             updateAdminUI();
             await loadEmployees();
-
+            // 加载当月缓存
+            await loadMonthRecordsIntoCache(getMonthKey(currentDateStr));
             if (isAdmin) {
-                await loadRecordsForDate(currentDateStr);
-                renderTable();
-            } else {
-                // 游客模式也加载数据用于图表
-                await loadRecordsForDate(currentDateStr);
+                currentRecords = monthRecordsCache.filter(r => r.date === currentDateStr);
                 renderTable();
             }
-
-            await updateAllCalculations();
-            await updateCharts();
-
-            // 5秒自动保存定时器
-            setInterval(() => {
-                if (isDirty && isAdmin) {
-                    updateSaveStatus('auto-saving');
-                    saveAllCurrentRecords().then(() => {
-                        updateSaveStatus('saved');
-                    }).catch(() => {
-                        updateSaveStatus('error');
-                    });
-                }
-            }, 5000);
-
-            // 点击弹窗遮罩关闭
-            $loginModalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) closeLoginModal();
-            });
-            $employeeModalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) closeEmployeeModal();
-            });
-
-            // 回车键登录
-            $loginPassword.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') adminLogin();
-            });
-
-            // 页面关闭前提醒
-            window.addEventListener('beforeunload', function(e) {
-                if (isDirty && isAdmin) {
-                    e.preventDefault();
-                    e.returnValue = '有未保存的数据，确定离开吗？';
-                    return e.returnValue;
-                }
-            });
-
-            console.log('⚽ 竞彩足球销售记录管理系统已就绪');
-            console.log('  北京时间：' + getBeijingDateTimeStr());
-            console.log('  模式：' + (isAdmin ? '管理员' : '游客'));
-            console.log('  自动云保存：每5秒（数据变更时）');
+            updateAllCalculations(); updateCharts();
+            setInterval(() => { if (isDirty && isAdmin) { updateSaveStatus('auto-saving'); saveAllCurrentRecords().catch(() => updateSaveStatus('error')); } }, 5000);
+            $loginModalOverlay.addEventListener('click', e => { if (e.target === $loginModalOverlay) closeLoginModal(); });
+            $employeeModalOverlay.addEventListener('click', e => { if (e.target === $employeeModalOverlay) closeEmployeeModal(); });
+            $loginPassword.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
         }
-
         init();
     </script>
 </body>
