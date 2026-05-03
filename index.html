@@ -116,12 +116,25 @@
         .chart-wrapper { background: var(--bg-input); border-radius: var(--radius-md); padding: 14px; border: 1px solid var(--border-glow); }
         .chart-title-sm { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; text-align: center; }
 
-        .daily-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .daily-summary-table th, .daily-summary-table td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #2a2a3d; font-size: 0.8rem; color: var(--text-secondary); }
-        .daily-summary-table th { color: var(--text-muted); font-weight: 600; }
+        .daily-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        .daily-summary-table th, .daily-summary-table td {
+            padding: 10px 6px; text-align: center; border-bottom: 1px solid #2a2a3d;
+            font-size: 0.82rem; color: var(--text-secondary); word-break: break-all;
+        }
+        .daily-summary-table th { color: var(--text-muted); font-weight: 600; background: #14141f; position: sticky; top:0; }
+        .daily-summary-body { max-height:300px; overflow-y:auto; display:block; width:100%; }
+
+        .expense-section {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            background: var(--bg-input); border-radius: var(--radius-md); padding: 12px 16px;
+            border: 1px solid var(--border-glow); margin-bottom: 14px;
+        }
+        .expense-section label { font-size:0.85rem; color:var(--text-secondary); white-space:nowrap; }
+        .expense-section input { padding:8px 12px; border-radius:20px; background:#0d0d18; border:1px solid #3a3a50; color:#e8e8f0; font-family:var(--font-mono); font-size:0.85rem; }
+        .expense-section input:focus { outline:none; border-color:var(--accent-purple); box-shadow:0 0 12px var(--glow-purple); }
 
         .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-glow); background: var(--bg-input); }
-        table { width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.85rem; }
         thead th { background: #14141f; padding: 12px 8px; text-align: center; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); border-bottom: 2px solid #2a2a3d; position: sticky; top: 0; white-space: nowrap; }
         tbody td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #1a1a2a; font-family: var(--font-mono); font-size: 0.82rem; }
         tbody tr:hover { background: rgba(179,71,234,0.04); }
@@ -145,7 +158,6 @@
         .btn-modal { padding: 10px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
         .btn-modal.primary { background: linear-gradient(135deg, var(--accent-purple), #8b2fc9); color: #fff; }
         .btn-modal.secondary { background: transparent; border: 2px solid #4a4a60; color: #b0b0c0; }
-        .btn-modal.danger { background: transparent; border: 2px solid var(--danger-red); color: var(--danger-red); }
 
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
         .toast { padding: 12px 20px; border-radius: 25px; font-weight: 600; font-size: 0.85rem; animation: slideIn 0.35s ease, fadeOut 0.35s ease 2.5s forwards; }
@@ -202,9 +214,9 @@
                 </div>
                 <div class="chart-wrapper">
                     <div class="chart-title-sm">📋 每日数据明细</div>
-                    <div style="max-height:300px;overflow-y:auto;">
-                        <table class="daily-summary-table" id="dailySummaryTable">
-                            <thead><tr><th>日期</th><th>总业绩</th><th>总兑奖</th><th>总支出</th><th>日结余</th></tr></thead>
+                    <div class="daily-summary-body">
+                        <table class="daily-summary-table">
+                            <thead><tr><th style="width:25%">日期</th><th style="width:19%">总业绩</th><th style="width:19%">总兑奖</th><th style="width:19%">总支出</th><th style="width:18%">日结余</th></tr></thead>
                             <tbody id="dailySummaryBody"><tr><td colspan="5" style="color:var(--text-muted);">暂无数据</td></tr></tbody>
                         </table>
                     </div>
@@ -224,13 +236,18 @@
                     <button class="btn btn-sm" style="border:2px solid var(--accent-amber);color:var(--accent-amber);border-radius:20px;" onclick="openChangePasswordModal()">🔑 修改密码</button>
                 </div>
             </div>
+            <!-- 店铺当日支出 -->
+            <div class="expense-section" id="expenseSection">
+                <label>🏪 店铺当日支出：</label>
+                <input type="number" id="dailyExpenseInput" placeholder="支出金额" step="0.01" onchange="onDailyExpenseChange()">
+                <input type="text" id="dailyExpenseNoteInput" placeholder="支出备注" style="flex:1;" onchange="onDailyExpenseChange()">
+            </div>
             <div class="table-container">
                 <table id="dataTable">
                     <thead>
                         <tr>
                             <th>员工姓名</th><th>今日开单人数</th><th>新人开单人数</th><th>员工今日业绩</th>
-                            <th>今日兑奖金额</th><th>实际业绩</th><th>当月总业绩</th><th>支出费用</th>
-                            <th>支出备注</th><th>今日结余</th><th>备注</th><th>操作</th>
+                            <th>今日兑奖金额</th><th>实际业绩</th><th>当月总业绩</th><th>备注</th><th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -306,6 +323,8 @@
         let allEmployees = [];
         let currentRecords = [];
         let monthRecordsCache = [];
+        let currentDailyExpense = { expense: 0, note: '' }; // 当天店铺支出
+        let monthExpensesCache = {}; // { date: { expense, note } }
         let currentDateStr = '';
         let charts = { employeePerf: null };
 
@@ -318,6 +337,7 @@
             const d = String(beijing.getDate()).padStart(2, '0');
             return `${y}-${m}-${d}`;
         }
+        function updateBeijingTime() { document.getElementById('beijingTime').textContent = '🕐 ' + getBeijingDateTimeStr() + ' (北京时间)'; }
         function getBeijingDateTimeStr() {
             const now = new Date();
             const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
@@ -329,7 +349,6 @@
             const s = String(beijing.getSeconds()).padStart(2, '0');
             return `${y}-${m}-${d} ${h}:${min}:${s}`;
         }
-        function updateBeijingTime() { document.getElementById('beijingTime').textContent = '🕐 ' + getBeijingDateTimeStr() + ' (北京时间)'; }
         function getMonthKey(dateStr) { return dateStr.substring(0, 7); }
         function formatMoney(val) { const n = parseFloat(val); return isNaN(n) ? '¥0' : '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
         function parseNum(val) { const n = parseFloat(val); return isNaN(n) ? 0 : n; }
@@ -349,11 +368,7 @@
             else if (status === 'auto-saving') { text.textContent = '自动保存中...'; btn.textContent = '🔄 保存中'; btn.classList.add('auto-saving'); }
             else if (status === 'error') { text.textContent = '保存失败'; btn.textContent = '⚠️ 重试'; btn.classList.remove('auto-saving'); }
         }
-        // 设置日期选择器最大值为今天
-        function setMaxDate() {
-            const today = getBeijingDate();
-            document.getElementById('selectedDate').max = today;
-        }
+        function setMaxDate() { document.getElementById('selectedDate').max = getBeijingDate(); }
         function markDirty() {
             if (!isAdmin) return;
             isDirty = true;
@@ -387,36 +402,50 @@
             await loadEmployees();
         }
 
-        // 月度缓存
-        async function loadMonthRecordsIntoCache(monthKey) {
-            const allData = await CloudSync.fetchData('dailyRecords');
+        // 月度缓存 (员工记录 + 店铺支出)
+        async function loadMonthDataIntoCache(monthKey) {
+            const [recordsData, expensesData] = await Promise.all([
+                CloudSync.fetchData('dailyRecords'),
+                CloudSync.fetchData('dailyExpenses')
+            ]);
             monthRecordsCache = [];
-            if (allData) {
-                Object.entries(allData).forEach(([id, val]) => {
+            if (recordsData) {
+                Object.entries(recordsData).forEach(([id, val]) => {
                     if (val && val.date && val.date.startsWith(monthKey)) monthRecordsCache.push({ id, ...val });
+                });
+            }
+            monthExpensesCache = {};
+            if (expensesData) {
+                Object.entries(expensesData).forEach(([date, val]) => {
+                    if (date.startsWith(monthKey)) monthExpensesCache[date] = val || { expense: 0, note: '' };
                 });
             }
         }
 
-        // 加载指定日期的记录
+        // 加载指定日期记录和支出
         async function loadRecordsForDate(dateStr) {
             if (!dateStr) dateStr = document.getElementById('selectedDate').value;
             if (!dateStr) return;
             currentDateStr = dateStr;
-            await loadMonthRecordsIntoCache(getMonthKey(dateStr));
+            await loadMonthDataIntoCache(getMonthKey(dateStr));
             currentRecords = monthRecordsCache.filter(r => r.date === dateStr);
+            // 加载当天店铺支出
+            currentDailyExpense = monthExpensesCache[dateStr] || { expense: 0, note: '' };
+            document.getElementById('dailyExpenseInput').value = currentDailyExpense.expense || 0;
+            document.getElementById('dailyExpenseNoteInput').value = currentDailyExpense.note || '';
             renderTable();
             updateAllCalculations();
             updateChartsAndDaily();
         }
 
-        // 保存
+        // 保存员工记录 + 店铺支出
         async function saveAllCurrentRecords() {
             if (!isAdmin) return;
             const updates = {};
+            // 员工记录
             for (const rec of currentRecords) {
                 const docId = rec.id || `${rec.date}_${rec.employeeId}`;
-                updates[docId] = {
+                updates[`dailyRecords/${docId}`] = {
                     date: rec.date,
                     employeeId: rec.employeeId,
                     employeeName: rec.employeeName,
@@ -425,22 +454,28 @@
                     performance: parseNum(rec.performance),
                     prizeAmount: parseNum(rec.prizeAmount),
                     actualPerformance: parseNum(rec.actualPerformance),
-                    expense: parseNum(rec.expense),
-                    expenseNote: rec.expenseNote || '',
-                    balance: parseNum(rec.balance),
                     note: rec.note || '',
                     updatedAt: getBeijingDateTimeStr()
                 };
             }
+            // 删除该日期下不再存在的员工记录
             const existingKeys = currentRecords.map(r => r.id || `${r.date}_${r.employeeId}`);
-            const allData = await CloudSync.fetchData('dailyRecords');
-            if (allData) {
-                Object.entries(allData).forEach(([key, val]) => {
-                    if (val && val.date === currentDateStr && !existingKeys.includes(key)) updates[key] = null;
+            const allRecords = await CloudSync.fetchData('dailyRecords');
+            if (allRecords) {
+                Object.entries(allRecords).forEach(([key, val]) => {
+                    if (val && val.date === currentDateStr && !existingKeys.includes(key)) {
+                        updates[`dailyRecords/${key}`] = null;
+                    }
                 });
             }
-            await db.ref('dailyRecords').update(updates);
-            await loadMonthRecordsIntoCache(getMonthKey(currentDateStr));
+            // 店铺支出
+            updates[`dailyExpenses/${currentDateStr}`] = {
+                expense: parseNum(currentDailyExpense.expense),
+                note: currentDailyExpense.note || ''
+            };
+            await db.ref().update(updates);
+            // 刷新缓存
+            await loadMonthDataIntoCache(getMonthKey(currentDateStr));
             isDirty = false;
             updateSaveStatus('saved');
             showToast('✅ 数据已云保存成功', 'success');
@@ -450,11 +485,11 @@
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             if (!isAdmin) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="12">🔒 请登录管理员账号</td></tr>';
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="9">🔒 请登录管理员账号</td></tr>';
                 return;
             }
             if (!allEmployees.length) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="12">📭 暂无员工，请先添加员工</td></tr>';
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="9">📭 暂无员工，请先添加员工</td></tr>';
                 return;
             }
             const recordMap = {};
@@ -464,13 +499,11 @@
                 const rec = recordMap[emp.id] || {
                     date: currentDateStr, employeeId: emp.id, employeeName: emp.name,
                     orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0,
-                    actualPerformance:0, expense:0, expenseNote:'', balance:0, note:''
+                    actualPerformance:0, note:''
                 };
                 const perf = parseNum(rec.performance);
                 const prize = parseNum(rec.prizeAmount);
                 const actualPerf = perf - prize;
-                const expense = parseNum(rec.expense);
-                const balance = actualPerf - expense;
                 const monthTotal = getEmployeeMonthTotal(emp.id);
                 html += `<tr data-employee-id="${emp.id}">
                     <td><strong>${emp.name}</strong></td>
@@ -480,9 +513,6 @@
                     <td><input type="number" value="${prize}" data-field="prizeAmount" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
                     <td class="${actualPerf<0?'negative':''}">${formatMoney(actualPerf)}</td>
                     <td><strong>${formatMoney(monthTotal)}</strong></td>
-                    <td><input type="number" value="${expense}" data-field="expense" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
-                    <td><input type="text" value="${rec.expenseNote||''}" data-field="expenseNote" class="input-note" onchange="onCellChange(this)" placeholder="备注"></td>
-                    <td class="${balance<0?'negative':''}">${formatMoney(balance)}</td>
                     <td><input type="text" value="${rec.note||''}" data-field="note" class="input-note" onchange="onCellChange(this)" placeholder="备注"></td>
                     <td><button class="btn-table danger" onclick="deleteRecordRow(this)">🗑</button></td>
                 </tr>`;
@@ -507,20 +537,32 @@
                 const emp = allEmployees.find(e => e.id === empId);
                 rec = { date: currentDateStr, employeeId: empId, employeeName: emp ? emp.name : '',
                     orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0,
-                    actualPerformance:0, expense:0, expenseNote:'', balance:0, note:'' };
+                    actualPerformance:0, note:'' };
                 currentRecords.push(rec);
             }
             if (field === 'orderCount' || field === 'newCustomerCount') rec[field] = parseInt(value) || 0;
-            else if (field === 'performance' || field === 'prizeAmount' || field === 'expense') rec[field] = parseFloat(value) || 0;
+            else if (field === 'performance' || field === 'prizeAmount') rec[field] = parseFloat(value) || 0;
             else rec[field] = value;
             rec.actualPerformance = parseNum(rec.performance) - parseNum(rec.prizeAmount);
-            rec.balance = rec.actualPerformance - parseNum(rec.expense);
             // 同步缓存
             const cacheIdx = monthRecordsCache.findIndex(r => r.employeeId === empId && r.date === currentDateStr);
             if (cacheIdx >= 0) Object.assign(monthRecordsCache[cacheIdx], rec);
             else monthRecordsCache.push({...rec});
             markDirty();
             renderTable();
+            updateAllCalculations();
+            updateChartsAndDaily();
+        };
+
+        window.onDailyExpenseChange = function() {
+            if (!isAdmin) return;
+            currentDailyExpense = {
+                expense: parseFloat(document.getElementById('dailyExpenseInput').value) || 0,
+                note: document.getElementById('dailyExpenseNoteInput').value.trim()
+            };
+            // 同步缓存
+            monthExpensesCache[currentDateStr] = currentDailyExpense;
+            markDirty();
             updateAllCalculations();
             updateChartsAndDaily();
         };
@@ -545,7 +587,7 @@
             if (missingEmp) {
                 const newRec = { date: currentDateStr, employeeId: missingEmp.id, employeeName: missingEmp.name,
                     orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0,
-                    actualPerformance:0, expense:0, expenseNote:'', balance:0, note:'' };
+                    actualPerformance:0, note:'' };
                 currentRecords.push(newRec);
                 monthRecordsCache.push({...newRec});
                 markDirty();
@@ -555,24 +597,36 @@
             } else { showToast('所有员工已有当日记录', 'info'); }
         };
 
-        // 店铺总结计算
+        // 计算店铺总结
         function updateAllCalculations() {
             let totalPerf = 0, totalPrize = 0, totalExpense = 0, runningBalance = 0;
             const dateGroups = {};
             monthRecordsCache.forEach(r => {
-                if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, expense:0, actual:0, balance:0 };
+                if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, actual:0 };
                 dateGroups[r.date].perf += parseNum(r.performance);
                 dateGroups[r.date].prize += parseNum(r.prizeAmount);
-                dateGroups[r.date].expense += parseNum(r.expense);
                 dateGroups[r.date].actual += parseNum(r.actualPerformance);
-                dateGroups[r.date].balance += parseNum(r.balance);
             });
+            // 添加店铺支出
             const sortedDates = Object.keys(dateGroups).sort();
             sortedDates.forEach(d => {
+                const expenseObj = monthExpensesCache[d] || { expense: 0 };
+                const expense = parseNum(expenseObj.expense);
+                dateGroups[d].expense = expense;
+                dateGroups[d].balance = dateGroups[d].actual - expense;
                 totalPerf += dateGroups[d].perf;
                 totalPrize += dateGroups[d].prize;
-                totalExpense += dateGroups[d].expense;
+                totalExpense += expense;
                 runningBalance += dateGroups[d].balance;
+            });
+            // 确保包含只有支出没有员工记录的日期
+            Object.keys(monthExpensesCache).forEach(d => {
+                if (!dateGroups[d]) {
+                    const expense = parseNum(monthExpensesCache[d].expense);
+                    dateGroups[d] = { perf:0, prize:0, actual:0, expense, balance: -expense };
+                    totalExpense += expense;
+                    runningBalance -= expense;
+                }
             });
             const storeActualPerf = totalPerf - totalPrize;
             document.getElementById('sumActualBalance').textContent = formatMoney(runningBalance);
@@ -584,7 +638,7 @@
             document.getElementById('sumTotalPerf').textContent = formatMoney(totalPerf);
         }
 
-        // 更新图表与每日明细
+        // 图表与每日明细
         function updateChartsAndDaily() {
             // 员工柱状图
             const empPerf = {};
@@ -617,15 +671,27 @@
                 }
             });
 
-            // 每日数据明细
+            // 每日明细表格
             const dateGroups = {};
             monthRecordsCache.forEach(r => {
                 if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, expense:0, balance:0 };
                 dateGroups[r.date].perf += parseNum(r.performance);
                 dateGroups[r.date].prize += parseNum(r.prizeAmount);
-                dateGroups[r.date].expense += parseNum(r.expense);
-                dateGroups[r.date].balance += parseNum(r.balance);
+                dateGroups[r.date].actual = (dateGroups[r.date].actual||0) + parseNum(r.actualPerformance);
             });
+            Object.keys(monthExpensesCache).forEach(d => {
+                if (!dateGroups[d]) dateGroups[d] = { perf:0, prize:0, actual:0 };
+                dateGroups[d].expense = parseNum(monthExpensesCache[d].expense);
+                dateGroups[d].balance = dateGroups[d].actual - dateGroups[d].expense;
+            });
+            // 补充支出
+            for (const d in dateGroups) {
+                if (dateGroups[d].expense === undefined) {
+                    const exp = monthExpensesCache[d] ? parseNum(monthExpensesCache[d].expense) : 0;
+                    dateGroups[d].expense = exp;
+                    dateGroups[d].balance = dateGroups[d].actual - exp;
+                }
+            }
             const sortedDates = Object.keys(dateGroups).sort();
             const tbody = document.getElementById('dailySummaryBody');
             if (sortedDates.length === 0) {
@@ -646,7 +712,7 @@
             tbody.innerHTML = html;
         }
 
-        // 弹窗与管理员功能
+        // 弹窗与管理功能
         window.openLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'flex'; document.getElementById('loginPassword').value = ''; };
         window.closeLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'none'; };
         window.adminLogin = async () => {
@@ -656,7 +722,6 @@
                 isAdmin = true; updateAdminUI(); closeLoginModal();
                 showToast('✅ 管理员登录成功', 'success');
                 await loadEmployees();
-                // 加载当天或已选日期
                 const dateInput = document.getElementById('selectedDate');
                 if (!dateInput.value) dateInput.value = getBeijingDate();
                 await loadRecordsForDate(dateInput.value);
@@ -664,11 +729,10 @@
         };
         window.logout = () => {
             isAdmin = false; updateAdminUI();
-            currentRecords = []; monthRecordsCache = [];
+            currentRecords = []; monthRecordsCache = []; monthExpensesCache = {};
             renderTable(); updateAllCalculations(); updateChartsAndDaily();
             showToast('已退出管理员模式', 'info');
         };
-
         function updateAdminUI() {
             document.getElementById('dataTableCard').style.display = isAdmin ? '' : 'none';
             document.getElementById('btnLogin').style.display = isAdmin ? 'none' : '';
@@ -742,16 +806,17 @@
             currentDateStr = today;
             updateAdminUI();
             await loadEmployees();
-            await loadMonthRecordsIntoCache(getMonthKey(today));
+            await loadMonthDataIntoCache(getMonthKey(today));
             if (isAdmin) {
                 currentRecords = monthRecordsCache.filter(r => r.date === today);
+                currentDailyExpense = monthExpensesCache[today] || { expense:0, note:'' };
+                document.getElementById('dailyExpenseInput').value = currentDailyExpense.expense;
+                document.getElementById('dailyExpenseNoteInput').value = currentDailyExpense.note;
                 renderTable();
             }
             updateAllCalculations();
             updateChartsAndDaily();
-            // 自动保存
             setInterval(() => { if (isDirty && isAdmin) { updateSaveStatus('auto-saving'); saveAllCurrentRecords().catch(() => updateSaveStatus('error')); } }, 5000);
-            // 遮罩关闭
             document.getElementById('loginModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeLoginModal(); });
             document.getElementById('employeeModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeEmployeeModal(); });
             document.getElementById('changePasswordModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeChangePasswordModal(); });
