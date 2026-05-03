@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚽ 竞彩销售台账 · 听海版 (云同步)</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src *;">
+    <title>⚽ 足球竞彩销售台账 · 云同步版</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
@@ -19,323 +18,366 @@
             --warning-light: #fffbeb;
             --danger: #dc2626;
             --danger-light: #fef2f2;
-            --purple: #7c3aed;
-            --purple-light: #faf5ff;
             --text: #1e293b;
             --text-secondary: #475569;
             --text-muted: #94a3b8;
             --border: #e2e8f0;
-            --border-light: #f1f5f9;
-            --radius-lg: 14px;
-            --radius: 10px;
+            --radius-xl: 16px;
+            --radius: 12px;
             --radius-sm: 8px;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
-            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', 'Menlo', monospace;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 2px 4px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06);
+            --shadow-md: 0 6px 16px rgba(0,0,0,0.06);
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
         body {
-            font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 40%, #f5f3ff 100%);
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f5f3ff 100%);
             background-attachment: fixed;
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.5;
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            -webkit-user-select: none;
-            user-select: none;
         }
-        input, textarea { -webkit-user-select: text; user-select: text; }
         .app-header {
-            background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.7); padding: 0 20px; position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226,232,240,0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 20px;
         }
-        .header-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
-        .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #0d9488); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
-        .logo-title { font-size: 18px; font-weight: 700; color: #1e293b; }
-        .logo-subtitle { font-size: 11px; color: #64748b; }
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        .header-date { background: #f1f5f9; padding: 7px 15px; border-radius: 20px; font-size: 13px; color: #475569; border: 1px solid #e2e8f0; }
-        .btn-login { padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; transition: all var(--transition); font-family: inherit; }
-        .btn-login.locked { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
-        .btn-login.locked:hover { background: #f8fafc; }
-        .btn-login.unlocked { background: #0d9488; color: #fff; box-shadow: 0 2px 8px rgba(13,148,136,0.25); }
-        .btn-login.unlocked:hover { background: #0f766e; }
-        .main-container { max-width: 1440px; margin: 0 auto; padding: 16px 20px 40px; }
-        .banner { border-radius: var(--radius); padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
-        .banner-lock { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
-        .banner-guide { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; cursor: pointer; }
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
-        .summary-card { background: var(--surface); border-radius: var(--radius); padding: 12px 15px; box-shadow: var(--shadow); border: 1px solid var(--border-light); transition: all var(--transition); }
-        .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .summary-card .card-label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
-        .summary-card .card-value { font-size: 20px; font-weight: 700; font-family: var(--font-mono); }
-        .card-accent-blue { border-left: 3px solid #2563eb; background: #faf9ff; }
-        .card-accent-green { border-left: 3px solid #0d9488; background: #fafdfb; }
-        .card-accent-amber { border-left: 3px solid #d97706; background: #fffdf8; }
-        .card-accent-purple { border-left: 3px solid #7c3aed; background: #fdfaff; }
-        .val-positive { color: #0d9488; } .val-negative { color: #dc2626; } .val-purple { color: #6d28d9; }
-        .section { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border-light); overflow: hidden; margin-bottom: 16px; }
-        .section-header { background: #f8fafc; padding: 10px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .badge { background: #e0e7ff; color: #4338ca; font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
-        .badge-purple { background: #ede9fe; color: #6d28d9; }
-        .badge-today { background: #d1fae5; color: #065f46; font-size: 10px; padding: 3px 9px; border-radius: 12px; font-weight: 700; margin-left: 4px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .section-footer { background: #fafafa; padding: 8px 16px; border-top: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-        .table-wrap { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
-        .table-wrap.short { max-height: 26vh; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        table thead { position: sticky; top: 0; z-index: 4; }
-        table thead th { background: #1e293b; color: #e2e8f0; padding: 8px 5px; text-align: center; font-weight: 600; font-size: 10px; white-space: nowrap; border-right: 1px solid #334155; }
-        table thead th:last-child { border-right: none; }
-        table thead th.th-auto { background: #1e3a5f; color: #bae6fd; }
-        table thead th.th-cum { background: #064e3b; color: #a7f3d0; }
-        table tbody td { padding: 4px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; position: relative; }
-        table tbody tr:hover { background: #fafcfd; }
-        table tbody tr.row-today { background: #fffbeb !important; border-left: 3px solid #f59e0b; }
-        table tbody tr.row-today:hover { background: #fef3c7 !important; }
-        table tbody tr.row-today td:first-child::before { content: '📌 '; font-size: 10px; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); }
-        table tbody td input { width: 100%; padding: 6px 5px; border: 1.5px solid #e2e8f0; border-radius: 5px; text-align: center; font-size: 12px; background: #fff; transition: all var(--transition); color: #1e293b; }
-        table tbody td input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.07); }
-        table tbody td input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
-        .input-date { cursor: pointer; min-width: 115px; }
-        .input-money { text-align: right; font-weight: 500; font-family: var(--font-mono); }
-        .input-name { text-align: left; font-weight: 500; }
-        td.cell-auto { background: #f8fafc; font-weight: 600; font-family: var(--font-mono); padding: 6px 4px; color: #334155; font-size: 12px; }
-        td.cell-auto.highlight { background: #eef2ff; color: #3730a3; font-weight: 700; font-size: 13px; }
-        td.cell-cum { background: #f0fdf6; font-weight: 600; color: #065f46; font-family: var(--font-mono); padding: 6px 4px; font-size: 12px; }
-        .btn-del { background: none; border: none; cursor: pointer; font-size: 15px; color: #cbd5e1; padding: 2px 6px; border-radius: 5px; transition: all var(--transition); }
-        .btn-del:hover:not(:disabled) { color: #dc2626; background: #fee2e2; }
-        .btn-del:disabled { opacity: 0.35; cursor: not-allowed; }
-        .btn { display: inline-flex; align-items: center; gap: 4px; padding: 7px 13px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); font-family: inherit; }
-        .btn:active { transform: scale(0.96); }
-        .btn:disabled { opacity: 0.45; pointer-events: none; }
-        .btn-primary { background: #2563eb; color: #fff; } .btn-primary:hover:not(:disabled) { background: #1d4ed8; }
-        .btn-success { background: #0d9488; color: #fff; } .btn-success:hover:not(:disabled) { background: #0f766e; }
-        .btn-outline { background: #fff; color: #475569; border-color: #e2e8f0; } .btn-outline:hover:not(:disabled) { background: #f8fafc; }
-        .btn-danger { background: #fff; color: #dc2626; border-color: #fecaca; } .btn-danger:hover:not(:disabled) { background: #fef2f2; }
-        .btn-purple { background: #7c3aed; color: #fff; } .btn-purple:hover:not(:disabled) { background: #6d28d9; }
-        .btn-amber { background: #d97706; color: #fff; } .btn-amber:hover:not(:disabled) { background: #b45309; }
-        .btn-highlight { background: #fef3c7; color: #92400e; border-color: #fde68a; font-weight: 700; }
-        .btn-highlight:hover:not(:disabled) { background: #fef08a; border-color: #fcd34d; }
-        .btn-sm { padding: 5px 11px; font-size: 11px; border-radius: 5px; }
-        .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: #fff; padding: 8px 14px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 14px; }
-        .toolbar .sep { width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px; }
-        .toolbar .hint { margin-left: auto; font-size: 10px; color: #94a3b8; }
-        .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 13px; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; visibility: hidden; opacity: 0; transition: all var(--transition); }
-        .modal-overlay.active { visibility: visible; opacity: 1; }
-        .modal-box { background: #fff; border-radius: var(--radius-lg); padding: 24px 22px; width: 460px; max-width: 92vw; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; max-height: 80vh; overflow-y: auto; }
-        .modal-box h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .modal-box input, .modal-box select { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; }
-        .modal-box .login-submit { width: 100%; padding: 11px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 4px; font-family: inherit; }
-        .modal-box .login-submit:hover { background: #1d4ed8; }
-        .modal-box .login-error { color: #dc2626; font-size: 12px; margin-bottom: 6px; display: none; }
-        .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
-        .btn-row .btn { flex: 1; justify-content: center; }
-        .file-area { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: all var(--transition); font-size: 13px; color: #64748b; }
-        .file-area:hover { border-color: #2563eb; background: #faf9ff; }
-        .file-area input[type="file"] { display: none; }
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1e293b; color: #fff; padding: 10px 22px; border-radius: 28px; font-size: 13px; font-weight: 600; z-index: 300; pointer-events: none; transition: transform 0.35s; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.toast-success { background: #0d9488; } .toast.toast-warn { background: #d97706; }
-        .stat-inline { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-        .stat-item { display: flex; align-items: center; gap: 4px; font-weight: 600; color: #1e293b; font-size: 13px; }
-        .stat-item .label { color: #475569; }
-        .stat-item .amount { font-family: var(--font-mono); font-size: 15px; color: #6d28d9; }
-        .history-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
-        .history-table th, .history-table td { padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; }
-        .history-table th { background: #f8fafc; font-weight: 600; }
-        .employee-name { cursor: pointer; color: #2563eb; font-weight: 600; text-decoration: underline; transition: color 0.2s; }
-        .employee-name:hover { color: #1d4ed8; }
+        .header-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            gap: 20px;
+        }
+        .logo { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .logo span { background: linear-gradient(135deg, #2563eb, #0d9488); border-radius: 12px; padding: 4px 12px; color: white; font-size: 14px; }
+        .header-date { background: #f1f5f9; padding: 6px 16px; border-radius: 20px; font-size: 14px; }
+        .btn-login {
+            padding: 8px 20px;
+            border-radius: 24px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+            background: white;
+            transition: all 0.2s;
+        }
+        .btn-login.logged-in { background: #0d9488; color: white; border-color: #0d9488; }
+        .main-container { max-width: 1440px; margin: 20px auto; padding: 0 20px 40px; }
 
-        @media (max-width: 768px) {
-            .header-inner { height: 48px; gap: 6px; } .logo-title { font-size: 15px; }
-            .btn-login { font-size: 10px; padding: 5px 10px; } .summary-card .card-value { font-size: 18px; }
-            .btn { padding: 6px 10px; font-size: 11px; } .toolbar .hint { display: none; }
-            .modal-box { padding: 18px 16px; } .modal-box h3 { font-size: 16px; }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
         }
+        .stat-card {
+            background: white;
+            padding: 18px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stat-card .label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
+        .stat-card .value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); }
+        .accent-blue { border-left: 4px solid #2563eb; background: #faf9ff; }
+        .accent-green { border-left: 4px solid #0d9488; background: #fafdfb; }
+        .accent-amber { border-left: 4px solid #d97706; background: #fffdf8; }
+        .accent-purple { border-left: 4px solid #7c3aed; background: #fdfaff; }
+
+        .section {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .section-header {
+            background: #f8fafc;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .table-wrap { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { position: sticky; top: 0; z-index: 5; }
+        thead th {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 10px 6px;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+            border-right: 1px solid #334155;
+        }
+        thead th:last-child { border-right: none; }
+        tbody td {
+            padding: 6px 4px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        tbody tr:hover { background: #fafcfd; }
+        tbody tr.row-today { background: #fffbeb !important; border-left: 3px solid #f59e0b; }
+        input, select {
+            width: 100%;
+            padding: 6px 4px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            background: white;
+            transition: 0.2s;
+        }
+        input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+        input:disabled, select:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            background: white;
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5; pointer-events: none; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-success { background: #0d9488; color: white; }
+        .btn-warning { background: #d97706; color: white; }
+        .btn-danger { background: white; color: #dc2626; border-color: #fecaca; }
+        .btn-outline { background: white; color: #475569; border-color: #e2e8f0; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .toolbar {
+            background: white;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .separator { width: 1px; height: 20px; background: #e2e8f0; margin: 0 6px; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            z-index: 999;
+            pointer-events: none;
+            transition: transform 0.35s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { background: #0d9488; }
+        .toast.warn { background: #d97706; }
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200;
+            visibility: hidden; opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-box {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 28px 24px;
+            width: 420px;
+            max-width: 90vw;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .modal-box h3 { margin-bottom: 16px; }
+        .modal-box input, .modal-box select { margin-bottom: 12px; }
+        .flex-row { display: flex; gap: 10px; margin-top: 10px; }
+        .flex-row .btn { flex: 1; justify-content: center; }
+        .employee-name-cell {
+            display: flex; align-items: center; gap: 4px;
+        }
+        .employee-name-cell input { flex: 1; }
+        .history-icon {
+            cursor: pointer; font-size: 16px; opacity: 0.7;
+            transition: 0.2s;
+        }
+        .history-icon:hover { opacity: 1; color: #2563eb; }
     </style>
 </head>
 <body>
     <header class="app-header">
         <div class="header-inner">
-            <div class="logo-area">
-                <div class="logo-icon">⚽</div>
-                <div><div class="logo-title">竞彩销售台账</div><div class="logo-subtitle">云同步版 · 多端实时</div></div>
-            </div>
-            <div class="header-right">
-                <div class="header-date" id="headerDate">📅 加载中...</div>
-                <button class="btn-login locked" id="loginBtn" onclick="toggleLogin()">🔒 管理员登录</button>
-            </div>
+            <div class="logo">⚽ <span>竞彩台账</span></div>
+            <div class="header-date" id="headerDate"></div>
+            <button class="btn-login" id="loginBtn" onclick="handleLoginClick()">🔒 管理员登录</button>
         </div>
     </header>
 
-    <div class="modal-overlay" id="adminSetupModal">
+    <!-- 各种模态框 -->
+    <div class="modal-overlay" id="setupModal">
         <div class="modal-box">
             <h3>🔧 首次设置管理员</h3>
-            <p style="font-size:13px;color:#475569;margin-bottom:8px;">请输入管理员账号和密码（至少4位）</p>
-            <input type="text" id="setupUsername" placeholder="设置用户名">
-            <input type="password" id="setupPassword" placeholder="设置密码">
-            <button class="login-submit" onclick="setupAdmin()">保存并登录</button>
+            <input type="text" id="setupUser" placeholder="用户名">
+            <input type="password" id="setupPass" placeholder="密码（至少4位）">
+            <button class="btn btn-primary" style="width:100%;" onclick="setupAdmin()">保存并登录</button>
         </div>
     </div>
-
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
-            <h3>🔐 管理员登录</h3>
-            <div class="login-error" id="loginError">用户名或密码错误</div>
-            <input type="text" id="usernameInput" placeholder="用户名" autocomplete="off">
-            <input type="password" id="passwordInput" placeholder="密码">
-            <button class="login-submit" onclick="handleLogin()">登 录</button>
+            <h3>🔐 登录</h3>
+            <div id="loginError" style="color:#dc2626;display:none;margin-bottom:8px;">用户名或密码错误</div>
+            <input type="text" id="loginUser" placeholder="用户名">
+            <input type="password" id="loginPass" placeholder="密码">
+            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">登 录</button>
         </div>
     </div>
-
     <div class="modal-overlay" id="changePwdModal">
         <div class="modal-box">
             <h3>🔑 修改密码</h3>
-            <input type="password" id="oldPassword" placeholder="旧密码">
-            <input type="password" id="newPassword" placeholder="新密码（至少4位）">
-            <button class="login-submit" onclick="changePassword()">确认修改</button>
-            <div class="login-error" id="changePwdError" style="display:none;">旧密码错误</div>
+            <input type="password" id="oldPass" placeholder="旧密码">
+            <input type="password" id="newPass" placeholder="新密码（至少4位）">
+            <button class="btn btn-primary" style="width:100%;" onclick="changePassword()">确认修改</button>
+            <div id="changeError" style="color:#dc2626;display:none;margin-top:6px;">旧密码错误</div>
         </div>
     </div>
-
     <div class="modal-overlay" id="reAuthModal">
         <div class="modal-box">
             <h3>🔐 操作验证</h3>
-            <p style="font-size:13px;color:#475569;margin-bottom:8px;">请输入管理员密码以继续</p>
-            <input type="password" id="reAuthPassword" placeholder="管理员密码">
-            <div class="login-error" id="reAuthError" style="display:none;">密码错误</div>
-            <div class="btn-row">
+            <input type="password" id="reAuthPass" placeholder="管理员密码">
+            <div class="flex-row">
                 <button class="btn btn-outline" onclick="closeReAuth()">取消</button>
                 <button class="btn btn-primary" onclick="submitReAuth()">确认</button>
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="importModal">
-        <div class="modal-box" style="width:480px;">
-            <h3>📥 导入 CSV 数据</h3>
-            <div class="file-area" onclick="document.getElementById('csvFileInput').click()">
-                <span id="csvFileName">📁 点击选择 CSV 文件</span>
-                <input type="file" id="csvFileInput" accept=".csv" onchange="handleCsvFileSelect(event)">
+        <div class="modal-box">
+            <h3>📥 导入 CSV</h3>
+            <div style="border:2px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center;cursor:pointer;" onclick="document.getElementById('csvFile').click()">
+                <span id="csvFileName">📁 点击选择文件</span>
+                <input type="file" id="csvFile" accept=".csv" hidden onchange="handleFileSelect(event)">
             </div>
-            <button class="login-submit" onclick="triggerImportCSV()">导入到云台账</button>
+            <button class="btn btn-success" style="width:100%;margin-top:12px;" onclick="importCSV()">导入到云台账</button>
         </div>
     </div>
-
     <div class="modal-overlay" id="historyModal">
-        <div class="modal-box" style="width:520px; text-align:left;">
-            <h3 id="historyTitle" style="text-align:center;">📋 员工历史业绩</h3>
-            <div id="historyContent" style="max-height:50vh; overflow-y:auto;"></div>
-            <div class="btn-row" style="margin-top:14px;">
-                <button class="btn btn-outline" onclick="closeHistoryModal()">关闭</button>
+        <div class="modal-box" style="width:520px;">
+            <h3 id="historyTitle">📋 员工历史业绩</h3>
+            <div id="historyContent" style="max-height:50vh;overflow-y:auto;"></div>
+            <div class="flex-row" style="margin-top:16px;">
+                <button class="btn btn-outline" onclick="closeModal('historyModal')">关闭</button>
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="historyPerfModal">
         <div class="modal-box">
             <h3>📥 添加往日业绩 (当月)</h3>
-            <select id="historyEmpSelect" style="margin-bottom:10px;">
-                <option value="">-- 选择员工 --</option>
-            </select>
-            <input type="date" id="historyPerfDate">
-            <input type="number" id="historyPerfAmount" placeholder="业绩金额" step="0.01" min="0">
-            <input type="number" id="historyPrizeAmount" placeholder="兑奖金额" step="0.01" min="0">
-            <button class="login-submit" onclick="submitHistoryPerformance()">确 认 添 加</button>
+            <select id="historyEmpSelect"></select>
+            <input type="date" id="historyDate">
+            <input type="number" id="historyPerf" placeholder="业绩金额" step="0.01">
+            <input type="number" id="historyPrize" placeholder="兑奖金额" step="0.01">
+            <button class="btn btn-primary" style="width:100%;" onclick="submitHistoryPerf()">确认添加</button>
         </div>
     </div>
 
     <div class="main-container">
-        <div class="banner banner-lock" id="lockBanner">🔒 当前为<strong>只读模式</strong>，请<strong>点击右上角“管理员登录”</strong>后解锁编辑权限。</div>
-        <div class="banner banner-guide" id="guideBanner" onclick="dismissGuide()">
-            💡 <strong>每日操作：</strong>①登录 → ②填员工业绩 → ③点“✅今日结算” → ④数据自动同步至云端。新一天会自动创建新行。 <br>📥 补录往日：点击员工区域的“📥 往日业绩”按钮（仅限当月）。
+        <!-- 概览卡片 -->
+        <div class="card-grid">
+            <div class="stat-card accent-blue"><div class="label">🏦 当前结余</div><div class="value" id="cardBalance">¥0.00</div></div>
+            <div class="stat-card accent-purple"><div class="label">👥 员工总业绩</div><div class="value" style="color:#6d28d9;" id="cardEmpTotal">¥0.00</div></div>
+            <div class="stat-card accent-amber"><div class="label">🎫 员工总兑奖</div><div class="value" style="color:#b45309;" id="cardPrizeEmp">¥0.00</div></div>
+            <div class="stat-card"><div class="label">💰 累计业绩</div><div class="value" id="cardTotalPerf">¥0.00</div></div>
+            <div class="stat-card"><div class="label">🎫 累计兑奖</div><div class="value" id="cardTotalPrize">¥0.00</div></div>
+            <div class="stat-card"><div class="label">📊 实际业绩</div><div class="value" style="color:#0d9488;" id="cardActual">¥0.00</div></div>
         </div>
 
-        <div class="summary-grid">
-            <div class="summary-card card-accent-blue"><div class="card-label">🏦 当前结余</div><div class="card-value" id="cardBalance">¥0.00</div></div>
-            <div class="summary-card card-accent-purple"><div class="card-label">👥 员工总业绩</div><div class="card-value val-purple" id="cardEmpTotal">¥0.00</div></div>
-            <div class="summary-card card-accent-amber"><div class="card-label">🎫 员工总兑奖</div><div class="card-value" style="color:#b45309;" id="cardTotalPrizeEmp">¥0.00</div></div>
-            <div class="summary-card"><div class="card-label">💰 累计总业绩</div><div class="card-value" id="cardTotalPerf">¥0.00</div></div>
-            <div class="summary-card"><div class="card-label">🎫 累计总兑奖</div><div class="card-value" id="cardTotalPrizeLedger">¥0.00</div></div>
-            <div class="summary-card"><div class="card-label">💸 累计总支出</div><div class="card-value" id="cardTotalExpenses">¥0.00</div></div>
-            <div class="summary-card card-accent-green"><div class="card-label">📈 累计实际业绩</div><div class="card-value val-positive" id="cardTotalActual">¥0.00</div></div>
-        </div>
-
+        <!-- 员工区域 -->
         <div class="section">
-            <div class="section-header">👥 员工今日业绩管理 <span class="badge badge-purple" id="empBadge">5 名员工</span></div>
-            <div class="table-wrap short">
+            <div class="section-header">
+                👥 员工今日管理 <span class="badge" id="empCount">5名</span>
+                <span style="margin-left:auto;">总开单：<strong id="empOpenTotal">0</strong> 总业绩：<strong id="empTotalInline">¥0.00</strong></span>
+            </div>
+            <div class="table-wrap" style="max-height:40vh;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>#</th><th>👤 姓名</th><th>👥 开单人数</th><th>💰 今日业绩</th><th>🎫 兑奖金额</th><th>📆 当月总业绩</th><th>操作</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>#</th><th>姓名</th><th>开单人数</th><th>今日业绩</th><th>兑奖金额</th><th>今日实际</th><th>当月业绩</th><th>历史</th><th>操作</th></tr></thead>
                     <tbody id="employeeBody"></tbody>
                 </table>
             </div>
-            <div class="section-footer">
-                <button class="btn btn-purple btn-sm" id="btnAddEmp" onclick="reAuth(addEmployee)">➕ 添加员工</button>
-                <button class="btn btn-outline btn-sm" id="btnResetEmp" onclick="reAuth(resetAllEmployee)">🔄 重置</button>
-                <button class="btn btn-amber btn-sm" id="btnHistoryPerf" onclick="openHistoryPerfModal()">📥 往日业绩</button>
+            <div style="padding:12px 20px; background:#fafafa; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                <button class="btn btn-outline btn-sm" onclick="reAuth(addEmployee)">➕ 添加</button>
+                <button class="btn btn-outline btn-sm" onclick="reAuth(resetEmployees)">🔄 重置</button>
+                <button class="btn btn-warning btn-sm" onclick="openHistoryPerf()">📥 往日业绩</button>
                 <span style="flex:1;"></span>
-                <div class="stat-inline">
-                    <div class="stat-item"><span class="label">总开单：</span><span class="amount" id="empOpenTotal">0</span></div>
-                    <div class="stat-item"><span class="label">总业绩：</span><span class="amount" id="empTotalInline">¥0.00</span></div>
-                    <div class="stat-item"><span class="label">总兑奖：</span><span class="amount" style="color:#b45309;" id="empPrizeTotalInline">¥0.00</span></div>
-                </div>
-                <button class="btn btn-primary btn-sm" id="btnSyncAll" onclick="doSyncWithUndo()">📤 同步到台账</button>
+                <button class="btn btn-primary" onclick="doSync()">📤 同步到台账</button>
             </div>
         </div>
 
-        <div class="toolbar" id="toolbar">
-            <button class="btn btn-primary" id="btnAddRow" onclick="reAuth(addLedgerRow)">➕ 添加台账行</button>
-            <button class="btn btn-success" id="btnSave" onclick="saveAllData()">💾 保存并同步</button>
-            <button class="btn btn-outline" id="btnExport" onclick="reAuth(exportCSV)">📥 导出CSV</button>
-            <button class="btn btn-outline" id="btnImport" onclick="openImportModal()">📤 导入CSV</button>
-            <span class="sep"></span>
-            <button class="btn btn-outline" id="btnRefresh" onclick="refreshAllCalc()">🔄 刷新计算</button>
-            <button class="btn btn-danger" id="btnClear" onclick="reAuth(clearAllData)">🗑️ 清空台账</button>
-            <button class="btn btn-amber btn-sm" id="btnUndo" onclick="undoLastSync()" style="display:none;" disabled>↩ 撤销同步</button>
+        <!-- 台账区域 -->
+        <div class="toolbar">
+            <button class="btn btn-primary btn-sm" onclick="reAuth(addLedgerRow)">➕ 添加行</button>
+            <button class="btn btn-success btn-sm" onclick="saveData()">💾 保存</button>
+            <button class="btn btn-outline btn-sm" onclick="reAuth(exportCSV)">📥 导出CSV</button>
+            <button class="btn btn-outline btn-sm" onclick="openImport()">📤 导入CSV</button>
+            <span class="separator"></span>
+            <button class="btn btn-danger btn-sm" onclick="reAuth(clearData)">🗑️ 清空</button>
+            <button class="btn btn-outline btn-sm" id="undoBtn" style="display:none;" onclick="undoSync()">↩ 撤销同步</button>
             <span style="margin-left:auto;">
                 <button class="btn btn-success" onclick="quickFinish()">✅ 今日结算</button>
             </span>
         </div>
 
         <div class="section">
-            <div class="section-header">📋 每日销售记录 <span class="badge" id="rowBadge">0 条</span> <span class="badge-today" id="todayBadge" style="display:none;">📌 今日行</span></div>
+            <div class="section-header">
+                📋 每日销售记录 <span class="badge" id="rowBadge">0条</span>
+                <span class="badge badge-green" id="todayBadge" style="display:none;">📌 今日</span>
+            </div>
             <div class="table-wrap" id="ledgerTableWrap">
                 <table>
                     <thead>
                         <tr>
-                            <th>📅 日期</th><th>👥 开单人数</th><th>🌟 新人开单</th><th>💰 员工业绩</th><th>🎫 兑奖</th>
-                            <th class="th-auto">📊 实际业绩</th><th>💸 支出费用</th><th>📌 昨日结余</th>
-                            <th class="th-auto">🏦 今日结余</th><th class="th-cum">📈 累计业绩</th>
-                            <th class="th-cum">📈 累计兑奖</th><th class="th-cum">📈 累计实际</th>
-                            <th class="th-cum">📈 累计支出</th><th>📝 备注</th><th>操作</th>
+                            <th>日期</th><th>开单人数</th><th>新人</th><th>员工业绩</th><th>兑奖</th><th>实际业绩</th>
+                            <th>支出</th><th>昨日结余</th><th>今日结余</th><th>累计业绩</th><th>累计兑奖</th>
+                            <th>累计实际</th><th>累计支出</th><th>备注</th><th></th>
                         </tr>
                     </thead>
                     <tbody id="ledgerBody"></tbody>
                 </table>
-                <div class="empty-state" id="emptyLedger" style="display:none;">📭 暂无台账记录</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">📊 累计汇总 <span class="badge" style="background:#d1fae5;color:#065f46;">自动累加</span></div>
-            <div class="table-wrap short">
-                <table>
-                    <thead><tr><th>📅 日期</th><th>💰 累计业绩</th><th>🎫 累计兑奖</th><th>📊 累计实际</th><th>💸 累计支出</th></tr></thead>
-                    <tbody id="cumulativeBody"></tbody>
-                </table>
-                <div class="empty-state" id="emptyCumulative" style="display:none;">📭 暂无累计数据</div>
+                <div id="emptyLedger" style="display:none;text-align:center;padding:40px;color:#94a3b8;">暂无记录</div>
             </div>
         </div>
     </div>
@@ -343,829 +385,737 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        (function() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
-                authDomain: "haixuanqi-16ad1.firebaseapp.com",
-                databaseURL: "https://haixuanqi-16ad1-default-rtdb.asia-southeast1.firebasedatabase.app/",
-                projectId: "haixuanqi-16ad1",
-                storageBucket: "haixuanqi-16ad1.firebasestorage.app",
-                messagingSenderId: "449619714205",
-                appId: "1:449619714205:web:10ee25d0dc5022d783f474",
-                measurementId: "G-E1B32ZW69Y"
-            };
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
+        // ==================== 云配置 ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
+            authDomain: "haixuanqi-16ad1.firebaseapp.com",
+            databaseURL: "https://haixuanqi-16ad1-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "haixuanqi-16ad1",
+            storageBucket: "haixuanqi-16ad1.firebasestorage.app",
+            messagingSenderId: "449619714205",
+            appId: "1:449619714205:web:10ee25d0dc5022d783f474"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-            const TODAY = new Date().toISOString().split('T')[0];
-            const DEFAULT_EMPLOYEES = [
-                { id: 'emp_1', name: '阿伦', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
-                { id: 'emp_2', name: '老杨', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
-                { id: 'emp_3', name: '阿波', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
-                { id: 'emp_4', name: '诗诗', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 },
-                { id: 'emp_5', name: '斌斌', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 }
-            ];
+        // ==================== 全局状态 ====================
+        const TODAY = new Date().toISOString().split('T')[0];
+        const DEFAULT_EMPLOYEES = [
+            { id:'e1', name:'阿伦', open:0, perf:0, prize:0 },
+            { id:'e2', name:'老杨', open:0, perf:0, prize:0 },
+            { id:'e3', name:'阿波', open:0, perf:0, prize:0 },
+            { id:'e4', name:'诗诗', open:0, perf:0, prize:0 },
+            { id:'e5', name:'斌斌', open:0, perf:0, prize:0 }
+        ];
 
-            let ledgerRows = [];
-            let employees = [];
-            let employeePerformanceHistory = {};
-            let isLoggedIn = false;
-            let adminCredentials = null;
-            let ignoreNextSnapshot = false;
-            let undoSnapshot = null;
-            let currentReAuthCallback = null;
+        let ledger = [];
+        let employees = [];
+        // 历史结构：{ date: { empId: { perf: number, prize: number } } }
+        let perfHistory = {};
+        let isLoggedIn = false;
+        let admin = null;
+        let undoSnapshot = null;
+        let reAuthCallback = null;
 
-            const $ = s => document.querySelector(s);
-            const $$ = s => document.querySelectorAll(s);
+        // ==================== 工具函数 ====================
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
 
-            const dom = {
-                ledgerBody: $('#ledgerBody'),
-                cumulativeBody: $('#cumulativeBody'),
-                employeeBody: $('#employeeBody'),
-                toast: $('#toast'),
-                loginBtn: $('#loginBtn'),
-                loginModal: $('#loginModal'),
-                loginError: $('#loginError'),
-                adminSetupModal: $('#adminSetupModal'),
-                changePwdModal: $('#changePwdModal'),
-                changePwdError: $('#changePwdError'),
-                reAuthModal: $('#reAuthModal'),
-                reAuthPassword: $('#reAuthPassword'),
-                reAuthError: $('#reAuthError'),
-                importModal: $('#importModal'),
-                csvFileName: $('#csvFileName'),
-                csvFileInput: $('#csvFileInput'),
-                historyModal: $('#historyModal'),
-                historyTitle: $('#historyTitle'),
-                historyContent: $('#historyContent'),
-                historyPerfModal: $('#historyPerfModal'),
-                historyEmpSelect: $('#historyEmpSelect'),
-                historyPerfDate: $('#historyPerfDate'),
-                historyPerfAmount: $('#historyPerfAmount'),
-                historyPrizeAmount: $('#historyPrizeAmount'),
-                lockBanner: $('#lockBanner'),
-                guideBanner: $('#guideBanner'),
-                headerDate: $('#headerDate'),
-                rowBadge: $('#rowBadge'),
-                todayBadge: $('#todayBadge'),
-                empBadge: $('#empBadge'),
-                empOpenTotal: $('#empOpenTotal'),
-                empTotalInline: $('#empTotalInline'),
-                empPrizeTotalInline: $('#empPrizeTotalInline'),
-                cardBalance: $('#cardBalance'),
-                cardEmpTotal: $('#cardEmpTotal'),
-                cardTotalPrizeEmp: $('#cardTotalPrizeEmp'),
-                cardTotalPerf: $('#cardTotalPerf'),
-                cardTotalPrizeLedger: $('#cardTotalPrizeLedger'),
-                cardTotalActual: $('#cardTotalActual'),
-                cardTotalExpenses: $('#cardTotalExpenses'),
-                emptyLedger: $('#emptyLedger'),
-                emptyCumulative: $('#emptyCumulative'),
-                btnUndo: $('#btnUndo')
-            };
+        function fmtMoney(v) {
+            const n = Number(v);
+            if (isNaN(n)) return '¥0.00';
+            const abs = Math.abs(n).toFixed(2);
+            const parts = abs.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return (n < 0 ? '-' : '') + '¥' + parts.join('.');
+        }
 
-            const fmtMoney = v => {
-                const n = +v;
-                if (isNaN(n)) return '¥0.00';
-                const a = Math.abs(n).toFixed(2).split('.');
-                a[0] = a[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                return (n < 0 ? '-' : '') + '¥' + a.join('.');
-            };
-            const showToast = (m, t) => {
-                dom.toast.textContent = m;
-                dom.toast.className = 'toast ' + (t === 'success' ? 'toast-success' : t === 'warn' ? 'toast-warn' : '') + ' show';
-                clearTimeout(window._tt);
-                window._tt = setTimeout(() => { dom.toast.className = 'toast'; }, 2500);
-            };
-            const getEmpSums = () => {
-                let open = 0, perf = 0, prize = 0;
-                employees.forEach(e => { open += parseInt(e.openCount) || 0; perf += parseFloat(e.performance) || 0; prize += parseFloat(e.prizeRedemption) || 0; });
-                return { open, performance: +perf.toFixed(2), prizeRedemption: +prize.toFixed(2) };
-            };
+        function toast(msg, type = '') {
+            const el = $('#toast');
+            el.textContent = msg;
+            el.className = 'toast ' + type + ' show';
+            clearTimeout(el._timeout);
+            el._timeout = setTimeout(() => el.className = 'toast', 2500);
+        }
 
-            function getEmployeeMonthlyPerformance(empId) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const monthPrefix = `${year}-${month}`;
-                let total = 0;
-                for (const [date, dayData] of Object.entries(employeePerformanceHistory)) {
-                    if (date.startsWith(monthPrefix) && dayData[empId]) {
-                        total += parseFloat(dayData[empId]) || 0;
-                    }
+        function getEmpSums() {
+            let open = 0, perf = 0, prize = 0;
+            employees.forEach(e => {
+                open += parseInt(e.open) || 0;
+                perf += parseFloat(e.perf) || 0;
+                prize += parseFloat(e.prize) || 0;
+            });
+            return { open, perf: +perf.toFixed(2), prize: +prize.toFixed(2) };
+        }
+
+        function getMonthlyPerf(empId) {
+            const now = new Date();
+            const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            let total = 0;
+            for (const [date, day] of Object.entries(perfHistory)) {
+                if (date.startsWith(prefix) && day[empId]) {
+                    total += parseFloat(day[empId].perf || 0); // 累计兑奖前的业绩
                 }
-                return +total.toFixed(2);
             }
+            return +total.toFixed(2);
+        }
 
-            function createBlankRow(date) {
-                return { date: date || TODAY, openCount: 0, newOpen: 0, perf: 0, prize: 0, actual: 0, expenses: 0, yesterday: 0, todayBalance: 0, totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0, notes: '' };
-            }
-
-            function ensureTodayRow(silent = false) {
-                const hasToday = ledgerRows.some(r => r.date === TODAY);
-                if (!hasToday && ledgerRows.length > 0) {
-                    const prev = ledgerRows[ledgerRows.length - 1];
-                    const newRow = createBlankRow(TODAY);
-                    newRow.yesterday = prev.todayBalance || 0;
-                    ledgerRows.push(newRow);
-                    if (!silent) showToast('📅 已自动创建今日台账行', 'success');
-                    return true;
-                }
-                if (!ledgerRows.length) {
-                    ledgerRows.push(createBlankRow(TODAY));
-                    if (!silent) showToast('📅 已创建初始台账行', 'success');
-                    return true;
-                }
-                return false;
-            }
-
-            function recalcLedger() {
-                if (!ledgerRows.length) return;
-                ledgerRows.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-                let prevToday = null;
-                ledgerRows.forEach((r, i) => {
-                    r.actual = +((r.perf || 0) - (r.prize || 0)).toFixed(2);
-                    r.yesterday = i === 0 ? +(r.yesterday || 0) : prevToday;
-                    r.todayBalance = +(r.actual - (r.expenses || 0) + r.yesterday).toFixed(2);
-                    prevToday = r.todayBalance;
-                    if (i === 0) {
-                        r.totalPerf = +(r.perf || 0);
-                        r.totalPrize = +(r.prize || 0);
-                        r.totalActual = r.actual;
-                        r.totalExpenses = +(r.expenses || 0);
-                    } else {
-                        const p = ledgerRows[i - 1];
-                        r.totalPerf = +(p.totalPerf + (r.perf || 0)).toFixed(2);
-                        r.totalPrize = +(p.totalPrize + (r.prize || 0)).toFixed(2);
-                        r.totalActual = +(p.totalActual + r.actual).toFixed(2);
-                        r.totalExpenses = +(p.totalExpenses + (r.expenses || 0)).toFixed(2);
-                    }
-                });
-            }
-
-            function pushToCloud() {
-                if (!isLoggedIn) return;
-                ignoreNextSnapshot = true;
-                db.ref('/appData').set({ ledger: ledgerRows, employees: employees, performanceHistory: employeePerformanceHistory }).catch(err => {
-                    console.error('云保存失败', err);
-                    showToast('⚠️ 云端保存失败', 'warn');
-                });
-                localStorage.setItem('football_ledger_cloud_v5', JSON.stringify(ledgerRows));
-                localStorage.setItem('football_employees_cloud_v5', JSON.stringify(employees));
-                try { localStorage.setItem('football_perf_history', JSON.stringify(employeePerformanceHistory)); } catch (e) {}
-            }
-
-            function startCloudListener() {
-                db.ref('/appData').on('value', snapshot => {
-                    if (ignoreNextSnapshot) { ignoreNextSnapshot = false; return; }
-                    const val = snapshot.val();
-                    if (val && val.ledger && val.employees) {
-                        ledgerRows = val.ledger;
-                        employees = val.employees;
-                        employeePerformanceHistory = val.performanceHistory || {};
-                        ensureTodayRow(true);
-                        recalcLedger();
-                        renderAll();
-                        showToast('☁️ 数据已从云端更新', 'success');
-                    }
-                });
-            }
-
-            function loadFromCloud(callback) {
-                db.ref('/appData').once('value').then(snapshot => {
-                    const val = snapshot.val();
-                    if (val && val.ledger && val.employees) {
-                        ledgerRows = val.ledger;
-                        employees = val.employees;
-                        employeePerformanceHistory = val.performanceHistory || {};
-                    } else {
-                        ledgerRows = [createBlankRow(TODAY)];
-                        employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        employeePerformanceHistory = {};
-                        db.ref('/appData').set({ ledger: ledgerRows, employees: employees, performanceHistory: employeePerformanceHistory }).catch(e => console.warn);
-                    }
-                    ensureTodayRow(true);
-                    callback();
-                }).catch(err => {
-                    console.warn('云端加载失败，使用本地缓存', err);
-                    const rawL = localStorage.getItem('football_ledger_cloud_v5');
-                    const rawE = localStorage.getItem('football_employees_cloud_v5');
-                    const rawH = localStorage.getItem('football_perf_history');
-                    if (rawL) ledgerRows = JSON.parse(rawL);
-                    if (rawE) employees = JSON.parse(rawE);
-                    if (rawH) employeePerformanceHistory = JSON.parse(rawH);
-                    if (!ledgerRows.length) ledgerRows = [createBlankRow(TODAY)];
-                    if (!employees.length) employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                    ensureTodayRow(true);
-                    callback();
-                });
-            }
-
-            function loadAdminCredentials(callback) {
-                db.ref('/admin').once('value').then(snapshot => {
-                    const val = snapshot.val();
-                    if (val && val.username && val.password) {
-                        adminCredentials = val;
-                    } else {
-                        dom.adminSetupModal.classList.add('active');
-                    }
-                    if (callback) callback();
-                }).catch(err => {
-                    console.error('管理员数据加载失败', err);
-                    showToast('⚠️ 无法连接云端', 'warn');
-                    dom.adminSetupModal.classList.add('active');
-                    if (callback) callback();
-                });
-            }
-
-            window.reAuth = function(callback) {
-                if (!isLoggedIn || !adminCredentials) { showToast('请先登录', 'warn'); return; }
-                currentReAuthCallback = callback;
-                dom.reAuthPassword.value = '';
-                dom.reAuthError.style.display = 'none';
-                dom.reAuthModal.classList.add('active');
-                setTimeout(() => dom.reAuthPassword.focus(), 100);
+        function createBlankRow(date) {
+            return {
+                date: date || TODAY,
+                openCount: 0, newOpen: 0, perf: 0, prize: 0,
+                actual: 0, expenses: 0, yesterday: 0, todayBalance: 0,
+                totalPerf: 0, totalPrize: 0, totalActual: 0, totalExpenses: 0,
+                notes: ''
             };
-            window.closeReAuth = function() { dom.reAuthModal.classList.remove('active'); currentReAuthCallback = null; };
-            window.submitReAuth = function() {
-                const pwd = dom.reAuthPassword.value.trim();
-                if (pwd === adminCredentials.password) {
-                    dom.reAuthModal.classList.remove('active');
-                    if (currentReAuthCallback) { currentReAuthCallback(); currentReAuthCallback = null; }
+        }
+
+        function ensureTodayRow(silent = false) {
+            const hasToday = ledger.some(r => r.date === TODAY);
+            if (!hasToday && ledger.length > 0) {
+                const prev = ledger[ledger.length - 1];
+                const newRow = createBlankRow(TODAY);
+                newRow.yesterday = prev.todayBalance || 0;
+                ledger.push(newRow);
+                if (!silent) toast('已自动创建今日行', 'success');
+                return true;
+            }
+            if (!ledger.length) {
+                ledger.push(createBlankRow(TODAY));
+                if (!silent) toast('已创建初始行', 'success');
+                return true;
+            }
+            return false;
+        }
+
+        function recalc() {
+            if (!ledger.length) return;
+            ledger.sort((a,b) => a.date.localeCompare(b.date));
+            let prevBalance = null;
+            ledger.forEach((r, i) => {
+                r.actual = +((r.perf || 0) - (r.prize || 0)).toFixed(2);
+                r.yesterday = i === 0 ? +(r.yesterday || 0) : prevBalance;
+                r.todayBalance = +(r.actual - (r.expenses || 0) + r.yesterday).toFixed(2);
+                prevBalance = r.todayBalance;
+
+                if (i === 0) {
+                    r.totalPerf = +(r.perf || 0);
+                    r.totalPrize = +(r.prize || 0);
+                    r.totalActual = r.actual;
+                    r.totalExpenses = +(r.expenses || 0);
                 } else {
-                    dom.reAuthError.style.display = 'block';
-                    dom.reAuthPassword.value = '';
+                    const prev = ledger[i-1];
+                    r.totalPerf = +(prev.totalPerf + (r.perf || 0)).toFixed(2);
+                    r.totalPrize = +(prev.totalPrize + (r.prize || 0)).toFixed(2);
+                    r.totalActual = +(prev.totalActual + r.actual).toFixed(2);
+                    r.totalExpenses = +(prev.totalExpenses + (r.expenses || 0)).toFixed(2);
                 }
-            };
+            });
+        }
 
-            function saveUndoSnapshot() {
-                undoSnapshot = {
-                    ledger: JSON.parse(JSON.stringify(ledgerRows)),
-                    employees: JSON.parse(JSON.stringify(employees)),
-                    performanceHistory: JSON.parse(JSON.stringify(employeePerformanceHistory))
-                };
-                dom.btnUndo.style.display = '';
-                dom.btnUndo.disabled = false;
-            }
+        // ==================== 云同步 ====================
+        function pushToCloud() {
+            if (!isLoggedIn) return;
+            db.ref('/appData').set({
+                ledger, employees, performanceHistory: perfHistory
+            }).catch(e => toast('云端保存失败', 'warn'));
+            // 本地备份
+            localStorage.setItem('ledger_v6', JSON.stringify(ledger));
+            localStorage.setItem('employees_v6', JSON.stringify(employees));
+            try { localStorage.setItem('perfHistory_v6', JSON.stringify(perfHistory)); } catch(e){}
+        }
 
-            window.doSyncWithUndo = function() {
-                if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
-                if (!ledgerRows.length) { showToast('请先添加台账行', 'warn'); return; }
-                const created = ensureTodayRow();
-                recalcLedger();
-                saveUndoSnapshot();
-
-                const sums = getEmpSums();
-                let target = ledgerRows.length - 1;
-                for (let i = ledgerRows.length - 1; i >= 0; i--) {
-                    if (ledgerRows[i].date === TODAY) { target = i; break; }
-                }
-                ledgerRows[target].openCount = sums.open;
-                ledgerRows[target].perf = sums.performance;
-                ledgerRows[target].prize = sums.prizeRedemption;
-                ledgerRows[target].newOpen = 0;
-
-                if (!employeePerformanceHistory[TODAY]) employeePerformanceHistory[TODAY] = {};
-                employees.forEach(emp => {
-                    employeePerformanceHistory[TODAY][emp.id] = parseFloat(emp.performance) || 0;
-                });
-
-                recalcLedger();
-                renderAll();
-                pushToCloud();
-                showToast(created ? '✅ 已创建今日行并同步' : '✅ 已同步汇总到台账', 'success');
-            };
-
-            window.undoLastSync = function() {
-                if (!undoSnapshot) { showToast('没有可撤销的操作', 'warn'); return; }
-                if (confirm('↩ 撤销上一次同步？')) {
-                    ledgerRows = undoSnapshot.ledger;
-                    employees = undoSnapshot.employees;
-                    employeePerformanceHistory = undoSnapshot.performanceHistory;
-                    undoSnapshot = null;
-                    dom.btnUndo.disabled = true;
-                    recalcLedger();
+        let ignoreSnapshot = false;
+        function startListener() {
+            db.ref('/appData').on('value', snap => {
+                if (ignoreSnapshot) { ignoreSnapshot = false; return; }
+                const val = snap.val();
+                if (val && val.ledger && val.employees) {
+                    ledger = val.ledger;
+                    employees = val.employees;
+                    perfHistory = val.performanceHistory || {};
+                    ensureTodayRow(true);
+                    recalc();
                     renderAll();
+                    toast('☁️ 数据已从云端更新', 'success');
+                }
+            });
+        }
+
+        function loadFromCloud(cb) {
+            db.ref('/appData').once('value').then(snap => {
+                const val = snap.val();
+                if (val && val.ledger && val.employees) {
+                    ledger = val.ledger;
+                    employees = val.employees;
+                    perfHistory = val.performanceHistory || {};
+                } else {
+                    ledger = [createBlankRow(TODAY)];
+                    employees = DEFAULT_EMPLOYEES.map(e => ({...e}));
+                    perfHistory = {};
                     pushToCloud();
-                    showToast('已撤销同步', 'success');
                 }
-            };
+                ensureTodayRow(true);
+                cb();
+            }).catch(() => {
+                const l = localStorage.getItem('ledger_v6');
+                const emp = localStorage.getItem('employees_v6');
+                const hist = localStorage.getItem('perfHistory_v6');
+                if (l) ledger = JSON.parse(l);
+                if (emp) employees = JSON.parse(emp);
+                if (hist) perfHistory = JSON.parse(hist);
+                if (!ledger.length) ledger = [createBlankRow(TODAY)];
+                if (!employees.length) employees = DEFAULT_EMPLOYEES.map(e => ({...e}));
+                ensureTodayRow(true);
+                cb();
+            });
+        }
 
-            window.triggerImportCSV = function() { reAuth(importCSV); };
-
-            window.setupAdmin = function() {
-                const username = $('#setupUsername').value.trim();
-                const password = $('#setupPassword').value.trim();
-                if (!username || password.length < 4) { showToast('用户名不能为空，密码至少4位', 'warn'); return; }
-                adminCredentials = { username, password };
-                db.ref('/admin').set(adminCredentials).then(() => {
-                    dom.adminSetupModal.classList.remove('active');
-                    isLoggedIn = true;
-                    updateLoginUI();
-                    if (!ledgerRows.length) {
-                        ledgerRows = [createBlankRow(TODAY)];
-                        employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        employeePerformanceHistory = {};
-                        pushToCloud();
-                    }
-                    renderAll();
-                    showToast('管理员已设置并登录', 'success');
-                }).catch(() => {
-                    dom.adminSetupModal.classList.remove('active');
-                    isLoggedIn = true;
-                    updateLoginUI();
-                    if (!ledgerRows.length) {
-                        ledgerRows = [createBlankRow(TODAY)];
-                        employees = DEFAULT_EMPLOYEES.map(e => ({ ...e }));
-                        employeePerformanceHistory = {};
-                    }
-                    renderAll();
-                    showToast('已在本地设置管理员', 'warn');
-                });
-            };
-
-            window.toggleLogin = function() {
-                if (isLoggedIn) {
-                    isLoggedIn = false;
-                    updateLoginUI();
-                    renderAll();
-                    showToast('已登出', 'warn');
+        function loadAdmin(cb) {
+            db.ref('/admin').once('value').then(snap => {
+                const val = snap.val();
+                if (val && val.username && val.password) {
+                    admin = val;
                 } else {
-                    if (!adminCredentials) { showToast('请先设置管理员', 'warn'); dom.adminSetupModal.classList.add('active'); return; }
-                    dom.loginModal.classList.add('active');
-                    $('#usernameInput').value = '';
-                    $('#passwordInput').value = '';
-                    dom.loginError.style.display = 'none';
+                    $('#setupModal').classList.add('active');
                 }
-            };
-            window.handleLogin = function() {
-                const u = $('#usernameInput').value.trim();
-                const p = $('#passwordInput').value.trim();
-                if (adminCredentials && u === adminCredentials.username && p === adminCredentials.password) {
-                    isLoggedIn = true;
-                    dom.loginModal.classList.remove('active');
-                    updateLoginUI();
-                    const created = ensureTodayRow(true);
-                    if (created) { recalcLedger(); pushToCloud(); }
+                cb();
+            }).catch(() => {
+                $('#setupModal').classList.add('active');
+                cb();
+            });
+        }
+
+        // ==================== 认证相关 ====================
+        window.reAuth = function(callback) {
+            if (!isLoggedIn) return toast('请先登录', 'warn');
+            reAuthCallback = callback;
+            $('#reAuthPass').value = '';
+            $('#reAuthModal').classList.add('active');
+        };
+        window.closeReAuth = function() { $('#reAuthModal').classList.remove('active'); reAuthCallback = null; };
+        window.submitReAuth = function() {
+            if ($('#reAuthPass').value === admin.password) {
+                $('#reAuthModal').classList.remove('active');
+                if (reAuthCallback) { reAuthCallback(); reAuthCallback = null; }
+            } else {
+                toast('密码错误', 'warn');
+            }
+        };
+
+        window.handleLoginClick = function() {
+            if (isLoggedIn) {
+                isLoggedIn = false;
+                updateLoginUI();
+                renderAll();
+                toast('已登出', 'warn');
+            } else {
+                if (!admin) return toast('管理员未设置', 'warn');
+                $('#loginModal').classList.add('active');
+                $('#loginUser').value = '';
+                $('#loginPass').value = '';
+                $('#loginError').style.display = 'none';
+            }
+        };
+        window.doLogin = function() {
+            const u = $('#loginUser').value.trim();
+            const p = $('#loginPass').value.trim();
+            if (admin && u === admin.username && p === admin.password) {
+                isLoggedIn = true;
+                $('#loginModal').classList.remove('active');
+                updateLoginUI();
+                ensureTodayRow(true);
+                renderAll();
+                toast('✅ 登录成功', 'success');
+            } else {
+                $('#loginError').style.display = 'block';
+            }
+        };
+        window.setupAdmin = function() {
+            const u = $('#setupUser').value.trim();
+            const p = $('#setupPass').value.trim();
+            if (!u || p.length < 4) return toast('用户名非空，密码至少4位', 'warn');
+            admin = { username: u, password: p };
+            db.ref('/admin').set(admin).then(() => {
+                $('#setupModal').classList.remove('active');
+                isLoggedIn = true;
+                updateLoginUI();
+                if (!ledger.length) { ledger = [createBlankRow(TODAY)]; employees = DEFAULT_EMPLOYEES.map(e => ({...e})); }
+                renderAll();
+                toast('管理员已设置', 'success');
+            }).catch(() => {
+                isLoggedIn = true;
+                updateLoginUI();
+                renderAll();
+                toast('已在本地设置管理员', 'warn');
+            });
+        };
+        window.changePassword = function() {
+            const old = $('#oldPass').value.trim();
+            const newP = $('#newPass').value.trim();
+            if (old !== admin.password) { $('#changeError').style.display = 'block'; return; }
+            if (newP.length < 4) return toast('新密码至少4位', 'warn');
+            admin.password = newP;
+            db.ref('/admin').set(admin).then(() => {
+                $('#changePwdModal').classList.remove('active');
+                toast('密码已修改', 'success');
+            }).catch(() => toast('密码已本地修改', 'warn'));
+        };
+
+        function updateLoginUI() {
+            const btn = $('#loginBtn');
+            if (isLoggedIn) {
+                btn.textContent = '👤 管理员 (登出)';
+                btn.classList.add('logged-in');
+                if (!$('#changePwdBtn')) {
+                    const toolbar = document.querySelector('.toolbar');
+                    const sep = toolbar.querySelector('.separator');
+                    const btnEl = document.createElement('button');
+                    btnEl.id = 'changePwdBtn';
+                    btnEl.className = 'btn btn-outline btn-sm';
+                    btnEl.textContent = '🔑 修改密码';
+                    btnEl.onclick = () => { $('#changePwdModal').classList.add('active'); };
+                    toolbar.insertBefore(btnEl, sep);
+                }
+            } else {
+                btn.textContent = '🔒 管理员登录';
+                btn.classList.remove('logged-in');
+                const b = $('#changePwdBtn'); if (b) b.remove();
+                undoSnapshot = null;
+                $('#undoBtn').style.display = 'none';
+            }
+            setEditable(!isLoggedIn);
+        }
+
+        function setEditable(disabled) {
+            $$('input, select, button:not(.btn-login)').forEach(el => {
+                if (el.closest('.modal-overlay')) return;
+                if (el.tagName === 'BUTTON' && el.id !== 'loginBtn' && el.id !== 'changePwdBtn') el.disabled = disabled;
+                else if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.disabled = disabled;
+            });
+        }
+
+        // ==================== 渲染 ====================
+        function renderAll() {
+            recalc();
+            renderEmployees();
+            renderLedger();
+            updateCards();
+            $('#headerDate').textContent = new Date().toLocaleDateString('zh-CN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        }
+
+        function renderEmployees() {
+            const tbody = $('#employeeBody');
+            tbody.innerHTML = '';
+            $('#empCount').textContent = employees.length + '名';
+            const dis = isLoggedIn ? '' : 'disabled';
+            employees.forEach((e, i) => {
+                const monthPerf = getMonthlyPerf(e.id);      // 当月累计业绩（兑奖前）
+                const todayActual = +((e.perf || 0) - (e.prize || 0)).toFixed(2); // 今日实际业绩
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td class="employee-name-cell">
+                        <input type="text" data-eidx="${i}" data-efield="name" value="${e.name||''}" placeholder="姓名" ${dis}>
+                        <span class="history-icon" data-eid="${e.id}" title="查看历史数据">📋</span>
+                    </td>
+                    <td><input type="number" data-eidx="${i}" data-efield="open" value="${e.open||0}" min="0" ${dis}></td>
+                    <td><input type="number" data-eidx="${i}" data-efield="perf" value="${e.perf||0}" step="0.01" ${dis}></td>
+                    <td><input type="number" data-eidx="${i}" data-efield="prize" value="${e.prize||0}" step="0.01" ${dis}></td>
+                    <td style="font-weight:700; color:#0d9488;">${fmtMoney(todayActual)}</td>
+                    <td style="font-weight:600; color:#6d28d9;">${fmtMoney(monthPerf)}</td>
+                    <td style="text-align:center;">
+                        <span class="history-icon" data-eid="${e.id}" style="cursor:pointer;" title="每日详细记录">📊</span>
+                    </td>
+                    <td><button class="btn btn-danger btn-sm" data-edel="${i}" ${dis}>✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            // 绑定所有历史图标（姓名旁的📋和后面的📊都生效）
+            $$('.history-icon').forEach(icon => {
+                icon.onclick = function(e) {
+                    const eid = this.dataset.eid;
+                    const emp = employees.find(emp => emp.id === eid);
+                    if (emp) showHistory(emp);
+                };
+            });
+            updateEmpSummary();
+        }
+
+        function updateEmpSummary() {
+            const sums = getEmpSums();
+            $('#empOpenTotal').textContent = sums.open;
+            $('#empTotalInline').textContent = fmtMoney(sums.perf);
+            $('#cardEmpTotal').textContent = fmtMoney(sums.perf);
+            $('#cardPrizeEmp').textContent = fmtMoney(sums.prize);
+        }
+
+        function renderLedger() {
+            const tbody = $('#ledgerBody');
+            tbody.innerHTML = '';
+            if (!ledger.length) {
+                $('#emptyLedger').style.display = 'block';
+                $('#rowBadge').textContent = '0条';
+                return;
+            }
+            $('#emptyLedger').style.display = 'none';
+            $('#rowBadge').textContent = ledger.length + '条';
+            const dis = isLoggedIn ? '' : 'disabled';
+            ledger.forEach((r, i) => {
+                const isToday = r.date === TODAY;
+                const tr = document.createElement('tr');
+                if (isToday) tr.classList.add('row-today');
+                tr.innerHTML = `
+                    <td><input type="date" data-lidx="${i}" data-lfield="date" value="${r.date}" ${dis}></td>
+                    <td><input type="number" data-lidx="${i}" data-lfield="openCount" value="${r.openCount||0}" min="0" ${dis}></td>
+                    <td><input type="number" data-lidx="${i}" data-lfield="newOpen" value="${r.newOpen||0}" min="0" ${dis}></td>
+                    <td><input type="number" data-lidx="${i}" data-lfield="perf" value="${r.perf||0}" step="0.01" ${dis}></td>
+                    <td><input type="number" data-lidx="${i}" data-lfield="prize" value="${r.prize||0}" step="0.01" ${dis}></td>
+                    <td>${fmtMoney(r.actual)}</td>
+                    <td><input type="number" data-lidx="${i}" data-lfield="expenses" value="${r.expenses||0}" step="0.01" ${dis}></td>
+                    <td>${i===0 ? `<input type="number" data-lidx="0" data-lfield="yesterday" value="${r.yesterday||0}" step="0.01" ${dis}>` : fmtMoney(r.yesterday)}</td>
+                    <td><strong>${fmtMoney(r.todayBalance)}</strong></td>
+                    <td>${fmtMoney(r.totalPerf)}</td>
+                    <td>${fmtMoney(r.totalPrize)}</td>
+                    <td>${fmtMoney(r.totalActual)}</td>
+                    <td>${fmtMoney(r.totalExpenses)}</td>
+                    <td><input type="text" data-lidx="${i}" data-lfield="notes" value="${r.notes||''}" placeholder="备注" ${dis}></td>
+                    <td><button class="btn btn-danger btn-sm" data-ldel="${i}" ${dis}>✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            const hasToday = ledger.some(r => r.date === TODAY);
+            $('#todayBadge').style.display = hasToday ? 'inline' : 'none';
+            updateCards();
+        }
+
+        function updateCards() {
+            if (!ledger.length) {
+                ['cardBalance','cardTotalPerf','cardTotalPrize','cardActual'].forEach(id => $(`#${id}`).textContent = '¥0.00');
+                return;
+            }
+            const last = ledger[ledger.length-1];
+            $('#cardBalance').textContent = fmtMoney(last.todayBalance);
+            $('#cardTotalPerf').textContent = fmtMoney(last.totalPerf);
+            $('#cardTotalPrize').textContent = fmtMoney(last.totalPrize);
+            $('#cardActual').textContent = fmtMoney(last.totalActual);
+        }
+
+        // ==================== 事件绑定 ====================
+        function bindEvents() {
+            // 员工编辑
+            $('#employeeBody').addEventListener('input', e => {
+                if (!isLoggedIn) return;
+                const inp = e.target;
+                if (!inp.dataset.eidx) return;
+                const i = +inp.dataset.eidx;
+                const field = inp.dataset.efield;
+                if (field === 'name') employees[i].name = inp.value;
+                else if (field === 'open') employees[i].open = parseInt(inp.value) || 0;
+                else if (field === 'perf' || field === 'prize') employees[i][field] = parseFloat(inp.value) || 0;
+                updateEmpSummary();
+                autoSave();
+            });
+            // 员工删除
+            $('#employeeBody').addEventListener('click', e => {
+                if (!isLoggedIn) return;
+                const btn = e.target.closest('[data-edel]');
+                if (!btn) return;
+                const i = +btn.dataset.edel;
+                if (confirm('确认删除该员工？')) {
+                    employees.splice(i,1);
+                    pushToCloud();
                     renderAll();
-                    showToast('✅ 登录成功', 'success');
-                } else {
-                    dom.loginError.style.display = 'block';
-                    $('#passwordInput').value = '';
                 }
-            };
-            window.changePassword = function() {
-                const old = $('#oldPassword').value.trim();
-                const newP = $('#newPassword').value.trim();
-                if (!adminCredentials) return;
-                if (old !== adminCredentials.password) { $('#changePwdError').style.display = 'block'; return; }
-                if (newP.length < 4) { showToast('新密码至少4位', 'warn'); return; }
-                adminCredentials.password = newP;
-                db.ref('/admin').set(adminCredentials).then(() => {
-                    dom.changePwdModal.classList.remove('active');
-                    showToast('🔑 密码已修改', 'success');
-                }).catch(() => showToast('密码已本地修改', 'warn'));
-            };
-
-            function updateLoginUI() {
-                if (isLoggedIn) {
-                    dom.loginBtn.textContent = '👤 管理员 (登出)';
-                    dom.loginBtn.className = 'btn-login unlocked';
-                    dom.lockBanner.style.display = 'none';
-                    if (!document.getElementById('btnChangePwd')) {
-                        const btn = document.createElement('button');
-                        btn.id = 'btnChangePwd';
-                        btn.className = 'btn btn-outline btn-sm';
-                        btn.textContent = '🔑 修改密码';
-                        btn.onclick = function() {
-                            if (!isLoggedIn) return showToast('请先登录', 'warn');
-                            $('#oldPassword').value = ''; $('#newPassword').value = ''; $('#changePwdError').style.display = 'none';
-                            dom.changePwdModal.classList.add('active');
-                        };
-                        const toolbar = document.getElementById('toolbar');
-                        const sep = toolbar.querySelector('.sep');
-                        toolbar.insertBefore(btn, sep);
-                    }
-                } else {
-                    dom.loginBtn.textContent = '🔒 管理员登录';
-                    dom.loginBtn.className = 'btn-login locked';
-                    dom.lockBanner.style.display = 'flex';
-                    const btn = document.getElementById('btnChangePwd');
-                    if (btn) btn.remove();
-                    undoSnapshot = null;
-                    dom.btnUndo.style.display = 'none';
-                    dom.btnUndo.disabled = true;
-                }
-                setEditable(!isLoggedIn);
-            }
-
-            function setEditable(dis) {
-                const btns = ['#btnAddEmp', '#btnResetEmp', '#btnSyncAll', '#btnAddRow', '#btnSave', '#btnRefresh', '#btnClear', '#btnExport', '#btnImport'];
-                btns.forEach(s => { const el = $(s); if (el) el.disabled = dis; });
-                $$('#ledgerBody input, #employeeBody input').forEach(i => i.disabled = dis);
-                $$('.btn-del').forEach(b => b.disabled = dis);
-            }
-
-            function renderAll() {
-                recalcLedger();
-                renderLedger();
-                renderCumulative();
-                renderEmployees();
-                updateCards();
-                updateHeaderDate();
-            }
-
-            function renderLedger() {
-                dom.ledgerBody.innerHTML = '';
-                if (!ledgerRows.length) { dom.emptyLedger.style.display = 'block'; dom.rowBadge.textContent = '0 条'; dom.todayBadge.style.display = 'none'; return; }
-                dom.emptyLedger.style.display = 'none';
-                dom.rowBadge.textContent = ledgerRows.length + ' 条';
-                const hasToday = ledgerRows.some(r => r.date === TODAY);
-                dom.todayBadge.style.display = hasToday ? 'inline' : 'none';
-                const dis = isLoggedIn ? '' : 'disabled';
-                ledgerRows.forEach((r, i) => {
-                    const isTodayRow = r.date === TODAY;
-                    const tr = document.createElement('tr');
-                    if (isTodayRow) tr.classList.add('row-today');
-                    tr.innerHTML = `
-                        <td><input type="date" class="input-date" data-lidx="${i}" data-lfield="date" value="${r.date||TODAY}" ${dis}></td>
-                        <td><input type="number" data-lidx="${i}" data-lfield="openCount" value="${r.openCount||0}" min="0" step="1" ${dis}></td>
-                        <td><input type="number" data-lidx="${i}" data-lfield="newOpen" value="${r.newOpen||0}" min="0" step="1" ${dis}></td>
-                        <td><input type="number" class="input-money" data-lidx="${i}" data-lfield="perf" value="${r.perf||0}" step="0.01" ${dis}></td>
-                        <td><input type="number" class="input-money" data-lidx="${i}" data-lfield="prize" value="${r.prize||0}" step="0.01" ${dis}></td>
-                        <td class="cell-auto">${fmtMoney(r.actual)}</td>
-                        <td><input type="number" class="input-money" data-lidx="${i}" data-lfield="expenses" value="${r.expenses||0}" step="0.01" ${dis}></td>
-                        <td>${i===0?`<input type="number" class="input-money" data-lidx="${i}" data-lfield="yesterday" value="${r.yesterday||0}" step="0.01" style="background:#fffdf5;border-color:#fde68a;" title="初始结余" ${dis}>`:`<span class="cell-auto" style="background:#fefce8;">${fmtMoney(r.yesterday)}</span>`}</td>
-                        <td class="cell-auto highlight">${fmtMoney(r.todayBalance)}</td>
-                        <td class="cell-cum">${fmtMoney(r.totalPerf)}</td>
-                        <td class="cell-cum">${fmtMoney(r.totalPrize)}</td>
-                        <td class="cell-cum">${fmtMoney(r.totalActual)}</td>
-                        <td class="cell-cum">${fmtMoney(r.totalExpenses)}</td>
-                        <td><input type="text" data-lidx="${i}" data-lfield="notes" value="${r.notes||''}" placeholder="备注" style="text-align:left;" ${dis}></td>
-                        <td><button class="btn-del" data-ldel="${i}" ${dis}>✕</button></td>
-                    `;
-                    dom.ledgerBody.appendChild(tr);
-                });
-            }
-
-            function renderCumulative() {
-                dom.cumulativeBody.innerHTML = '';
-                if (!ledgerRows.length) { dom.emptyCumulative.style.display = 'block'; return; }
-                dom.emptyCumulative.style.display = 'none';
-                ledgerRows.forEach(r => {
-                    const tr = document.createElement('tr');
-                    if (r.date === TODAY) tr.classList.add('row-today');
-                    tr.innerHTML = `<td>${r.date||''}</td><td>${fmtMoney(r.totalPerf)}</td><td>${fmtMoney(r.totalPrize)}</td><td>${fmtMoney(r.totalActual)}</td><td>${fmtMoney(r.totalExpenses)}</td>`;
-                    dom.cumulativeBody.appendChild(tr);
-                });
-            }
-
-            function renderEmployees() {
-                dom.employeeBody.innerHTML = '';
-                dom.empBadge.textContent = employees.length + ' 名员工';
-                const dis = isLoggedIn ? '' : 'disabled';
-                employees.forEach((e, i) => {
-                    const monthlyPerf = getEmployeeMonthlyPerformance(e.id);
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${i+1}</td>
-                        <td><span class="employee-name" data-eid="${e.id}" title="点击查看历史业绩">${e.name||'未命名'}</span></td>
-                        <td><input type="number" data-eidx="${i}" data-efield="openCount" value="${e.openCount||0}" min="0" step="1" ${dis}></td>
-                        <td><input type="number" class="input-money" data-eidx="${i}" data-efield="performance" value="${e.performance||0}" step="0.01" ${dis}></td>
-                        <td><input type="number" class="input-money" data-eidx="${i}" data-efield="prizeRedemption" value="${e.prizeRedemption||0}" step="0.01" ${dis}></td>
-                        <td class="cell-auto" style="font-weight:700; color:#0d9488;">${fmtMoney(monthlyPerf)}</td>
-                        <td><button class="btn-del" data-edel="${i}" ${dis}>✕</button></td>
-                    `;
-                    dom.employeeBody.appendChild(tr);
-                });
-                $$('.employee-name').forEach(el => {
-                    el.onclick = function() {
-                        const eid = this.dataset.eid;
-                        const emp = employees.find(e => e.id === eid);
-                        if (emp) showEmployeeHistory(emp);
-                    };
-                });
-                updateEmployeeSummaries();
-            }
-
-            function updateEmployeeSummaries() {
-                const sums = getEmpSums();
-                dom.empOpenTotal.textContent = sums.open;
-                dom.empTotalInline.textContent = fmtMoney(sums.performance);
-                dom.empPrizeTotalInline.textContent = fmtMoney(sums.prizeRedemption);
-                dom.cardEmpTotal.textContent = fmtMoney(sums.performance);
-                dom.cardTotalPrizeEmp.textContent = fmtMoney(sums.prizeRedemption);
-            }
-
-            function updateCards() {
-                if (!ledgerRows.length) {
-                    ['cardBalance','cardTotalPerf','cardTotalPrizeLedger','cardTotalActual','cardTotalExpenses'].forEach(id => dom[id].textContent='¥0.00');
+            });
+            // 台账编辑
+            $('#ledgerBody').addEventListener('input', e => {
+                if (!isLoggedIn) return;
+                const inp = e.target;
+                if (!inp.dataset.lidx) return;
+                const i = +inp.dataset.lidx;
+                const field = inp.dataset.lfield;
+                const val = inp.value;
+                if (field === 'date') ledger[i].date = val || TODAY;
+                else if (field === 'yesterday' && i===0) ledger[i].yesterday = +val || 0;
+                else if (field === 'notes') ledger[i].notes = val;
+                else ledger[i][field] = (['openCount','newOpen'].includes(field)) ? (parseInt(val)||0) : (parseFloat(val)||0);
+                autoSave();
+            });
+            // 台账删除
+            $('#ledgerBody').addEventListener('click', e => {
+                if (!isLoggedIn) return;
+                const btn = e.target.closest('[data-ldel]');
+                if (!btn) return;
+                const i = +btn.dataset.ldel;
+                if (ledger.length <= 1) {
+                    if (confirm('清空所有台账？')) { ledger = [createBlankRow(TODAY)]; recalc(); renderAll(); pushToCloud(); }
                     return;
                 }
-                const last = ledgerRows[ledgerRows.length - 1];
-                dom.cardBalance.textContent = fmtMoney(last.todayBalance);
-                dom.cardTotalPerf.textContent = fmtMoney(last.totalPerf);
-                dom.cardTotalPrizeLedger.textContent = fmtMoney(last.totalPrize);
-                dom.cardTotalActual.textContent = fmtMoney(last.totalActual);
-                dom.cardTotalExpenses.textContent = fmtMoney(last.totalExpenses);
-            }
+                if (confirm('确认删除该行？')) { ledger.splice(i,1); recalc(); renderAll(); pushToCloud(); }
+            });
+        }
 
-            function updateHeaderDate() {
-                dom.headerDate.textContent = '📅 ' + new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
-            }
+        function autoSave() {
+            if (!isLoggedIn) return;
+            clearTimeout(window._autoSaveTimer);
+            window._autoSaveTimer = setTimeout(() => {
+                recalc();
+                renderLedger();
+                updateCards();
+                pushToCloud();
+            }, 2000);
+        }
 
-            function autoSaveToCloud() {
-                if (!isLoggedIn) return;
-                clearTimeout(window._st);
-                window._st = setTimeout(() => {
-                    recalcLedger();
-                    renderLedger();
-                    renderCumulative();
-                    updateCards();
-                    pushToCloud();
-                    showToast('☁️ 已同步至云端', 'success');
-                }, 5000);
-            }
-
-            window.showEmployeeHistory = function(emp) {
-                const history = [];
-                for (const [date, dayData] of Object.entries(employeePerformanceHistory)) {
-                    if (dayData[emp.id] !== undefined) history.push({ date, performance: parseFloat(dayData[emp.id]) || 0 });
-                }
-                history.sort((a, b) => a.date.localeCompare(b.date));
-                dom.historyTitle.textContent = `📋 ${emp.name} 的历史业绩`;
-                let html = history.length ? `<table class="history-table"><thead><tr><th>日期</th><th>业绩金额</th></tr></thead><tbody>` : '<p style="text-align:center;">暂无历史记录</p>';
-                if (history.length) {
-                    history.forEach(h => html += `<tr><td>${h.date}</td><td style="font-family:var(--font-mono);">${fmtMoney(h.performance)}</td></tr>`);
-                    const total = history.reduce((s, h) => s + h.performance, 0);
-                    html += `<tr style="font-weight:700;"><td>合计</td><td style="color:#0d9488;">${fmtMoney(total)}</td></tr></tbody></table>`;
-                }
-                dom.historyContent.innerHTML = html;
-                dom.historyModal.classList.add('active');
+        // ==================== 功能函数 ====================
+        window.addEmployee = function() {
+            employees.push({ id: 'e'+Date.now(), name: '新员工', open:0, perf:0, prize:0 });
+            pushToCloud();
+            renderAll();
+            toast('已添加员工', 'success');
+        };
+        window.resetEmployees = function() {
+            employees.forEach(e => { e.open = 0; e.perf = 0; e.prize = 0; });
+            pushToCloud();
+            renderAll();
+            toast('已重置', 'success');
+        };
+        window.doSync = function() {
+            if (!isLoggedIn) return toast('请先登录', 'warn');
+            ensureTodayRow();
+            const sums = getEmpSums();
+            const todayRow = ledger.find(r => r.date === TODAY);
+            if (!todayRow) return;
+            // 保存撤销快照
+            undoSnapshot = {
+                ledger: JSON.parse(JSON.stringify(ledger)),
+                employees: JSON.parse(JSON.stringify(employees)),
+                perfHistory: JSON.parse(JSON.stringify(perfHistory))
             };
-            window.closeHistoryModal = function() { dom.historyModal.classList.remove('active'); };
-
-            window.openHistoryPerfModal = function() {
-                if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
-                dom.historyEmpSelect.innerHTML = '<option value="">-- 选择员工 --</option>';
-                employees.forEach(e => {
-                    const opt = document.createElement('option');
-                    opt.value = e.id;
-                    opt.textContent = e.name || '未命名';
-                    dom.historyEmpSelect.appendChild(opt);
+            $('#undoBtn').style.display = '';
+            todayRow.openCount = sums.open;
+            todayRow.perf = sums.performance;
+            todayRow.prize = sums.prizeRedemption;
+            todayRow.newOpen = 0;
+            // 更新历史记录（包含业绩和兑奖）
+            if (!perfHistory[TODAY]) perfHistory[TODAY] = {};
+            employees.forEach(e => {
+                perfHistory[TODAY][e.id] = {
+                    perf: parseFloat(e.perf) || 0,
+                    prize: parseFloat(e.prize) || 0
+                };
+            });
+            recalc();
+            renderAll();
+            pushToCloud();
+            toast('✅ 已同步汇总', 'success');
+        };
+        window.undoSync = function() {
+            if (!undoSnapshot) return toast('无撤销数据', 'warn');
+            if (confirm('撤销上一次同步？')) {
+                ledger = undoSnapshot.ledger;
+                employees = undoSnapshot.employees;
+                perfHistory = undoSnapshot.perfHistory;
+                undoSnapshot = null;
+                $('#undoBtn').style.display = 'none';
+                recalc();
+                renderAll();
+                pushToCloud();
+                toast('已撤销', 'success');
+            }
+        };
+        window.addLedgerRow = function() {
+            const prev = ledger.length ? ledger[ledger.length-1] : null;
+            const row = createBlankRow(TODAY);
+            if (prev) row.yesterday = prev.todayBalance;
+            ledger.push(row);
+            recalc();
+            renderAll();
+            pushToCloud();
+        };
+        window.saveData = function() {
+            if (!isLoggedIn) return toast('请先登录', 'warn');
+            $$('#ledgerBody input').forEach(inp => {
+                const i = +inp.dataset.lidx;
+                if (isNaN(i)) return;
+                const field = inp.dataset.lfield;
+                const val = inp.value;
+                if (field === 'date') ledger[i].date = val || TODAY;
+                else if (field === 'yesterday' && i===0) ledger[i].yesterday = +val || 0;
+                else if (field === 'notes') ledger[i].notes = val;
+                else ledger[i][field] = (['openCount','newOpen'].includes(field)) ? (parseInt(val)||0) : (parseFloat(val)||0);
+            });
+            recalc();
+            renderAll();
+            pushToCloud();
+            toast('已保存', 'success');
+        };
+        window.clearData = function() {
+            if (confirm('⚠️ 清空所有台账？（不可恢复）') && confirm('再次确认')) {
+                ledger = [createBlankRow(TODAY)];
+                recalc();
+                renderAll();
+                pushToCloud();
+                toast('已清空', 'warn');
+            }
+        };
+        window.quickFinish = function() {
+            if (!isLoggedIn) return toast('请先登录', 'warn');
+            doSync();
+            saveData();
+            toast('✅ 今日结算完成', 'success');
+        };
+        window.exportCSV = function() {
+            const headers = ['日期','开单人数','新人','员工业绩','兑奖','实际业绩','支出','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注'];
+            const rows = ledger.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']);
+            const csv = '\uFEFF' + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"'+String(v).replace(/"/g,'""')+'"' : v).join(',')).join('\n');
+            const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `台账_${TODAY}.csv`; a.click();
+            toast('导出成功', 'success');
+        };
+        window.openImport = function() { $('#importModal').classList.add('active'); };
+        window.handleFileSelect = function(e) { if (e.target.files[0]) $('#csvFileName').textContent = '📄 ' + e.target.files[0].name; };
+        window.importCSV = function() {
+            const file = $('#csvFile').files[0];
+            if (!file) return toast('请选择文件', 'warn');
+            const reader = new FileReader();
+            reader.onload = e => {
+                const lines = e.target.result.split('\n').filter(l=>l.trim());
+                if (lines.length < 2) return toast('CSV格式无效', 'warn');
+                const data = lines.slice(1).map(l => {
+                    const cols = l.split(',');
+                    return {
+                        date: cols[0]||TODAY, openCount: parseInt(cols[1])||0, newOpen: parseInt(cols[2])||0,
+                        perf: parseFloat(cols[3])||0, prize: parseFloat(cols[4])||0, actual:0,
+                        expenses: parseFloat(cols[6])||0, yesterday: parseFloat(cols[7])||0, todayBalance:0,
+                        totalPerf:0, totalPrize:0, totalActual:0, totalExpenses:0, notes: cols[13]||''
+                    };
                 });
-                const now = new Date();
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-                dom.historyPerfDate.value = '';
-                dom.historyPerfDate.min = firstDay;
-                dom.historyPerfDate.max = TODAY;
-                dom.historyPerfAmount.value = '';
-                dom.historyPrizeAmount.value = '';
-                dom.historyPerfModal.classList.add('active');
-            };
-
-            window.submitHistoryPerformance = function() {
-                if (!isLoggedIn) { showToast('请先登录', 'warn'); return; }
-                const empId = dom.historyEmpSelect.value;
-                const date = dom.historyPerfDate.value;
-                const perf = parseFloat(dom.historyPerfAmount.value) || 0;
-                const prize = parseFloat(dom.historyPrizeAmount.value) || 0;
-                if (!empId) { showToast('请选择员工', 'warn'); return; }
-                if (!date) { showToast('请选择日期', 'warn'); return; }
-                if (date > TODAY) { showToast('不能选择未来日期', 'warn'); return; }
-                const now = new Date();
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-                if (date < firstDay) { showToast('仅可添加当月数据', 'warn'); return; }
-                if (perf === 0 && prize === 0) { showToast('请输入业绩或兑奖金额', 'warn'); return; }
-
-                // 更新历史业绩记录
-                if (!employeePerformanceHistory[date]) employeePerformanceHistory[date] = {};
-                const prevPerf = parseFloat(employeePerformanceHistory[date][empId]) || 0;
-                employeePerformanceHistory[date][empId] = +(prevPerf + perf).toFixed(2);
-
-                // 更新台账行
-                let targetRow = ledgerRows.find(r => r.date === date);
-                if (!targetRow) {
-                    targetRow = createBlankRow(date);
-                    ledgerRows.push(targetRow);
-                }
-                targetRow.perf = +((targetRow.perf || 0) + perf).toFixed(2);
-                targetRow.prize = +((targetRow.prize || 0) + prize).toFixed(2);
-
-                recalcLedger();
+                ledger = data.length ? data : [createBlankRow(TODAY)];
+                recalc();
                 renderAll();
                 pushToCloud();
-                dom.historyPerfModal.classList.remove('active');
-                showToast(`✅ 已添加 ${date} 员工往日业绩`, 'success');
+                $('#importModal').classList.remove('active');
+                toast('导入成功', 'success');
             };
+            reader.readAsText(file);
+        };
 
-            function bindEvents() {
-                dom.ledgerBody.oninput = function(e) {
-                    if (!isLoggedIn) return;
-                    const t = e.target;
-                    if (!t.dataset.lidx) return;
-                    const i = +t.dataset.lidx, f = t.dataset.lfield;
-                    const v = t.value;
-                    if (f === 'date') ledgerRows[i].date = v || TODAY;
-                    else if (f === 'notes') ledgerRows[i].notes = v;
-                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
-                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
-                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
-                    autoSaveToCloud();
-                };
-                dom.ledgerBody.onclick = function(e) {
-                    const btn = e.target.closest('.btn-del');
-                    if (!btn) return;
-                    if (!isLoggedIn) { showToast('🔒 请先登录', 'warn'); return; }
-                    const i = +btn.dataset.ldel;
-                    if (ledgerRows.length <= 1) {
-                        if (confirm('⚠️ 清空所有台账数据？')) { ledgerRows = [createBlankRow(TODAY)]; recalcLedger(); renderAll(); pushToCloud(); showToast('已重置', 'warn'); }
-                        return;
-                    }
-                    if (confirm('⚠️ 确认删除？')) { ledgerRows.splice(i, 1); recalcLedger(); renderAll(); pushToCloud(); showToast('已删除', 'warn'); }
-                };
-                dom.employeeBody.oninput = function(e) {
-                    if (!isLoggedIn) return;
-                    const t = e.target;
-                    if (!t.dataset.eidx) return;
-                    const i = +t.dataset.eidx, f = t.dataset.efield;
-                    if (f === 'name') employees[i].name = t.value;
-                    else if (f === 'openCount') employees[i].openCount = parseInt(t.value) || 0;
-                    else if (f === 'performance' || f === 'prizeRedemption') employees[i][f] = parseFloat(t.value) || 0;
-                    updateEmployeeSummaries();
-                    pushToCloud();
-                };
-                dom.employeeBody.onclick = function(e) {
-                    const btn = e.target.closest('.btn-del');
-                    if (!btn) return;
-                    if (!isLoggedIn) { showToast('🔒 请先登录', 'warn'); return; }
-                    const i = +btn.dataset.edel;
-                    if (confirm('⚠️ 确认删除员工？')) { employees.splice(i, 1); pushToCloud(); renderEmployees(); showToast('已删除', 'warn'); }
-                };
-                dom.reAuthPassword.addEventListener('keydown', function(e) { if (e.key === 'Enter') submitReAuth(); });
-            }
-
-            window.addEmployee = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                employees.push({ id: 'e'+Date.now(), name: '', openCount: 0, newOpen: 0, performance: 0, prizeRedemption: 0 });
-                pushToCloud();
-                renderEmployees();
-                showToast('已添加员工', 'success');
-            };
-            window.resetAllEmployee = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                if (confirm('重置所有员工数据为零？')) {
-                    employees.forEach(e => { e.openCount = 0; e.newOpen = 0; e.performance = 0; e.prizeRedemption = 0; });
-                    pushToCloud();
-                    renderEmployees();
-                    showToast('已重置', 'success');
-                }
-            };
-            window.syncAllToLedger = function() { doSyncWithUndo(); };
-            window.addLedgerRow = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                const prev = ledgerRows.length ? ledgerRows[ledgerRows.length - 1] : null;
-                const newRow = createBlankRow(TODAY);
-                if (prev) newRow.yesterday = prev.todayBalance;
-                ledgerRows.push(newRow);
-                recalcLedger();
-                renderAll();
-                pushToCloud();
-                showToast('已添加台账行', 'success');
-            };
-            window.saveAllData = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                recalcLedger();
-                renderAll();
-                pushToCloud();
-                showToast('已保存并同步', 'success');
-            };
-            window.quickFinish = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                doSyncWithUndo();
-                saveAllData();
-                showToast('✅ 今日已结算', 'success');
-            };
-            window.refreshAllCalc = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                $$('#ledgerBody input').forEach(inp => {
-                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
-                    if (isNaN(i)) return;
-                    const v = inp.value;
-                    if (f === 'date') ledgerRows[i].date = v || TODAY;
-                    else if (f === 'notes') ledgerRows[i].notes = v;
-                    else if (f === 'yesterday' && i === 0) ledgerRows[i].yesterday = +v || 0;
-                    else if (['openCount', 'newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
-                    else if (['perf', 'prize', 'expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
-                });
-                recalcLedger();
-                renderAll();
-                pushToCloud();
-                showToast('已刷新', 'success');
-            };
-            window.clearAllData = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                if (confirm('⚠️ 清空所有台账数据？此操作不可恢复！') && confirm('再次确认：所有数据将被永久删除！')) {
-                    ledgerRows = [createBlankRow(TODAY)];
-                    recalcLedger();
-                    renderAll();
-                    pushToCloud();
-                    showToast('已清空', 'warn');
-                }
-            };
-            window.exportCSV = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                syncAllInputs();
-                recalcLedger();
-                const headers = ['日期','开单人数','新人开单','员工业绩','兑奖','实际业绩','支出费用','昨日结余','今日结余','累计业绩','累计兑奖','累计实际','累计支出','备注'];
-                const rows = ledgerRows.map(r => [r.date, r.openCount, r.newOpen, r.perf, r.prize, r.actual, r.expenses, r.yesterday, r.todayBalance, r.totalPerf, r.totalPrize, r.totalActual, r.totalExpenses, r.notes||'']);
-                downloadCSVFile(headers, rows, `竞彩足球台账_${TODAY}.csv`);
-                showToast('CSV已导出', 'success');
-            };
-            window.openImportModal = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                dom.importModal.classList.add('active');
-                dom.csvFileName.textContent = '📁 点击选择 CSV 文件';
-                dom.csvFileInput.value = '';
-            };
-            window.handleCsvFileSelect = function(event) { if (event.target.files[0]) dom.csvFileName.textContent = '📄 ' + event.target.files[0].name; };
-            window.importCSV = function() {
-                if (!isLoggedIn) return showToast('请先登录', 'warn');
-                const file = dom.csvFileInput.files[0];
-                if (!file) { showToast('请选择CSV文件', 'warn'); return; }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const text = e.target.result;
-                    const lines = text.split('\n').filter(l => l.trim());
-                    if (lines.length < 2) return showToast('CSV格式无效', 'warn');
-                    const dataRows = lines.slice(1);
-                    const newLedger = dataRows.map(line => {
-                        const cols = line.split(',');
-                        return {
-                            date: cols[0] || TODAY, openCount: parseInt(cols[1])||0, newOpen: parseInt(cols[2])||0,
-                            perf: parseFloat(cols[3])||0, prize: parseFloat(cols[4])||0, actual:0,
-                            expenses: parseFloat(cols[6])||0, yesterday: parseFloat(cols[7])||0, todayBalance:0,
-                            totalPerf:0, totalPrize:0, totalActual:0, totalExpenses:0, notes: cols[13]||''
-                        };
+        // ==================== 历史业绩（增强版） ====================
+        window.showHistory = function(emp) {
+            const history = [];
+            for (const [date, day] of Object.entries(perfHistory)) {
+                if (day[emp.id] !== undefined) {
+                    const d = day[emp.id];
+                    history.push({
+                        date,
+                        perf: parseFloat(d.perf) || 0,
+                        prize: parseFloat(d.prize) || 0,
+                        actual: +( (parseFloat(d.perf)||0) - (parseFloat(d.prize)||0) ).toFixed(2)
                     });
-                    ledgerRows = newLedger.length ? newLedger : [createBlankRow(TODAY)];
-                    recalcLedger();
-                    renderAll();
-                    pushToCloud();
-                    dom.importModal.classList.remove('active');
-                    showToast('✅ CSV已导入并同步', 'success');
-                };
-                reader.readAsText(file);
+                }
+            }
+            history.sort((a,b) => a.date.localeCompare(b.date));
+            $('#historyTitle').textContent = `📋 ${emp.name} 每日记录`;
+            let html = history.length ? `
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead style="background:#f1f5f9;">
+                        <tr><th>日期</th><th>业绩(兑奖前)</th><th>兑奖</th><th>实际业绩</th></tr>
+                    </thead>
+                    <tbody>
+            ` : '<p style="text-align:center;">暂无历史数据</p>';
+            if (history.length) {
+                history.forEach(h => {
+                    html += `<tr>
+                        <td>${h.date}</td>
+                        <td style="color:#2563eb;">${fmtMoney(h.perf)}</td>
+                        <td style="color:#d97706;">${fmtMoney(h.prize)}</td>
+                        <td style="font-weight:600;">${fmtMoney(h.actual)}</td>
+                    </tr>`;
+                });
+                const totalPerf = history.reduce((s,h) => s + h.perf, 0);
+                const totalPrize = history.reduce((s,h) => s + h.prize, 0);
+                const totalActual = history.reduce((s,h) => s + h.actual, 0);
+                html += `<tr style="font-weight:700; background:#f8fafc;">
+                    <td>📌 合计</td>
+                    <td style="color:#2563eb;">${fmtMoney(totalPerf)}</td>
+                    <td style="color:#d97706;">${fmtMoney(totalPrize)}</td>
+                    <td>${fmtMoney(totalActual)}</td>
+                </tr></tbody></table>`;
+            }
+            $('#historyContent').innerHTML = html;
+            $('#historyModal').classList.add('active');
+        };
+
+        window.openHistoryPerf = function() {
+            const select = $('#historyEmpSelect');
+            select.innerHTML = '<option value="">-- 选择员工 --</option>';
+            employees.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.textContent = e.name || '未命名';
+                select.appendChild(opt);
+            });
+            const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+            $('#historyDate').value = '';
+            $('#historyDate').min = firstDay;
+            $('#historyDate').max = TODAY;
+            $('#historyPerf').value = '';
+            $('#historyPrize').value = '';
+            $('#historyPerfModal').classList.add('active');
+        };
+        window.submitHistoryPerf = function() {
+            const empId = $('#historyEmpSelect').value;
+            const date = $('#historyDate').value;
+            const perf = parseFloat($('#historyPerf').value) || 0;
+            const prize = parseFloat($('#historyPrize').value) || 0;
+            if (!empId || !date) return toast('请完整填写', 'warn');
+            if (date > TODAY) return toast('不能选择未来日期', 'warn');
+            const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+            if (date < firstDay) return toast('仅可添加当月数据', 'warn');
+
+            if (!perfHistory[date]) perfHistory[date] = {};
+            const prev = perfHistory[date][empId] || { perf: 0, prize: 0 };
+            perfHistory[date][empId] = {
+                perf: +(prev.perf + perf).toFixed(2),
+                prize: +(prev.prize + prize).toFixed(2)
             };
-            function downloadCSVFile(headers, rows, filename) {
-                const BOM = '\uFEFF';
-                const csv = BOM + headers.join(',') + '\n' + rows.map(r => r.map(v => String(v).includes(',') ? '"'+String(v).replace(/"/g,'""')+'"' : v).join(',')).join('\n');
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = filename;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            }
-            function syncAllInputs() {
-                $$('#ledgerBody input').forEach(inp => {
-                    const i = +inp.dataset.lidx, f = inp.dataset.lfield;
-                    if (isNaN(i)) return;
-                    const v = inp.value;
-                    if (f === 'date') ledgerRows[i].date = v || TODAY;
-                    else if (f === 'notes') ledgerRows[i].notes = v;
-                    else if (f === 'yesterday' && i===0) ledgerRows[i].yesterday = +v || 0;
-                    else if (['openCount','newOpen'].includes(f)) ledgerRows[i][f] = parseInt(v) || 0;
-                    else if (['perf','prize','expenses'].includes(f)) ledgerRows[i][f] = parseFloat(v) || 0;
-                });
-            }
 
-            [dom.adminSetupModal, dom.loginModal, dom.changePwdModal, dom.importModal, dom.reAuthModal, dom.historyModal, dom.historyPerfModal].forEach(m => {
-                m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('active'); });
-            });
-            document.addEventListener('keydown', function(e) {
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (isLoggedIn) saveAllData(); else showToast('请先登录', 'warn'); }
-            });
-            document.addEventListener('contextmenu', function(e) {
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
-            });
-            window.dismissGuide = () => { dom.guideBanner.style.display = 'none'; localStorage.setItem('guide_off', '1'); };
-
-            function init() {
-                updateHeaderDate();
-                showToast('正在连接云服务器…', '');
-                loadAdminCredentials(() => {
-                    loadFromCloud(() => {
-                        recalcLedger();
-                        renderAll();
-                        bindEvents();
-                        startCloudListener();
-                        if (!dom.adminSetupModal.classList.contains('active')) showToast('☁️ 系统就绪，请登录', 'success');
-                    });
-                });
-                if (localStorage.getItem('guide_off') === '1') dom.guideBanner.style.display = 'none';
-                console.log('⚽ 竞彩销售台账 · 当月累积版就绪');
+            let target = ledger.find(r => r.date === date);
+            if (!target) {
+                target = createBlankRow(date);
+                ledger.push(target);
             }
-            init();
-        })();
+            target.perf = +((target.perf||0) + perf).toFixed(2);
+            target.prize = +((target.prize||0) + prize).toFixed(2);
+            recalc();
+            renderAll();
+            pushToCloud();
+            $('#historyPerfModal').classList.remove('active');
+            toast('已添加往日业绩', 'success');
+        };
+
+        function closeModal(id) { $('#'+id).classList.remove('active'); }
+        window.closeModal = closeModal;
+
+        // ==================== 启动 ====================
+        function init() {
+            updateLoginUI();
+            loadAdmin(() => {
+                loadFromCloud(() => {
+                    recalc();
+                    renderAll();
+                    bindEvents();
+                    startListener();
+                    if (!admin) toast('☁️ 请设置管理员', '');
+                    else toast('☁️ 系统就绪', 'success');
+                });
+            });
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+            });
+        }
+        init();
     </script>
 </body>
 </html>
