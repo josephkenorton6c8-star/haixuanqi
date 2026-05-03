@@ -4,30 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>竞彩足球销售记录管理系统</title>
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
         :root {
-            --bg-deep: #08080f;
-            --bg-card: #111119;
-            --bg-input: #1a1a28;
-            --border-glow: #2a2a3d;
-            --text-primary: #e8e8f0;
-            --text-secondary: #a0a0b8;
-            --text-muted: #6a6a80;
-            --accent-purple: #b347ea;
-            --accent-pink: #ff5c8a;
-            --accent-cyan: #00d4f0;
-            --accent-amber: #f0a030;
-            --accent-green: #2ecc71;
-            --danger-red: #ff3b5c;
-            --glow-purple: rgba(179, 71, 234, 0.3);
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
+            --bg-deep: #08080f; --bg-card: #111119; --bg-input: #1a1a28;
+            --border-glow: #2a2a3d; --text-primary: #e8e8f0; --text-secondary: #a0a0b8;
+            --text-muted: #6a6a80; --accent-purple: #b347ea; --accent-pink: #ff5c8a;
+            --accent-cyan: #00d4f0; --accent-amber: #f0a030; --accent-green: #2ecc71;
+            --danger-red: #ff3b5c; --glow-purple: rgba(179, 71, 234, 0.3);
+            --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px;
             --shadow-card: 0 4px 30px rgba(0, 0, 0, 0.5);
             --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
             transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -36,10 +23,9 @@
         body {
             font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: var(--bg-deep); color: var(--text-primary); min-height: 100vh;
-            background-image:
-                radial-gradient(ellipse at 20% 20%, rgba(179,71,234,0.06) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 60%, rgba(255,92,138,0.05) 0%, transparent 55%),
-                radial-gradient(ellipse at 50% 85%, rgba(0,212,240,0.04) 0%, transparent 50%);
+            background-image: radial-gradient(ellipse at 20% 20%, rgba(179,71,234,0.06) 0%, transparent 55%),
+                                radial-gradient(ellipse at 75% 60%, rgba(255,92,138,0.05) 0%, transparent 55%),
+                                radial-gradient(ellipse at 50% 85%, rgba(0,212,240,0.04) 0%, transparent 50%);
             background-attachment: fixed; line-height: 1.5; padding-bottom: 40px;
         }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -128,7 +114,7 @@
             background: var(--bg-input); border-radius: var(--radius-md); padding: 14px 16px;
             border: 1px solid var(--border-glow); margin-bottom: 14px;
         }
-        .expense-section .section-label { font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+        .expense-section .section-label { font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .expense-item-row {
             display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
         }
@@ -248,14 +234,15 @@
                     <button class="btn btn-sm" style="border:2px solid var(--accent-amber);color:var(--accent-amber);border-radius:20px;" onclick="openChangePasswordModal()">🔑 修改密码</button>
                 </div>
             </div>
-            <!-- 店铺当日多项支出 -->
+            <!-- 店铺当日支出（可逐日输入） -->
             <div class="expense-section" id="expenseSection">
                 <div class="section-label">
-                    🏪 店铺当日支出
+                    🏪 店铺<span id="expenseDateLabel">当日</span>支出
                     <span style="font-size:0.8rem;color:var(--text-muted);" id="totalExpenseDisplay">合计：¥0</span>
                     <button class="btn-icon-small" onclick="addExpenseItem()" title="添加支出项">➕</button>
                 </div>
                 <div id="expenseItemsContainer"></div>
+                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">💡 输入往日数据请先选择上方日期</div>
             </div>
             <div class="table-container">
                 <table id="dataTable">
@@ -338,12 +325,11 @@
         let allEmployees = [];
         let currentRecords = [];
         let monthRecordsCache = [];
-        let currentExpenseItems = []; // 当前日期的支出项数组 [{amount, note}]
-        let monthExpensesCache = {}; // { date: { items: [...] } }
+        let currentExpenseItems = [];
+        let monthExpensesCache = {};
         let currentDateStr = '';
         let charts = { employeePerf: null };
 
-        // 工具函数
         function getBeijingDate() {
             const now = new Date();
             const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
@@ -397,7 +383,6 @@
             }, 5000);
         }
 
-        // 员工管理
         async function loadEmployees() {
             const data = await CloudSync.fetchData('employees');
             allEmployees = [];
@@ -417,7 +402,6 @@
             await loadEmployees();
         }
 
-        // 月度缓存 (员工记录 + 店铺支出)
         async function loadMonthDataIntoCache(monthKey) {
             const [recordsData, expensesData] = await Promise.all([
                 CloudSync.fetchData('dailyRecords'),
@@ -437,14 +421,13 @@
             }
         }
 
-        // 加载指定日期记录和支出项
         async function loadRecordsForDate(dateStr) {
             if (!dateStr) dateStr = document.getElementById('selectedDate').value;
             if (!dateStr) return;
             currentDateStr = dateStr;
+            document.getElementById('expenseDateLabel').textContent = (dateStr === getBeijingDate()) ? '当日' : dateStr;
             await loadMonthDataIntoCache(getMonthKey(dateStr));
             currentRecords = monthRecordsCache.filter(r => r.date === dateStr);
-            // 加载当天店铺支出项
             const dayExpense = monthExpensesCache[dateStr] || { items: [] };
             currentExpenseItems = dayExpense.items || [];
             renderExpenseItems();
@@ -453,7 +436,6 @@
             updateChartsAndDaily();
         }
 
-        // 渲染支出项UI
         function renderExpenseItems() {
             const container = document.getElementById('expenseItemsContainer');
             if (!isAdmin) { container.innerHTML = ''; return; }
@@ -482,6 +464,9 @@
             if (!isAdmin) return;
             currentExpenseItems.push({ amount: 0, note: '' });
             renderExpenseItems();
+            // 同步缓存
+            if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
+            monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
             markDirty();
             updateAllCalculations();
             updateChartsAndDaily();
@@ -491,6 +476,8 @@
             if (!isAdmin) return;
             currentExpenseItems.splice(index, 1);
             renderExpenseItems();
+            if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
+            monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
             markDirty();
             updateAllCalculations();
             updateChartsAndDaily();
@@ -500,7 +487,6 @@
             if (!isAdmin) return;
             if (field === 'amount') currentExpenseItems[index].amount = parseFloat(value) || 0;
             else currentExpenseItems[index].note = value;
-            // 同步缓存
             if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
             monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
             markDirty();
@@ -509,11 +495,9 @@
             updateChartsAndDaily();
         };
 
-        // 保存员工记录 + 店铺多支出项
         async function saveAllCurrentRecords() {
             if (!isAdmin) return;
             const updates = {};
-            // 员工记录
             for (const rec of currentRecords) {
                 const docId = rec.id || `${rec.date}_${rec.employeeId}`;
                 updates[`dailyRecords/${docId}`] = {
@@ -538,7 +522,6 @@
                     }
                 });
             }
-            // 店铺支出项
             updates[`dailyExpenses/${currentDateStr}`] = {
                 items: currentExpenseItems.map(item => ({ amount: parseNum(item.amount), note: item.note || '' }))
             };
@@ -549,7 +532,6 @@
             showToast('✅ 数据已云保存成功', 'success');
         }
 
-        // 表格渲染 (员工)
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             if (!isAdmin) {
@@ -651,7 +633,6 @@
             } else { showToast('所有员工已有当日记录', 'info'); }
         };
 
-        // 店铺总结计算
         function updateAllCalculations() {
             let totalPerf = 0, totalPrize = 0, totalExpense = 0, runningBalance = 0;
             const dateGroups = {};
@@ -661,7 +642,6 @@
                 dateGroups[r.date].prize += parseNum(r.prizeAmount);
                 dateGroups[r.date].actual += parseNum(r.actualPerformance);
             });
-            // 支出项
             Object.keys(monthExpensesCache).forEach(d => {
                 const items = monthExpensesCache[d].items || [];
                 const dayExpense = items.reduce((sum, item) => sum + parseNum(item.amount), 0);
@@ -687,9 +667,7 @@
             document.getElementById('sumTotalPerf').textContent = formatMoney(totalPerf);
         }
 
-        // 图表与每日明细（最近三天）
         function updateChartsAndDaily() {
-            // 员工柱状图
             const empPerf = {};
             allEmployees.forEach(e => { empPerf[e.id] = { name: e.name, perf: 0 }; });
             monthRecordsCache.forEach(r => {
@@ -720,7 +698,6 @@
                 }
             });
 
-            // 每日明细：准备所有日期的汇总
             const dateGroups = {};
             monthRecordsCache.forEach(r => {
                 if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, actual:0, expense:0 };
@@ -734,10 +711,7 @@
                 if (!dateGroups[d]) dateGroups[d] = { perf:0, prize:0, actual:0 };
                 dateGroups[d].expense = dayExpense;
             });
-            // 整理并计算结余
             const allDates = Object.keys(dateGroups).sort();
-            const today = getBeijingDate();
-            // 只取最近三天（当月内）
             const recentDates = allDates.slice(-3);
 
             const tbody = document.getElementById('dailySummaryBody');
@@ -760,7 +734,6 @@
             tbody.innerHTML = html;
         }
 
-        // 弹窗与管理功能
         window.openLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'flex'; document.getElementById('loginPassword').value = ''; };
         window.closeLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'none'; };
         window.adminLogin = async () => {
@@ -843,7 +816,6 @@
             try { await saveAllCurrentRecords(); } catch(e) { updateSaveStatus('error'); showToast('保存失败', 'error'); }
         };
 
-        // 初始化
         async function init() {
             updateBeijingTime();
             setInterval(updateBeijingTime, 1000);
