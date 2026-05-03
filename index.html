@@ -93,7 +93,41 @@
         .accent-blue { border-left: 4px solid #2563eb; background: #faf9ff; }
         .accent-green { border-left: 4px solid #0d9488; background: #fafdfb; }
         .accent-amber { border-left: 4px solid #d97706; background: #fffdf8; }
+        .accent-red { border-left: 4px solid #dc2626; background: #fef2f2; }
         .accent-purple { border-left: 4px solid #7c3aed; background: #fdfaff; }
+
+        /* 员工卡片报表（游客模式） */
+        .employee-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            padding: 16px;
+        }
+        .employee-mini-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .employee-mini-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .employee-mini-card .emp-name {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .employee-mini-card .emp-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .employee-mini-card .emp-stat .stat-label { color: var(--text-secondary); }
+        .employee-mini-card .emp-stat .stat-num { font-weight: 600; }
 
         .section {
             background: white;
@@ -316,29 +350,26 @@
     </div>
 
     <div class="main-container">
-        <!-- 概览卡片 -->
+        <!-- 概览卡片（调整后） -->
         <div class="card-grid">
             <div class="stat-card accent-blue"><div class="label">🏦 当前结余</div><div class="value" id="cardBalance">¥0.00</div></div>
-            <div class="stat-card accent-purple"><div class="label">👥 员工总业绩</div><div class="value" style="color:#6d28d9;" id="cardEmpTotal">¥0.00</div></div>
-            <div class="stat-card accent-amber"><div class="label">🎫 员工总兑奖</div><div class="value" style="color:#b45309;" id="cardPrizeEmp">¥0.00</div></div>
-            <div class="stat-card"><div class="label">💰 累计业绩</div><div class="value" id="cardTotalPerf">¥0.00</div></div>
-            <div class="stat-card"><div class="label">🎫 累计兑奖</div><div class="value" id="cardTotalPrize">¥0.00</div></div>
-            <div class="stat-card"><div class="label">📊 实际业绩</div><div class="value" style="color:#0d9488;" id="cardActual">¥0.00</div></div>
+            <div class="stat-card accent-purple"><div class="label">👥 员工当月总业绩</div><div class="value" style="color:#6d28d9;" id="cardEmpMonthPerf">¥0.00</div></div>
+            <div class="stat-card accent-amber"><div class="label">🎫 员工当月总兑奖</div><div class="value" style="color:#b45309;" id="cardEmpMonthPrize">¥0.00</div></div>
+            <div class="stat-card accent-red"><div class="label">💸 本月总支出</div><div class="value" style="color:#dc2626;" id="cardMonthExpenses">¥0.00</div></div>
+            <div class="stat-card"><div class="label">📊 累计实际业绩</div><div class="value" style="color:#0d9488;" id="cardActual">¥0.00</div></div>
         </div>
 
         <!-- 员工区域 -->
         <div class="section">
             <div class="section-header">
                 👥 员工今日管理 <span class="badge" id="empCount">5名</span>
-                <span style="margin-left:auto;">总开单：<strong id="empOpenTotal">0</strong> 总业绩：<strong id="empTotalInline">¥0.00</strong></span>
+                <span id="empHeaderStats" style="margin-left:auto;"></span>
             </div>
-            <div class="table-wrap" style="max-height:40vh;">
-                <table>
-                    <thead><tr><th>#</th><th>姓名</th><th>开单人数</th><th>今日业绩</th><th>兑奖金额</th><th>今日实际</th><th>当月业绩</th><th>历史</th><th>操作</th></tr></thead>
-                    <tbody id="employeeBody"></tbody>
-                </table>
-            </div>
-            <div style="padding:12px 20px; background:#fafafa; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+            <!-- 登录后：表格模式；游客：卡片模式 -->
+            <div id="employeeTableView" style="display:block;"></div>
+            <div id="employeeCardView" style="display:none;"></div>
+            <!-- 底部工具栏（登录可见） -->
+            <div id="empToolbar" style="padding:12px 20px; background:#fafafa; border-top:1px solid var(--border); display:none; flex-wrap:wrap; gap:8px; align-items:center;">
                 <button class="btn btn-outline btn-sm" onclick="reAuth(addEmployee)">➕ 添加</button>
                 <button class="btn btn-outline btn-sm" onclick="reAuth(resetEmployees)">🔄 重置</button>
                 <button class="btn btn-warning btn-sm" onclick="openHistoryPerf()">📥 往日业绩</button>
@@ -348,7 +379,7 @@
         </div>
 
         <!-- 台账区域 -->
-        <div class="toolbar">
+        <div class="toolbar" id="ledgerToolbar">
             <button class="btn btn-primary btn-sm" onclick="reAuth(addLedgerRow)">➕ 添加行</button>
             <button class="btn btn-success btn-sm" onclick="saveData()">💾 保存</button>
             <button class="btn btn-outline btn-sm" onclick="reAuth(exportCSV)">📥 导出CSV</button>
@@ -410,8 +441,7 @@
 
         let ledger = [];
         let employees = [];
-        // 历史结构：{ date: { empId: { perf: number, prize: number } } }
-        let perfHistory = {};
+        let perfHistory = {};   // { date: { empId: { perf, prize } } }
         let isLoggedIn = false;
         let admin = null;
         let undoSnapshot = null;
@@ -448,13 +478,40 @@
             return { open, perf: +perf.toFixed(2), prize: +prize.toFixed(2) };
         }
 
+        function getMonthlyEmpTotals() {
+            const now = new Date();
+            const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            let totalPerf = 0, totalPrize = 0;
+            for (const [date, day] of Object.entries(perfHistory)) {
+                if (date.startsWith(prefix)) {
+                    for (const empId in day) {
+                        totalPerf += parseFloat(day[empId].perf) || 0;
+                        totalPrize += parseFloat(day[empId].prize) || 0;
+                    }
+                }
+            }
+            return { perf: +totalPerf.toFixed(2), prize: +totalPrize.toFixed(2) };
+        }
+
+        function getMonthlyExpenses() {
+            const now = new Date();
+            const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            let total = 0;
+            ledger.forEach(r => {
+                if (r.date && r.date.startsWith(prefix)) {
+                    total += parseFloat(r.expenses) || 0;
+                }
+            });
+            return +total.toFixed(2);
+        }
+
         function getMonthlyPerf(empId) {
             const now = new Date();
             const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
             let total = 0;
             for (const [date, day] of Object.entries(perfHistory)) {
                 if (date.startsWith(prefix) && day[empId]) {
-                    total += parseFloat(day[empId].perf || 0); // 累计兑奖前的业绩
+                    total += parseFloat(day[empId].perf || 0);
                 }
             }
             return +total.toFixed(2);
@@ -519,10 +576,9 @@
             db.ref('/appData').set({
                 ledger, employees, performanceHistory: perfHistory
             }).catch(e => toast('云端保存失败', 'warn'));
-            // 本地备份
-            localStorage.setItem('ledger_v6', JSON.stringify(ledger));
-            localStorage.setItem('employees_v6', JSON.stringify(employees));
-            try { localStorage.setItem('perfHistory_v6', JSON.stringify(perfHistory)); } catch(e){}
+            localStorage.setItem('ledger_v7', JSON.stringify(ledger));
+            localStorage.setItem('employees_v7', JSON.stringify(employees));
+            try { localStorage.setItem('perfHistory_v7', JSON.stringify(perfHistory)); } catch(e){}
         }
 
         let ignoreSnapshot = false;
@@ -558,9 +614,9 @@
                 ensureTodayRow(true);
                 cb();
             }).catch(() => {
-                const l = localStorage.getItem('ledger_v6');
-                const emp = localStorage.getItem('employees_v6');
-                const hist = localStorage.getItem('perfHistory_v6');
+                const l = localStorage.getItem('ledger_v7');
+                const emp = localStorage.getItem('employees_v7');
+                const hist = localStorage.getItem('perfHistory_v7');
                 if (l) ledger = JSON.parse(l);
                 if (emp) employees = JSON.parse(emp);
                 if (hist) perfHistory = JSON.parse(hist);
@@ -668,7 +724,7 @@
                 btn.textContent = '👤 管理员 (登出)';
                 btn.classList.add('logged-in');
                 if (!$('#changePwdBtn')) {
-                    const toolbar = document.querySelector('.toolbar');
+                    const toolbar = document.querySelector('#ledgerToolbar');
                     const sep = toolbar.querySelector('.separator');
                     const btnEl = document.createElement('button');
                     btnEl.id = 'changePwdBtn';
@@ -684,15 +740,22 @@
                 undoSnapshot = null;
                 $('#undoBtn').style.display = 'none';
             }
-            setEditable(!isLoggedIn);
-        }
-
-        function setEditable(disabled) {
-            $$('input, select, button:not(.btn-login)').forEach(el => {
-                if (el.closest('.modal-overlay')) return;
-                if (el.tagName === 'BUTTON' && el.id !== 'loginBtn' && el.id !== 'changePwdBtn') el.disabled = disabled;
-                else if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.disabled = disabled;
-            });
+            // 控制员工区域视图
+            const tableView = $('#employeeTableView');
+            const cardView = $('#employeeCardView');
+            const toolbar = $('#empToolbar');
+            const ledgerToolbar = $('#ledgerToolbar');
+            if (isLoggedIn) {
+                tableView.style.display = 'block';
+                cardView.style.display = 'none';
+                toolbar.style.display = 'flex';
+                ledgerToolbar.style.display = 'flex';
+            } else {
+                tableView.style.display = 'none';
+                cardView.style.display = 'block';
+                toolbar.style.display = 'none';
+                ledgerToolbar.style.display = 'none'; // 台账工具栏在游客模式也隐藏
+            }
         }
 
         // ==================== 渲染 ====================
@@ -705,49 +768,87 @@
         }
 
         function renderEmployees() {
-            const tbody = $('#employeeBody');
-            tbody.innerHTML = '';
+            const tableView = $('#employeeTableView');
+            const cardView = $('#employeeCardView');
             $('#empCount').textContent = employees.length + '名';
-            const dis = isLoggedIn ? '' : 'disabled';
-            employees.forEach((e, i) => {
-                const monthPerf = getMonthlyPerf(e.id);      // 当月累计业绩（兑奖前）
-                const todayActual = +((e.perf || 0) - (e.prize || 0)).toFixed(2); // 今日实际业绩
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td class="employee-name-cell">
-                        <input type="text" data-eidx="${i}" data-efield="name" value="${e.name||''}" placeholder="姓名" ${dis}>
-                        <span class="history-icon" data-eid="${e.id}" title="查看历史数据">📋</span>
-                    </td>
-                    <td><input type="number" data-eidx="${i}" data-efield="open" value="${e.open||0}" min="0" ${dis}></td>
-                    <td><input type="number" data-eidx="${i}" data-efield="perf" value="${e.perf||0}" step="0.01" ${dis}></td>
-                    <td><input type="number" data-eidx="${i}" data-efield="prize" value="${e.prize||0}" step="0.01" ${dis}></td>
-                    <td style="font-weight:700; color:#0d9488;">${fmtMoney(todayActual)}</td>
-                    <td style="font-weight:600; color:#6d28d9;">${fmtMoney(monthPerf)}</td>
-                    <td style="text-align:center;">
-                        <span class="history-icon" data-eid="${e.id}" style="cursor:pointer;" title="每日详细记录">📊</span>
-                    </td>
-                    <td><button class="btn btn-danger btn-sm" data-edel="${i}" ${dis}>✕</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            // 绑定所有历史图标（姓名旁的📋和后面的📊都生效）
-            $$('.history-icon').forEach(icon => {
-                icon.onclick = function(e) {
-                    const eid = this.dataset.eid;
-                    const emp = employees.find(emp => emp.id === eid);
-                    if (emp) showHistory(emp);
-                };
-            });
-            updateEmpSummary();
-        }
+            const monthTotals = getMonthlyEmpTotals();
+            $('#empHeaderStats').innerHTML = `当月总业绩：<strong>${fmtMoney(monthTotals.perf)}</strong> 当月总兑奖：<strong>${fmtMoney(monthTotals.prize)}</strong>`;
 
-        function updateEmpSummary() {
-            const sums = getEmpSums();
-            $('#empOpenTotal').textContent = sums.open;
-            $('#empTotalInline').textContent = fmtMoney(sums.perf);
-            $('#cardEmpTotal').textContent = fmtMoney(sums.perf);
-            $('#cardPrizeEmp').textContent = fmtMoney(sums.prize);
+            if (isLoggedIn) {
+                // ----- 表格模式（登录） -----
+                tableView.innerHTML = `
+                    <div class="table-wrap" style="max-height:40vh;">
+                        <table>
+                            <thead><tr><th>#</th><th>姓名</th><th>开单人数</th><th>今日业绩</th><th>兑奖金额</th><th>今日实际</th><th>当月业绩</th><th>历史</th><th>操作</th></tr></thead>
+                            <tbody id="employeeBody"></tbody>
+                        </table>
+                    </div>
+                `;
+                const tbody = $('#employeeBody');
+                const dis = '';
+                employees.forEach((e, i) => {
+                    const monthPerf = getMonthlyPerf(e.id);
+                    const todayActual = +((e.perf || 0) - (e.prize || 0)).toFixed(2);
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${i+1}</td>
+                        <td class="employee-name-cell">
+                            <input type="text" data-eidx="${i}" data-efield="name" value="${e.name||''}" placeholder="姓名">
+                            <span class="history-icon" data-eid="${e.id}" title="查看历史数据">📋</span>
+                        </td>
+                        <td><input type="number" data-eidx="${i}" data-efield="open" value="${e.open||0}" min="0"></td>
+                        <td><input type="number" data-eidx="${i}" data-efield="perf" value="${e.perf||0}" step="0.01"></td>
+                        <td><input type="number" data-eidx="${i}" data-efield="prize" value="${e.prize||0}" step="0.01"></td>
+                        <td style="font-weight:700; color:#0d9488;">${fmtMoney(todayActual)}</td>
+                        <td style="font-weight:600; color:#6d28d9;">${fmtMoney(monthPerf)}</td>
+                        <td style="text-align:center;">
+                            <span class="history-icon" data-eid="${e.id}" style="cursor:pointer;" title="每日详细记录">📊</span>
+                        </td>
+                        <td><button class="btn btn-danger btn-sm" data-edel="${i}">✕</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                // ----- 卡片报表模式（游客） -----
+                let cardsHtml = '<div class="employee-cards-grid">';
+                employees.forEach(e => {
+                    const monthPerf = getMonthlyPerf(e.id);
+                    const todayActual = +((e.perf || 0) - (e.prize || 0)).toFixed(2);
+                    cardsHtml += `
+                        <div class="employee-mini-card">
+                            <div class="emp-name">
+                                <span>${e.name || '未命名'}</span>
+                                <span class="history-icon" data-eid="${e.id}" style="cursor:pointer; margin-left:auto;">📋</span>
+                            </div>
+                            <div class="emp-stat"><span class="stat-label">开单人数</span><span class="stat-num">${e.open||0}</span></div>
+                            <div class="emp-stat"><span class="stat-label">今日业绩</span><span class="stat-num">${fmtMoney(e.perf||0)}</span></div>
+                            <div class="emp-stat"><span class="stat-label">兑奖金额</span><span class="stat-num">${fmtMoney(e.prize||0)}</span></div>
+                            <div class="emp-stat"><span class="stat-label">今日实际</span><span class="stat-num" style="color:#0d9488;">${fmtMoney(todayActual)}</span></div>
+                            <div class="emp-stat"><span class="stat-label">当月业绩</span><span class="stat-num" style="color:#6d28d9;">${fmtMoney(monthPerf)}</span></div>
+                        </div>
+                    `;
+                });
+                cardsHtml += '</div>';
+                cardView.innerHTML = cardsHtml;
+                // 绑定卡片里的历史图标
+                cardView.querySelectorAll('.history-icon').forEach(icon => {
+                    icon.onclick = function() {
+                        const eid = this.dataset.eid;
+                        const emp = employees.find(e => e.id === eid);
+                        if (emp) showHistory(emp);
+                    };
+                });
+            }
+            // 公共部分：绑定表格中的历史图标（无论哪种模式，只要存在就绑定）
+            if (isLoggedIn) {
+                $$('.history-icon').forEach(icon => {
+                    icon.onclick = function(e) {
+                        const eid = this.dataset.eid;
+                        const emp = employees.find(emp => emp.id === eid);
+                        if (emp) showHistory(emp);
+                    };
+                });
+            }
         }
 
         function renderLedger() {
@@ -790,21 +891,27 @@
         }
 
         function updateCards() {
-            if (!ledger.length) {
-                ['cardBalance','cardTotalPerf','cardTotalPrize','cardActual'].forEach(id => $(`#${id}`).textContent = '¥0.00');
-                return;
+            // 当前结余
+            if (ledger.length) {
+                const last = ledger[ledger.length-1];
+                $('#cardBalance').textContent = fmtMoney(last.todayBalance);
+                $('#cardActual').textContent = fmtMoney(last.totalActual);
+            } else {
+                $('#cardBalance').textContent = '¥0.00';
+                $('#cardActual').textContent = '¥0.00';
             }
-            const last = ledger[ledger.length-1];
-            $('#cardBalance').textContent = fmtMoney(last.todayBalance);
-            $('#cardTotalPerf').textContent = fmtMoney(last.totalPerf);
-            $('#cardTotalPrize').textContent = fmtMoney(last.totalPrize);
-            $('#cardActual').textContent = fmtMoney(last.totalActual);
+            // 员工当月总业绩、总兑奖
+            const monthEmp = getMonthlyEmpTotals();
+            $('#cardEmpMonthPerf').textContent = fmtMoney(monthEmp.perf);
+            $('#cardEmpMonthPrize').textContent = fmtMoney(monthEmp.prize);
+            // 本月总支出
+            $('#cardMonthExpenses').textContent = fmtMoney(getMonthlyExpenses());
         }
 
         // ==================== 事件绑定 ====================
         function bindEvents() {
-            // 员工编辑
-            $('#employeeBody').addEventListener('input', e => {
+            // 员工表格编辑（仅登录后有效）
+            $('#employeeTableView').addEventListener('input', e => {
                 if (!isLoggedIn) return;
                 const inp = e.target;
                 if (!inp.dataset.eidx) return;
@@ -813,11 +920,10 @@
                 if (field === 'name') employees[i].name = inp.value;
                 else if (field === 'open') employees[i].open = parseInt(inp.value) || 0;
                 else if (field === 'perf' || field === 'prize') employees[i][field] = parseFloat(inp.value) || 0;
-                updateEmpSummary();
                 autoSave();
             });
             // 员工删除
-            $('#employeeBody').addEventListener('click', e => {
+            $('#employeeTableView').addEventListener('click', e => {
                 if (!isLoggedIn) return;
                 const btn = e.target.closest('[data-edel]');
                 if (!btn) return;
@@ -886,7 +992,6 @@
             const sums = getEmpSums();
             const todayRow = ledger.find(r => r.date === TODAY);
             if (!todayRow) return;
-            // 保存撤销快照
             undoSnapshot = {
                 ledger: JSON.parse(JSON.stringify(ledger)),
                 employees: JSON.parse(JSON.stringify(employees)),
@@ -897,7 +1002,6 @@
             todayRow.perf = sums.performance;
             todayRow.prize = sums.prizeRedemption;
             todayRow.newOpen = 0;
-            // 更新历史记录（包含业绩和兑奖）
             if (!perfHistory[TODAY]) perfHistory[TODAY] = {};
             employees.forEach(e => {
                 perfHistory[TODAY][e.id] = {
@@ -1001,7 +1105,7 @@
             reader.readAsText(file);
         };
 
-        // ==================== 历史业绩（增强版） ====================
+        // ==================== 历史业绩 ====================
         window.showHistory = function(emp) {
             const history = [];
             for (const [date, day] of Object.entries(perfHistory)) {
