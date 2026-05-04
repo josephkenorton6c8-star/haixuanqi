@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>竞彩【小宋】管理系统</title>
+    <title>竞彩足球销售记录管理系统</title>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <!-- html2canvas (用于报表截图) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-deep: #08080f; --bg-card: #111119; --bg-input: #1a1a28;
@@ -75,6 +79,18 @@
         .btn-login { background: transparent; border: 2px solid var(--accent-amber); color: var(--accent-amber); }
         .btn-logout { background: transparent; border: 2px solid var(--danger-red); color: var(--danger-red); }
         .btn-sm { padding: 6px 14px; font-size: 0.78rem; border-radius: 20px; }
+        /* 报表按钮样式 */
+        .btn-report {
+            background: transparent;
+            border: 2px solid var(--accent-green);
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        .btn-report:hover {
+            background: rgba(46,204,113,0.1);
+            box-shadow: 0 0 20px rgba(46,204,113,0.3);
+            transform: translateY(-2px);
+        }
         .status-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; animation: blink 2s infinite; }
         .status-dot.saved { background: var(--accent-green); box-shadow: 0 0 8px rgba(46,204,113,0.6); }
         .status-dot.unsaved { background: var(--accent-amber); box-shadow: 0 0 8px rgba(240,160,48,0.6); animation: blink-fast 0.6s infinite; }
@@ -176,7 +192,7 @@
     <header class="header">
         <div class="header-left">
             <div class="logo-icon">⚽</div>
-            <span class="app-title">竞彩【小宋】管理系统</span>
+            <span class="app-title">竞彩足球销售记录</span>
             <span class="beijing-time" id="beijingTime">--</span>
             <span class="status-dot saved" id="saveStatusDot"></span>
             <span style="font-size:0.7rem;color:var(--text-muted);" id="saveStatusText">已保存</span>
@@ -186,10 +202,13 @@
             <button class="btn btn-login btn-sm" id="btnLogin" onclick="openLoginModal()">🔐 管理员登录</button>
             <button class="btn btn-logout btn-sm" id="btnLogout" onclick="logout()" style="display:none;">🚪 退出</button>
             <button class="btn btn-save btn-sm" id="btnCloudSave" onclick="manualSave()">☁️ 云保存</button>
+            <!-- 新增：一键生成报表按钮 -->
+            <button class="btn btn-report btn-sm" onclick="generateReport()" title="生成当前数据报表图片">📸 生成报表</button>
         </div>
     </header>
 
-    <div class="main-container">
+    <!-- 报表截图区域：包裹需要导出为图片的卡片 -->
+    <div id="reportArea">
         <!-- 店铺总结 -->
         <div class="card">
             <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📊 店铺总结（当月）</span></div>
@@ -221,8 +240,10 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- 数据表格（管理员可见） -->
+    <!-- 数据管理卡片（不包含在报表区域，因包含敏感操作） -->
+    <div class="main-container">
         <div class="card" id="dataTableCard" style="display:none;">
             <div class="card-header">
                 <span class="card-title"><span class="icon-dot"></span>📝 数据管理</span>
@@ -234,7 +255,6 @@
                     <button class="btn btn-sm" style="border:2px solid var(--accent-amber);color:var(--accent-amber);border-radius:20px;" onclick="openChangePasswordModal()">🔑 修改密码</button>
                 </div>
             </div>
-            <!-- 店铺当日支出（可逐日输入） -->
             <div class="expense-section" id="expenseSection">
                 <div class="section-label">
                     🏪 店铺<span id="expenseDateLabel">当日</span>支出
@@ -330,6 +350,7 @@
         let currentDateStr = '';
         let charts = { employeePerf: null };
 
+        // ==================== 工具函数 ====================
         function getBeijingDate() {
             const now = new Date();
             const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
@@ -383,6 +404,7 @@
             }, 5000);
         }
 
+        // ==================== 员工管理 ====================
         async function loadEmployees() {
             const data = await CloudSync.fetchData('employees');
             allEmployees = [];
@@ -402,6 +424,7 @@
             await loadEmployees();
         }
 
+        // ==================== 月度缓存 ====================
         async function loadMonthDataIntoCache(monthKey) {
             const [recordsData, expensesData] = await Promise.all([
                 CloudSync.fetchData('dailyRecords'),
@@ -421,6 +444,7 @@
             }
         }
 
+        // ==================== 加载指定日期 ====================
         async function loadRecordsForDate(dateStr) {
             if (!dateStr) dateStr = document.getElementById('selectedDate').value;
             if (!dateStr) return;
@@ -464,7 +488,6 @@
             if (!isAdmin) return;
             currentExpenseItems.push({ amount: 0, note: '' });
             renderExpenseItems();
-            // 同步缓存
             if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
             monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
             markDirty();
@@ -495,6 +518,7 @@
             updateChartsAndDaily();
         };
 
+        // ==================== 保存所有记录 ====================
         async function saveAllCurrentRecords() {
             if (!isAdmin) return;
             const updates = {};
@@ -532,6 +556,7 @@
             showToast('✅ 数据已云保存成功', 'success');
         }
 
+        // ==================== 表格渲染 ====================
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             if (!isAdmin) {
@@ -633,6 +658,7 @@
             } else { showToast('所有员工已有当日记录', 'info'); }
         };
 
+        // ==================== 店铺总结计算 ====================
         function updateAllCalculations() {
             let totalPerf = 0, totalPrize = 0, totalExpense = 0, runningBalance = 0;
             const dateGroups = {};
@@ -667,6 +693,7 @@
             document.getElementById('sumTotalPerf').textContent = formatMoney(totalPerf);
         }
 
+        // ==================== 图表和每日明细 ====================
         function updateChartsAndDaily() {
             const empPerf = {};
             allEmployees.forEach(e => { empPerf[e.id] = { name: e.name, perf: 0 }; });
@@ -734,6 +761,34 @@
             tbody.innerHTML = html;
         }
 
+        // ==================== 一键生成报表（图片形式） ====================
+        window.generateReport = async function() {
+            const element = document.getElementById('reportArea');
+            if (!element) {
+                showToast('未找到报表区域', 'error');
+                return;
+            }
+            showToast('正在生成报表图片...', 'info');
+            try {
+                const canvas = await html2canvas(element, {
+                    backgroundColor: '#08080f',
+                    scale: 2, // 高清输出
+                    useCORS: true,
+                    allowTaint: false,
+                });
+                // 触发下载
+                const link = document.createElement('a');
+                link.download = `竞彩足球报表_${getBeijingDate()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('✅ 报表已生成并下载', 'success');
+            } catch (error) {
+                console.error('报表生成失败:', error);
+                showToast('❌ 报表生成失败，请重试', 'error');
+            }
+        };
+
+        // ==================== 弹窗与管理功能 ====================
         window.openLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'flex'; document.getElementById('loginPassword').value = ''; };
         window.closeLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'none'; };
         window.adminLogin = async () => {
@@ -816,6 +871,7 @@
             try { await saveAllCurrentRecords(); } catch(e) { updateSaveStatus('error'); showToast('保存失败', 'error'); }
         };
 
+        // ==================== 初始化 ====================
         async function init() {
             updateBeijingTime();
             setInterval(updateBeijingTime, 1000);
