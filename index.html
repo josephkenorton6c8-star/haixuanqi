@@ -34,7 +34,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3a3a55; border-radius: 10px; }
 
-        /* 头部优化 - 手机紧凑且可换行 */
+        /* 头部优化 */
         .header {
             background: var(--bg-card); border-bottom: 1px solid var(--border-glow);
             padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
@@ -77,25 +77,26 @@
         .card-title { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .icon-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-purple); box-shadow: 0 0 8px var(--glow-purple); }
         
-        /* 汇总卡片网格 手机下2列 */
+        /* 汇总卡片网格 */
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
         .summary-item { background: var(--bg-input); border-radius: var(--radius-md); padding: 12px 10px; border: 1px solid var(--border-glow); text-align: center; }
         .summary-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
         .summary-value { font-size: 1.2rem; font-weight: 700; font-family: var(--font-mono); word-break: break-word; }
-        .summary-value.negative { color: var(--danger-red); }
-        .summary-value.positive { color: var(--accent-green); }
+        /* 通用颜色类 */
+        .negative { color: var(--danger-red); }
+        .positive { color: var(--accent-green); }
         
         .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .chart-wrapper { background: var(--bg-input); border-radius: var(--radius-md); padding: 10px; border: 1px solid var(--border-glow); }
         .chart-title-sm { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 8px; text-align: center; }
         
-        /* 每日明细表格适配滚动 */
+        /* 每日明细表格 */
         .daily-summary-table { width: 100%; border-collapse: collapse; margin-top: 6px; table-layout: auto; font-size: 0.7rem; }
         .daily-summary-table th, .daily-summary-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #2a2a3d; white-space: nowrap; }
         .daily-summary-table th { color: var(--text-muted); font-weight: 600; background: #14141f; }
         .daily-summary-body { max-height: 260px; overflow-y: auto; display: block; width: 100%; }
         
-        /* 支出区域 + 表格优化 */
+        /* 支出区域 */
         .expense-section { background: var(--bg-input); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
         .expense-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
         .expense-item-row input { padding: 8px 10px; border-radius: 30px; background: #0d0d18; border: 1px solid #3a3a50; color: #e8e8f0; font-size: 0.75rem; flex: 1 1 auto; }
@@ -103,11 +104,22 @@
         .btn-icon-small { width: 34px; height: 34px; border-radius: 50%; background: transparent; border: 1px solid #3a3a50; color: #c0c0d0; cursor: pointer; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; }
         .btn-icon-small:active { background: rgba(179,71,234,0.2); }
         
-        .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-glow); background: var(--bg-input); -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 720px; font-size: 0.7rem; }
+        .table-container { 
+            overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-glow); 
+            background: var(--bg-input); -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+        .table-container::before,
+        .table-container::after {
+            content: ''; position: absolute; top:0; bottom:0; width: 20px; pointer-events: none; z-index: 2;
+        }
+        .table-container::before { left:0; background: linear-gradient(to right, rgba(17,17,25,0.95), transparent); }
+        .table-container::after { right:0; background: linear-gradient(to left, rgba(17,17,25,0.95), transparent); }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 720px; font-size: 0.7rem; position: relative; z-index: 1; }
         thead th { background: #14141f; padding: 10px 6px; font-weight: 700; font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary); border-bottom: 2px solid #2a2a3d; white-space: nowrap; }
         tbody td { padding: 8px 5px; text-align: center; border-bottom: 1px solid #1a1a2a; font-family: var(--font-mono); font-size: 0.7rem; }
-        tbody td input { width: 75px; padding: 6px 4px; text-align: center; background: #0d0d18; border: 1px solid #2a2a3d; border-radius: 20px; color: #e8e8f0; font-size: 0.7rem; }
+        tbody td input { width: 75px; padding: 6px 4px; text-align: center; background: #0d0d18; border: 1px solid #2a2a3d; border-radius: 20px; color: #e8e8f0; }
         tbody td input.input-note { width: 110px; text-align: left; }
         .btn-table { padding: 5px 8px; border-radius: 30px; border: 1px solid #3a3a50; background: transparent; color: #c0c0d0; cursor: pointer; font-size: 0.65rem; display: inline-flex; align-items: center; gap: 4px; }
         .btn-table:active { background: rgba(179,71,234,0.15); }
@@ -116,7 +128,7 @@
         .badge-admin { background: rgba(179,71,234,0.2); color: #c080ff; border: 1px solid rgba(179,71,234,0.4); }
         .badge-guest { background: rgba(100,100,140,0.2); color: #9090a8; border: 1px solid rgba(100,100,140,0.4); }
         
-        /* 模态框 移动端适配 */
+        /* 模态框 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px); padding: 16px; }
         .modal { background: var(--bg-card); border-radius: 28px; border: 1px solid var(--border-glow); padding: 24px 20px; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .modal h3 { font-size: 1.2rem; margin-bottom: 16px; text-align: center; }
@@ -131,7 +143,7 @@
         .toast.success { background: #1a3a1acc; border-left: 4px solid var(--accent-green); color: #a0ffb0; }
         .toast.error { background: #3a1a1acc; border-left: 4px solid var(--danger-red); color: #ffb0ba; }
         
-        /* 手机专用媒体查询 */
+        /* 移动端优化 */
         @media (max-width: 640px) {
             .header { padding: 8px 12px; }
             .app-title { font-size: 0.85rem; white-space: normal; }
@@ -147,8 +159,10 @@
             .expense-item-row input.note { min-width: 120px; }
             .btn-icon-small { width: 32px; height: 32px; }
             .daily-summary-table th, .daily-summary-table td { font-size: 0.65rem; padding: 6px 2px; }
-            tbody td input { width: 65px; font-size: 0.65rem; }
+            tbody td input { width: 65px; }
             tbody td input.input-note { width: 90px; }
+            /* 防iOS缩放：输入框字体不小于16px */
+            input, select, textarea { font-size: 16px !important; }
         }
         
         @media (max-width: 480px) {
@@ -158,7 +172,6 @@
             .summary-value { font-size: 0.9rem; }
             .modal { padding: 20px 16px; }
         }
-        /* 增加触摸反馈 */
         button, .btn, .btn-table, .btn-icon-small, .btn-modal { cursor: pointer; transition: transform 0.05s ease; }
         button:active, .btn:active, .btn-table:active { transform: scale(0.97); }
     </style>
@@ -181,35 +194,10 @@
         </div>
     </header>
 
-    <!-- 报表截图区域 (移动端样式同样优雅) -->
+    <!-- 报表截图区域 -->
     <div id="reportArea">
-        <div class="card">
-            <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📊 店铺总结（当月）</span></div>
-            <div class="summary-grid" id="summaryGrid">
-                <div class="summary-item"><div class="summary-label">实际结余</div><div class="summary-value neutral" id="sumActualBalance">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">总兑奖</div><div class="summary-value" id="sumTotalPrize">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">实际业绩</div><div class="summary-value neutral" id="sumTotalActualPerf">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">总支出</div><div class="summary-value" id="sumTotalExpense">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">员工总业绩</div><div class="summary-value neutral" id="sumTotalPerf">¥0</div></div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📈 数据概览</span></div>
-            <div class="chart-grid">
-                <div class="chart-wrapper">
-                    <div class="chart-title-sm">📊 员工当月业绩对比</div>
-                    <canvas id="chartEmployeePerf"></canvas>
-                </div>
-                <div class="chart-wrapper">
-                    <div class="chart-title-sm">📋 最近三天数据明细</div>
-                    <div class="daily-summary-body">
-                        <table class="daily-summary-table">
-                            <thead><tr><th>日期</th><th>业绩</th><th>兑奖</th><th>支出</th><th>结余</th></tr></thead>
-                            <tbody id="dailySummaryBody"><tr><td colspan="5" style="color:var(--text-muted);">暂无</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="card" style="text-align:center;padding:30px;">
+            <p style="color:var(--text-muted);">🔒 请登录管理员账号查看数据</p>
         </div>
     </div>
 
@@ -249,7 +237,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // ==================== 云端模块 (完全保留原逻辑) ====================
+        // ==================== 云端模块 ====================
         const CloudSync = (function() {
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
@@ -302,26 +290,212 @@
         
         function updateChartsAndDaily() { const empMap={}; allEmployees.forEach(e=>empMap[e.id]={ name:e.name, perf:0 }); monthRecordsCache.forEach(r=>{ if(empMap[r.employeeId]) empMap[r.employeeId].perf+=parseNum(r.performance); }); const labels=Object.values(empMap).map(e=>e.name), data=Object.values(empMap).map(e=>e.perf); const ctx=document.getElementById('chartEmployeePerf').getContext('2d'); if(charts.employeePerf) charts.employeePerf.destroy(); charts.employeePerf=new Chart(ctx,{ type:'bar', data:{ labels:labels.length?labels:['暂无'], datasets:[{ label:'当月总业绩', data:data.length?data:[0], backgroundColor:data.map(v=>v<0?'rgba(255,59,92,0.7)':'rgba(179,71,234,0.7)'), borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ labels:{ color:'#a0a0b8', font:{ size:10 } } } }, scales:{ x:{ ticks:{ color:'#8a8a9a', font:{ size:9 } }, grid:{ color:'rgba(255,255,255,0.03)' } }, y:{ ticks:{ color:'#8a8a9a', callback:v=>formatMoney(v), font:{ size:9 } }, grid:{ color:'rgba(255,255,255,0.05)' } } } } }); const groups={}; monthRecordsCache.forEach(r=>{ if(!groups[r.date]) groups[r.date]={ perf:0,prize:0,actual:0,expense:0 }; groups[r.date].perf+=parseNum(r.performance); groups[r.date].prize+=parseNum(r.prizeAmount); groups[r.date].actual+=parseNum(r.performance)-parseNum(r.prizeAmount); }); Object.keys(monthExpensesCache).forEach(d=>{ const exp=(monthExpensesCache[d].items||[]).reduce((s,i)=>s+parseNum(i.amount),0); if(!groups[d]) groups[d]={ perf:0,prize:0,actual:0 }; groups[d].expense=exp; }); const dates=Object.keys(groups).sort().slice(-3); const tbody=document.getElementById('dailySummaryBody'); if(!dates.length){ tbody.innerHTML='<tr><td colspan="5" style="color:var(--text-muted);">暂无数据</td></tr>'; return; } let html=''; dates.forEach(d=>{ const g=groups[d]; const bal=g.actual-(g.expense||0); html+=`<tr><td>${d}</td><td>${formatMoney(g.perf)}</td><td>${formatMoney(g.prize)}</td><td>${formatMoney(g.expense)}</td><td class="${bal<0?'negative':'positive'}">${formatMoney(bal)}</td></tr>`; }); tbody.innerHTML=html; }
         
-        window.generateReport = async function() { const el=document.getElementById('reportArea'); if(!el){ showToast('报表区域不存在','error'); return; } showToast('生成报表图片中...','info'); try{ const canvas=await html2canvas(el,{ backgroundColor:'#08080f', scale:2, useCORS:true }); const link=document.createElement('a'); link.download=`竞彩报表_${getBeijingDate()}.png`; link.href=canvas.toDataURL('image/png'); link.click(); showToast('✅ 报表已下载','success'); }catch(e){ showToast('生成失败','error'); } };
+        // 密码哈希工具
+        async function hashPassword(password) {
+            const msgUint8 = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        window.generateReport = async function() { 
+            if(!isAdmin){ showToast('请先登录管理员账号','error'); return; }
+            const el=document.getElementById('reportArea'); 
+            if(!el){ showToast('报表区域不存在','error'); return; } 
+            showToast('生成报表图片中...','info'); 
+            try{
+                const scale = window.innerWidth < 768 ? 1.5 : 2;
+                const canvas=await html2canvas(el,{ backgroundColor:'#08080f', scale, useCORS:true }); 
+                const link=document.createElement('a'); 
+                link.download=`竞彩报表_${getBeijingDate()}.png`; 
+                link.href=canvas.toDataURL('image/png'); 
+                link.click(); 
+                showToast('✅ 报表已下载','success');
+            }catch(e){ showToast('生成失败','error'); } 
+        };
         
         window.openLoginModal = ()=>document.getElementById('loginModalOverlay').style.display='flex';
         window.closeLoginModal = ()=>document.getElementById('loginModalOverlay').style.display='none';
-        window.adminLogin = async()=>{ const pw=document.getElementById('loginPassword').value.trim(); const correct=(await CloudSync.fetchData('settings/admin/password'))||'admin123'; if(pw===correct){ isAdmin=true; updateAdminUI(); closeLoginModal(); showToast('管理员登录成功','success'); await loadEmployees(); const inp=document.getElementById('selectedDate'); if(!inp.value) inp.value=getBeijingDate(); await loadRecordsForDate(inp.value); } else showToast('密码错误','error'); };
-        window.logout = ()=>{ isAdmin=false; updateAdminUI(); currentRecords=[]; monthRecordsCache=[]; monthExpensesCache={}; renderTable(); updateAllCalculations(); updateChartsAndDaily(); showToast('已退出管理','info'); };
-        function updateAdminUI(){ document.getElementById('dataTableCard').style.display=isAdmin?'':'none'; document.getElementById('btnLogin').style.display=isAdmin?'none':''; document.getElementById('btnLogout').style.display=isAdmin?'':'none'; const badge=document.getElementById('roleBadge'); if(isAdmin){ badge.textContent='🔧 管理员'; badge.className='badge badge-admin'; }else{ badge.textContent='👁 游客'; badge.className='badge badge-guest'; } }
-        window.openChangePasswordModal=()=>{ if(isAdmin) document.getElementById('changePasswordModalOverlay').style.display='flex'; };
-        window.closeChangePasswordModal=()=>document.getElementById('changePasswordModalOverlay').style.display='none';
-        window.changePassword=async()=>{ const oldPwd=document.getElementById('oldPassword').value.trim(), newPwd=document.getElementById('newPassword').value.trim(); if(!oldPwd||!newPwd){ showToast('请填完整','error'); return; } const correct=(await CloudSync.fetchData('settings/admin/password'))||'admin123'; if(oldPwd!==correct){ showToast('旧密码错误','error'); return; } await CloudSync.pushData('settings/admin/password',newPwd); showToast('密码修改成功','success'); closeChangePasswordModal(); };
-        window.openEmployeeManageModal=()=>{ if(isAdmin){ document.getElementById('employeeModalOverlay').style.display='flex'; renderEmployeeList(); } };
-        window.closeEmployeeModal=()=>document.getElementById('employeeModalOverlay').style.display='none';
-        function renderEmployeeList(){ const container=document.getElementById('employeeListContainer'); if(!allEmployees.length){ container.innerHTML='<p style="color:var(--text-muted);">暂无员工</p>'; return; } let html=''; allEmployees.forEach(emp=>{ html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #1e1e30;"><input type="text" value="${emp.name}" data-emp-id="${emp.id}" style="flex:1;padding:7px;background:var(--bg-input);border:1px solid #2a2a3d;border-radius:30px;font-size:0.8rem;" onchange="updateEmployeeName(this)"><button class="btn-table danger" onclick="deleteEmployeeConfirm('${emp.id}')">🗑</button></div>`; }); container.innerHTML=html; }
-        window.updateEmployeeName=async(input)=>{ const empId=input.dataset.empId, newName=input.value.trim(); if(!newName){ showToast('姓名不能空','error'); renderEmployeeList(); return; } await updateEmployeeNameDB(empId,newName); showToast('已更新','success'); renderEmployeeList(); renderTable(); };
-        window.deleteEmployeeConfirm=async(empId)=>{ if(!confirm('删除员工及其所有记录？')) return; await deleteEmployeeDB(empId); currentRecords=currentRecords.filter(r=>r.employeeId!==empId); monthRecordsCache=monthRecordsCache.filter(r=>r.employeeId!==empId); renderEmployeeList(); renderTable(); markDirty(); updateAllCalculations(); updateChartsAndDaily(); };
-        window.addEmployee=async()=>{ const name=document.getElementById('newEmployeeName').value.trim(); if(!name){ showToast('请输入姓名','error'); return; } if(allEmployees.some(e=>e.name===name)){ showToast('员工已存在','error'); return; } await addEmployeeToDB(name); document.getElementById('newEmployeeName').value=''; showToast('添加成功','success'); renderEmployeeList(); };
-        window.manualSave = async()=>{ if(!isAdmin){ showToast('游客无法保存','error'); return; } updateSaveStatus('auto-saving'); try{ await saveAllCurrentRecords(); }catch(e){ updateSaveStatus('error'); showToast('保存失败','error'); } };
+        window.adminLogin = async()=>{
+            const pw = document.getElementById('loginPassword').value.trim();
+            if(!pw) { showToast('请输入密码','error'); return; }
+            const pwHash = await hashPassword(pw);
+            let correct = await CloudSync.fetchData('settings/admin/password');
+            let autoUpgrade = false;
+            if (!correct) {
+                // 首次使用，比较默认密码明文
+                if (pw === 'admin123') {
+                    autoUpgrade = true;
+                    correct = await hashPassword('admin123');
+                } else {
+                    showToast('密码错误','error');
+                    return;
+                }
+            } else {
+                // 已有密码记录，先尝试明文匹配（兼容旧版）
+                if (pw === correct) {
+                    autoUpgrade = true;
+                }
+            }
+            if (autoUpgrade) {
+                // 升级为哈希存储
+                await CloudSync.pushData('settings/admin/password', pwHash);
+                correct = pwHash;
+            }
+            if (pwHash === correct) {
+                isAdmin = true;
+                updateAdminUI();
+                closeLoginModal();
+                showToast('管理员登录成功','success');
+                await loadEmployees();
+                const inp = document.getElementById('selectedDate');
+                if(!inp.value) inp.value = getBeijingDate();
+                await loadRecordsForDate(inp.value);
+                // 刷新报表区域
+                refreshReportArea();
+            } else {
+                showToast('密码错误','error');
+            }
+        };
+        window.logout = ()=>{
+            isAdmin = false;
+            updateAdminUI();
+            currentRecords = [];
+            monthRecordsCache = [];
+            monthExpensesCache = {};
+            renderTable();
+            updateAllCalculations();
+            updateChartsAndDaily();
+            // 重置报表区域为占位
+            document.getElementById('reportArea').innerHTML = '<div class="card" style="text-align:center;padding:30px;"><p style="color:var(--text-muted);">🔒 请登录管理员账号查看数据</p></div>';
+            showToast('已退出管理','info');
+        };
+        function updateAdminUI(){
+            document.getElementById('dataTableCard').style.display = isAdmin ? '' : 'none';
+            document.getElementById('btnLogin').style.display = isAdmin ? 'none' : '';
+            document.getElementById('btnLogout').style.display = isAdmin ? '' : 'none';
+            const badge = document.getElementById('roleBadge');
+            if(isAdmin){ badge.textContent='🔧 管理员'; badge.className='badge badge-admin'; }
+            else { badge.textContent='👁 游客'; badge.className='badge badge-guest'; }
+        }
+        function refreshReportArea() {
+            if (!isAdmin) return;
+            const reportArea = document.getElementById('reportArea');
+            reportArea.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📊 店铺总结（当月）</span></div>
+                    <div class="summary-grid" id="summaryGrid">
+                        <div class="summary-item"><div class="summary-label">实际结余</div><div class="summary-value neutral" id="sumActualBalance">¥0</div></div>
+                        <div class="summary-item"><div class="summary-label">总兑奖</div><div class="summary-value" id="sumTotalPrize">¥0</div></div>
+                        <div class="summary-item"><div class="summary-label">实际业绩</div><div class="summary-value neutral" id="sumTotalActualPerf">¥0</div></div>
+                        <div class="summary-item"><div class="summary-label">总支出</div><div class="summary-value" id="sumTotalExpense">¥0</div></div>
+                        <div class="summary-item"><div class="summary-label">员工总业绩</div><div class="summary-value neutral" id="sumTotalPerf">¥0</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📈 数据概览</span></div>
+                    <div class="chart-grid">
+                        <div class="chart-wrapper">
+                            <div class="chart-title-sm">📊 员工当月业绩对比</div>
+                            <canvas id="chartEmployeePerf"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-title-sm">📋 最近三天数据明细</div>
+                            <div class="daily-summary-body">
+                                <table class="daily-summary-table">
+                                    <thead><tr><th>日期</th><th>业绩</th><th>兑奖</th><th>支出</th><th>结余</th></tr></thead>
+                                    <tbody id="dailySummaryBody"><tr><td colspan="5" style="color:var(--text-muted);">暂无</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            // 重新绑定图表 canvas 变量，以便后续更新
+            if (charts.employeePerf) charts.employeePerf.destroy();
+            updateAllCalculations();
+            updateChartsAndDaily();
+        }
+        window.openChangePasswordModal = () => { if(isAdmin) document.getElementById('changePasswordModalOverlay').style.display='flex'; };
+        window.closeChangePasswordModal = () => document.getElementById('changePasswordModalOverlay').style.display='none';
+        window.changePassword = async () => {
+            const oldPwd = document.getElementById('oldPassword').value.trim(),
+                  newPwd = document.getElementById('newPassword').value.trim();
+            if(!oldPwd || !newPwd){ showToast('请填完整','error'); return; }
+            let correct = await CloudSync.fetchData('settings/admin/password');
+            if (!correct) correct = 'admin123'; // 默认明文
+            // 支持明文或哈希比较
+            const oldPwdHash = await hashPassword(oldPwd);
+            if (oldPwd === correct || oldPwdHash === correct) {
+                // 新密码哈希存储
+                await CloudSync.pushData('settings/admin/password', await hashPassword(newPwd));
+                showToast('密码修改成功','success');
+                closeChangePasswordModal();
+            } else {
+                showToast('旧密码错误','error');
+            }
+        };
+        window.openEmployeeManageModal = () => { if(isAdmin){ document.getElementById('employeeModalOverlay').style.display='flex'; renderEmployeeList(); } };
+        window.closeEmployeeModal = () => document.getElementById('employeeModalOverlay').style.display='none';
+        function renderEmployeeList(){
+            const container = document.getElementById('employeeListContainer');
+            if(!allEmployees.length){ container.innerHTML='<p style="color:var(--text-muted);">暂无员工</p>'; return; }
+            let html='';
+            allEmployees.forEach(emp=>{
+                html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #1e1e30;"><input type="text" value="${emp.name}" data-emp-id="${emp.id}" style="flex:1;padding:7px;background:var(--bg-input);border:1px solid #2a2a3d;border-radius:30px;font-size:0.8rem;" onchange="updateEmployeeName(this)"><button class="btn-table danger" onclick="deleteEmployeeConfirm('${emp.id}')">🗑</button></div>`;
+            });
+            container.innerHTML=html;
+        }
+        window.updateEmployeeName = async (input) => {
+            const empId = input.dataset.empId, newName = input.value.trim();
+            if(!newName){ showToast('姓名不能空','error'); renderEmployeeList(); return; }
+            await updateEmployeeNameDB(empId, newName);
+            showToast('已更新','success');
+            renderEmployeeList(); renderTable();
+        };
+        window.deleteEmployeeConfirm = async (empId) => {
+            if(!confirm('删除员工及其所有记录？')) return;
+            await deleteEmployeeDB(empId);
+            currentRecords = currentRecords.filter(r=>r.employeeId!==empId);
+            monthRecordsCache = monthRecordsCache.filter(r=>r.employeeId!==empId);
+            renderEmployeeList(); renderTable();
+            markDirty();
+            updateAllCalculations();
+            updateChartsAndDaily();
+        };
+        window.addEmployee = async () => {
+            const name = document.getElementById('newEmployeeName').value.trim();
+            if(!name){ showToast('请输入姓名','error'); return; }
+            if(allEmployees.some(e=>e.name===name)){ showToast('员工已存在','error'); return; }
+            await addEmployeeToDB(name);
+            document.getElementById('newEmployeeName').value='';
+            showToast('添加成功','success');
+            renderEmployeeList();
+        };
+        window.manualSave = async () => {
+            if(!isAdmin){ showToast('游客无法保存','error'); return; }
+            updateSaveStatus('auto-saving');
+            try{ await saveAllCurrentRecords(); }catch(e){ updateSaveStatus('error'); showToast('保存失败','error'); }
+        };
         
         function updateBeijingTime() { document.getElementById('beijingTime').innerHTML = '🕐 ' + getBeijingDateTimeStr(); }
-        async function init(){ updateBeijingTime(); setInterval(updateBeijingTime,1000); document.getElementById('selectedDate').max=getBeijingDate(); const today=getBeijingDate(); document.getElementById('selectedDate').value=today; currentDateStr=today; updateAdminUI(); await loadEmployees(); await loadMonthDataIntoCache(getMonthKey(today)); if(isAdmin){ currentRecords=monthRecordsCache.filter(r=>r.date===today); currentExpenseItems=(monthExpensesCache[today]||{ items:[] }).items; renderExpenseItems(); renderTable(); } updateAllCalculations(); updateChartsAndDaily(); setInterval(()=>{ if(isDirty && isAdmin){ updateSaveStatus('auto-saving'); saveAllCurrentRecords().catch(()=>updateSaveStatus('error')); } },5000); document.getElementById('loginModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeLoginModal(); }); document.getElementById('employeeModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeEmployeeModal(); }); document.getElementById('changePasswordModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeChangePasswordModal(); }); window.addEventListener('resize',()=>{ if(charts.employeePerf) charts.employeePerf.resize(); }); }
+        async function init(){
+            updateBeijingTime();
+            setInterval(updateBeijingTime, 1000);
+            document.getElementById('selectedDate').max = getBeijingDate();
+            const today = getBeijingDate();
+            document.getElementById('selectedDate').value = today;
+            currentDateStr = today;
+            updateAdminUI();
+            // 初始游客状态，报表占位已存在HTML，无需额外加载
+            // 若管理员已登录（例如通过session？目前无），下面会被覆盖
+            // 监听弹窗关闭
+            document.getElementById('loginModalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeLoginModal(); });
+            document.getElementById('employeeModalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeEmployeeModal(); });
+            document.getElementById('changePasswordModalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeChangePasswordModal(); });
+            window.addEventListener('resize', () => { if(charts.employeePerf) charts.employeePerf.resize(); });
+            // 注意：不再额外设置自动保存定时器，已由markDirty管理
+        }
         init();
     </script>
 </body>
