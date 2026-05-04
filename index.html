@@ -2,14 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>竞彩足球销售记录管理系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>竞彩足球销售记录管理系统 · 移动适配版</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <!-- html2canvas (用于报表截图) -->
+    <!-- html2canvas (报表截图) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
@@ -19,173 +19,148 @@
             --accent-cyan: #00d4f0; --accent-amber: #f0a030; --accent-green: #2ecc71;
             --danger-red: #ff3b5c; --glow-purple: rgba(179, 71, 234, 0.3);
             --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px;
-            --shadow-card: 0 4px 30px rgba(0, 0, 0, 0.5);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.6);
             --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
-            transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-deep); color: var(--text-primary); min-height: 100vh;
             background-image: radial-gradient(ellipse at 20% 20%, rgba(179,71,234,0.06) 0%, transparent 55%),
-                                radial-gradient(ellipse at 75% 60%, rgba(255,92,138,0.05) 0%, transparent 55%),
-                                radial-gradient(ellipse at 50% 85%, rgba(0,212,240,0.04) 0%, transparent 50%);
-            background-attachment: fixed; line-height: 1.5; padding-bottom: 40px;
+                              radial-gradient(ellipse at 75% 60%, rgba(255,92,138,0.05) 0%, transparent 55%);
+            background-attachment: fixed; line-height: 1.4; padding-bottom: 30px;
         }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #2a2a3d; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #3a3a55; border-radius: 10px; }
 
+        /* 头部优化 - 手机紧凑且可换行 */
         .header {
             background: var(--bg-card); border-bottom: 1px solid var(--border-glow);
-            padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 12px; position: sticky; top: 0; z-index: 100;
+            padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 100;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
         }
-        .header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .logo-icon {
-            width: 42px; height: 42px; border-radius: var(--radius-sm);
+            width: 36px; height: 36px; border-radius: var(--radius-sm);
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: bold; color: #fff; box-shadow: 0 0 20px var(--glow-purple);
+            font-size: 20px; font-weight: bold; color: #fff;
         }
-        .app-title {
-            font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #e0c0ff, #ffb0c8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .beijing-time {
-            font-size: 0.85rem; color: var(--accent-cyan); font-family: var(--font-mono);
-            background: rgba(0,212,240,0.08); padding: 6px 14px; border-radius: 20px;
-            border: 1px solid rgba(0,212,240,0.2); white-space: nowrap;
-        }
-        .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .app-title { font-size: 1rem; font-weight: 700; background: linear-gradient(135deg, #e0c0ff, #ffb0c8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; white-space: nowrap; }
+        .beijing-time { font-size: 0.7rem; color: var(--accent-cyan); background: rgba(0,212,240,0.08); padding: 4px 10px; border-radius: 30px; border: 1px solid rgba(0,212,240,0.2); white-space: nowrap; }
+        .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        
         .btn {
-            padding: 10px 18px; border-radius: 25px; border: none; cursor: pointer;
-            font-weight: 600; font-size: 0.9rem; letter-spacing: 0.3px; display: flex;
-            align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;
+            padding: 8px 14px; border-radius: 40px; border: none; cursor: pointer;
+            font-weight: 600; font-size: 0.8rem; letter-spacing: 0.2px; display: inline-flex;
+            align-items: center; gap: 5px; white-space: nowrap; transition: 0.2s;
         }
-        .btn-save {
-            background: linear-gradient(135deg, var(--accent-purple), #8b2fc9); color: #fff;
-            box-shadow: 0 0 20px var(--glow-purple);
-        }
-        .btn-save:hover { box-shadow: 0 0 35px rgba(179,71,234,0.55); transform: translateY(-2px); }
-        .btn-save.auto-saving {
-            background: linear-gradient(135deg, var(--accent-cyan), #0098b0);
-            box-shadow: 0 0 20px var(--glow-cyan); animation: pulse-save 1.5s infinite;
-        }
-        @keyframes pulse-save { 0%,100%{ box-shadow: 0 0 20px var(--glow-cyan); } 50%{ box-shadow: 0 0 45px rgba(0,212,240,0.6); } }
-        .btn-login { background: transparent; border: 2px solid var(--accent-amber); color: var(--accent-amber); }
-        .btn-logout { background: transparent; border: 2px solid var(--danger-red); color: var(--danger-red); }
-        .btn-sm { padding: 6px 14px; font-size: 0.78rem; border-radius: 20px; }
-        /* 报表按钮样式 */
-        .btn-report {
-            background: transparent;
-            border: 2px solid var(--accent-green);
-            color: var(--accent-green);
-            font-weight: 600;
-        }
-        .btn-report:hover {
-            background: rgba(46,204,113,0.1);
-            box-shadow: 0 0 20px rgba(46,204,113,0.3);
-            transform: translateY(-2px);
-        }
-        .status-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; animation: blink 2s infinite; }
-        .status-dot.saved { background: var(--accent-green); box-shadow: 0 0 8px rgba(46,204,113,0.6); }
-        .status-dot.unsaved { background: var(--accent-amber); box-shadow: 0 0 8px rgba(240,160,48,0.6); animation: blink-fast 0.6s infinite; }
-        .status-dot.error { background: var(--danger-red); box-shadow: 0 0 8px rgba(255,59,92,0.6); }
-        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
-        @keyframes blink-fast { 0%,100%{ opacity:1; } 50%{ opacity:0.15; } }
-
-        .main-container { max-width: 1400px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-glow); padding: 20px; box-shadow: var(--shadow-card); }
-        .card-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #1e1e30; }
-        .card-title { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .card-title .icon-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-purple); box-shadow: 0 0 10px var(--glow-purple); }
-
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
-        .summary-item { background: var(--bg-input); border-radius: var(--radius-md); padding: 16px 18px; border: 1px solid var(--border-glow); text-align: center; position: relative; overflow: hidden; }
-        .summary-item::before { content: ''; position: absolute; top: -30%; left: -30%; width: 60%; height: 160%; background: radial-gradient(ellipse, rgba(179,71,234,0.08) 0%, transparent 70%); }
-        .summary-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-        .summary-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-mono); }
-        .summary-value.negative { color: var(--danger-red); text-shadow: 0 0 15px rgba(255,59,92,0.5); }
-        .summary-value.positive { color: var(--accent-green); text-shadow: 0 0 12px rgba(46,204,113,0.4); }
-        .summary-value.neutral { color: var(--accent-cyan); }
-
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width:768px) { .chart-grid { grid-template-columns: 1fr; } }
-        .chart-wrapper { background: var(--bg-input); border-radius: var(--radius-md); padding: 14px; border: 1px solid var(--border-glow); }
-        .chart-title-sm { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; text-align: center; }
-
-        .daily-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        .daily-summary-table th, .daily-summary-table td {
-            padding: 10px 6px; text-align: center; border-bottom: 1px solid #2a2a3d;
-            font-size: 0.82rem; color: var(--text-secondary); word-break: break-all;
-        }
-        .daily-summary-table th { color: var(--text-muted); font-weight: 600; background: #14141f; position: sticky; top:0; }
-        .daily-summary-body { max-height:300px; overflow-y:auto; display:block; width:100%; }
-
-        .expense-section {
-            background: var(--bg-input); border-radius: var(--radius-md); padding: 14px 16px;
-            border: 1px solid var(--border-glow); margin-bottom: 14px;
-        }
-        .expense-section .section-label { font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .expense-item-row {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
-        }
-        .expense-item-row input {
-            padding: 8px 12px; border-radius: 20px; background: #0d0d18;
-            border: 1px solid #3a3a50; color: #e8e8f0; font-family: var(--font-mono); font-size: 0.82rem;
-        }
-        .expense-item-row input.amount { width: 120px; }
-        .expense-item-row input.note { flex: 1; min-width: 150px; }
-        .expense-item-row input:focus { outline: none; border-color: var(--accent-purple); box-shadow: 0 0 12px var(--glow-purple); }
-        .btn-icon-small { width: 30px; height: 30px; border-radius: 50%; background: transparent; border: 1px solid #3a3a50; color: #c0c0d0; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-icon-small:hover { border-color: var(--accent-purple); background: rgba(179,71,234,0.1); color: #fff; }
-        .btn-icon-small.danger:hover { border-color: var(--danger-red); background: rgba(255,59,92,0.1); color: var(--danger-red); }
-
-        .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-glow); background: var(--bg-input); }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.85rem; }
-        thead th { background: #14141f; padding: 12px 8px; text-align: center; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); border-bottom: 2px solid #2a2a3d; position: sticky; top: 0; white-space: nowrap; }
-        tbody td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #1a1a2a; font-family: var(--font-mono); font-size: 0.82rem; }
-        tbody tr:hover { background: rgba(179,71,234,0.04); }
-        tbody td.negative { color: var(--danger-red); font-weight: 700; text-shadow: 0 0 8px rgba(255,59,92,0.35); }
-        tbody td input { width: 80px; padding: 7px 4px; text-align: center; background: #0d0d18; border: 1px solid #2a2a3d; border-radius: 6px; color: #e8e8f0; font-family: var(--font-mono); font-size: 0.82rem; }
-        tbody td input:focus { outline: none; border-color: var(--accent-purple); box-shadow: 0 0 12px var(--glow-purple); background: #111125; }
-        tbody td input.input-note { width: 120px; text-align: left; }
-        .btn-table { padding: 5px 10px; border-radius: 14px; border: 1px solid #3a3a50; background: transparent; color: #c0c0d0; cursor: pointer; font-size: 0.7rem; }
-        .btn-table:hover { border-color: var(--accent-purple); background: rgba(179,71,234,0.1); color: #fff; }
-        .btn-table.danger:hover { border-color: var(--danger-red); background: rgba(255,59,92,0.1); color: var(--danger-red); }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .btn-save { background: linear-gradient(135deg, var(--accent-purple), #8b2fc9); color: #fff; box-shadow: 0 0 10px var(--glow-purple); }
+        .btn-save:active { transform: scale(0.96); }
+        .btn-login { background: transparent; border: 1.5px solid var(--accent-amber); color: var(--accent-amber); }
+        .btn-logout { background: transparent; border: 1.5px solid var(--danger-red); color: var(--danger-red); }
+        .btn-sm { padding: 6px 12px; font-size: 0.7rem; border-radius: 40px; }
+        .btn-report { background: transparent; border: 1.5px solid var(--accent-green); color: var(--accent-green); font-weight: 600; }
+        .btn-report:active { background: rgba(46,204,113,0.1); }
+        
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .status-dot.saved { background: var(--accent-green); box-shadow: 0 0 6px rgba(46,204,113,0.6); }
+        .status-dot.unsaved { background: var(--accent-amber); animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
+        
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 12px 12px; display: flex; flex-direction: column; gap: 18px; }
+        .card { background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-glow); padding: 16px; box-shadow: var(--shadow-card); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #1e1e30; }
+        .card-title { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .icon-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-purple); box-shadow: 0 0 8px var(--glow-purple); }
+        
+        /* 汇总卡片网格 手机下2列 */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        .summary-item { background: var(--bg-input); border-radius: var(--radius-md); padding: 12px 10px; border: 1px solid var(--border-glow); text-align: center; }
+        .summary-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .summary-value { font-size: 1.2rem; font-weight: 700; font-family: var(--font-mono); word-break: break-word; }
+        .summary-value.negative { color: var(--danger-red); }
+        .summary-value.positive { color: var(--accent-green); }
+        
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .chart-wrapper { background: var(--bg-input); border-radius: var(--radius-md); padding: 10px; border: 1px solid var(--border-glow); }
+        .chart-title-sm { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 8px; text-align: center; }
+        
+        /* 每日明细表格适配滚动 */
+        .daily-summary-table { width: 100%; border-collapse: collapse; margin-top: 6px; table-layout: auto; font-size: 0.7rem; }
+        .daily-summary-table th, .daily-summary-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #2a2a3d; white-space: nowrap; }
+        .daily-summary-table th { color: var(--text-muted); font-weight: 600; background: #14141f; }
+        .daily-summary-body { max-height: 260px; overflow-y: auto; display: block; width: 100%; }
+        
+        /* 支出区域 + 表格优化 */
+        .expense-section { background: var(--bg-input); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
+        .expense-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .expense-item-row input { padding: 8px 10px; border-radius: 30px; background: #0d0d18; border: 1px solid #3a3a50; color: #e8e8f0; font-size: 0.75rem; flex: 1 1 auto; }
+        .expense-item-row input.amount { width: 100px; flex-shrink: 0; }
+        .btn-icon-small { width: 34px; height: 34px; border-radius: 50%; background: transparent; border: 1px solid #3a3a50; color: #c0c0d0; cursor: pointer; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-icon-small:active { background: rgba(179,71,234,0.2); }
+        
+        .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-glow); background: var(--bg-input); -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 720px; font-size: 0.7rem; }
+        thead th { background: #14141f; padding: 10px 6px; font-weight: 700; font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary); border-bottom: 2px solid #2a2a3d; white-space: nowrap; }
+        tbody td { padding: 8px 5px; text-align: center; border-bottom: 1px solid #1a1a2a; font-family: var(--font-mono); font-size: 0.7rem; }
+        tbody td input { width: 75px; padding: 6px 4px; text-align: center; background: #0d0d18; border: 1px solid #2a2a3d; border-radius: 20px; color: #e8e8f0; font-size: 0.7rem; }
+        tbody td input.input-note { width: 110px; text-align: left; }
+        .btn-table { padding: 5px 8px; border-radius: 30px; border: 1px solid #3a3a50; background: transparent; color: #c0c0d0; cursor: pointer; font-size: 0.65rem; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-table:active { background: rgba(179,71,234,0.15); }
+        
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 30px; font-size: 0.65rem; font-weight: 600; }
         .badge-admin { background: rgba(179,71,234,0.2); color: #c080ff; border: 1px solid rgba(179,71,234,0.4); }
         .badge-guest { background: rgba(100,100,140,0.2); color: #9090a8; border: 1px solid rgba(100,100,140,0.4); }
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal { background: var(--bg-card); border-radius: var(--radius-xl); border: 1px solid var(--border-glow); padding: 28px 24px; width: 90%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.7), var(--shadow-glow); }
-        .modal h3 { font-size: 1.2rem; margin-bottom: 18px; text-align: center; }
-        .modal input { width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid #3a3a50; border-radius: 25px; color: #e8e8f0; font-size: 0.95rem; margin-bottom: 12px; }
-        .modal input:focus { outline: none; border-color: var(--accent-purple); box-shadow: 0 0 18px var(--glow-purple); }
-        .modal-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
-        .btn-modal { padding: 10px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+        
+        /* 模态框 移动端适配 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px); padding: 16px; }
+        .modal { background: var(--bg-card); border-radius: 28px; border: 1px solid var(--border-glow); padding: 24px 20px; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .modal h3 { font-size: 1.2rem; margin-bottom: 16px; text-align: center; }
+        .modal input { width: 100%; padding: 12px 14px; background: var(--bg-input); border: 1px solid #3a3a50; border-radius: 40px; color: #e8e8f0; font-size: 0.9rem; margin-bottom: 12px; }
+        .modal-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+        .btn-modal { padding: 10px 22px; border-radius: 40px; border: none; font-weight: 600; font-size: 0.85rem; }
         .btn-modal.primary { background: linear-gradient(135deg, var(--accent-purple), #8b2fc9); color: #fff; }
-        .btn-modal.secondary { background: transparent; border: 2px solid #4a4a60; color: #b0b0c0; }
-
-        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-        .toast { padding: 12px 20px; border-radius: 25px; font-weight: 600; font-size: 0.85rem; animation: slideIn 0.35s ease, fadeOut 0.35s ease 2.5s forwards; }
-        .toast.success { background: #1a3a1a; border: 1px solid var(--accent-green); color: #5dff8a; }
-        .toast.error { background: #3a1a1a; border: 1px solid var(--danger-red); color: #ff6b7a; }
-        .toast.info { background: #1a2a3a; border: 1px solid var(--accent-cyan); color: #7ae0ff; }
-        @keyframes slideIn { from{ transform: translateX(120%); opacity:0; } to{ transform: translateX(0); opacity:1; } }
-        @keyframes fadeOut { from{ transform: translateX(0); opacity:1; } to{ transform: translateX(80%); opacity:0; } }
-
-        @media (max-width:768px) {
-            .header { padding: 10px 12px; }
-            .summary-value { font-size: 1.2rem; }
-            .chart-grid { grid-template-columns: 1fr; }
-            .expense-item-row input.amount { width: 90px; }
-            .expense-item-row input.note { min-width: 100px; }
+        .btn-modal.secondary { background: transparent; border: 1.5px solid #5a5a70; color: #c0c0d0; }
+        
+        .toast-container { position: fixed; top: 70px; right: 12px; left: auto; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 85%; }
+        .toast { padding: 10px 16px; border-radius: 40px; font-weight: 500; font-size: 0.75rem; backdrop-filter: blur(12px); }
+        .toast.success { background: #1a3a1acc; border-left: 4px solid var(--accent-green); color: #a0ffb0; }
+        .toast.error { background: #3a1a1acc; border-left: 4px solid var(--danger-red); color: #ffb0ba; }
+        
+        /* 手机专用媒体查询 */
+        @media (max-width: 640px) {
+            .header { padding: 8px 12px; }
+            .app-title { font-size: 0.85rem; white-space: normal; }
+            .beijing-time { font-size: 0.6rem; padding: 3px 8px; }
+            .btn { padding: 6px 12px; font-size: 0.7rem; }
+            .btn-sm { padding: 5px 10px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .summary-value { font-size: 1rem; }
+            .chart-grid { grid-template-columns: 1fr; gap: 12px; }
+            .card { padding: 14px; }
+            .card-header { flex-direction: column; align-items: flex-start; }
+            .expense-item-row input.amount { width: 85px; }
+            .expense-item-row input.note { min-width: 120px; }
+            .btn-icon-small { width: 32px; height: 32px; }
+            .daily-summary-table th, .daily-summary-table td { font-size: 0.65rem; padding: 6px 2px; }
+            tbody td input { width: 65px; font-size: 0.65rem; }
+            tbody td input.input-note { width: 90px; }
         }
+        
+        @media (max-width: 480px) {
+            .header-left .logo-icon + .app-title { display: inline-block; }
+            .header-right .btn-report, .header-right .btn-save { padding: 5px 10px; font-size: 0.65rem; }
+            .summary-item { padding: 8px; }
+            .summary-value { font-size: 0.9rem; }
+            .modal { padding: 20px 16px; }
+        }
+        /* 增加触摸反馈 */
+        button, .btn, .btn-table, .btn-icon-small, .btn-modal { cursor: pointer; transition: transform 0.05s ease; }
+        button:active, .btn:active, .btn-table:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
@@ -195,33 +170,29 @@
             <span class="app-title">竞彩足球销售记录</span>
             <span class="beijing-time" id="beijingTime">--</span>
             <span class="status-dot saved" id="saveStatusDot"></span>
-            <span style="font-size:0.7rem;color:var(--text-muted);" id="saveStatusText">已保存</span>
+            <span style="font-size:0.65rem;color:var(--text-muted);" id="saveStatusText">已保存</span>
         </div>
         <div class="header-right">
-            <span class="badge badge-guest" id="roleBadge">👁 游客模式</span>
-            <button class="btn btn-login btn-sm" id="btnLogin" onclick="openLoginModal()">🔐 管理员登录</button>
+            <span class="badge badge-guest" id="roleBadge">👁 游客</span>
+            <button class="btn btn-login btn-sm" id="btnLogin" onclick="openLoginModal()">🔐 登录</button>
             <button class="btn btn-logout btn-sm" id="btnLogout" onclick="logout()" style="display:none;">🚪 退出</button>
-            <button class="btn btn-save btn-sm" id="btnCloudSave" onclick="manualSave()">☁️ 云保存</button>
-            <!-- 新增：一键生成报表按钮 -->
-            <button class="btn btn-report btn-sm" onclick="generateReport()" title="生成当前数据报表图片">📸 生成报表</button>
+            <button class="btn btn-save btn-sm" id="btnCloudSave" onclick="manualSave()">☁️ 保存</button>
+            <button class="btn btn-report btn-sm" onclick="generateReport()">📸 报表</button>
         </div>
     </header>
 
-    <!-- 报表截图区域：包裹需要导出为图片的卡片 -->
+    <!-- 报表截图区域 (移动端样式同样优雅) -->
     <div id="reportArea">
-        <!-- 店铺总结 -->
         <div class="card">
             <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📊 店铺总结（当月）</span></div>
             <div class="summary-grid" id="summaryGrid">
                 <div class="summary-item"><div class="summary-label">实际结余</div><div class="summary-value neutral" id="sumActualBalance">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">店铺总兑奖</div><div class="summary-value" id="sumTotalPrize">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">店铺总实际业绩</div><div class="summary-value neutral" id="sumTotalActualPerf">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">店铺总支出</div><div class="summary-value" id="sumTotalExpense">¥0</div></div>
-                <div class="summary-item"><div class="summary-label">所有员工总业绩</div><div class="summary-value neutral" id="sumTotalPerf">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">总兑奖</div><div class="summary-value" id="sumTotalPrize">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">实际业绩</div><div class="summary-value neutral" id="sumTotalActualPerf">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">总支出</div><div class="summary-value" id="sumTotalExpense">¥0</div></div>
+                <div class="summary-item"><div class="summary-label">员工总业绩</div><div class="summary-value neutral" id="sumTotalPerf">¥0</div></div>
             </div>
         </div>
-
-        <!-- 图表/数据卡片 -->
         <div class="card">
             <div class="card-header"><span class="card-title"><span class="icon-dot"></span>📈 数据概览</span></div>
             <div class="chart-grid">
@@ -233,8 +204,8 @@
                     <div class="chart-title-sm">📋 最近三天数据明细</div>
                     <div class="daily-summary-body">
                         <table class="daily-summary-table">
-                            <thead><tr><th style="width:25%">日期</th><th style="width:19%">总业绩</th><th style="width:19%">总兑奖</th><th style="width:19%">总支出</th><th style="width:18%">日结余</th></tr></thead>
-                            <tbody id="dailySummaryBody"><tr><td colspan="5" style="color:var(--text-muted);">暂无数据</td></tr></tbody>
+                            <thead><tr><th>日期</th><th>业绩</th><th>兑奖</th><th>支出</th><th>结余</th></tr></thead>
+                            <tbody id="dailySummaryBody"><tr><td colspan="5" style="color:var(--text-muted);">暂无</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -242,84 +213,43 @@
         </div>
     </div>
 
-    <!-- 数据管理卡片（不包含在报表区域，因包含敏感操作） -->
     <div class="main-container">
         <div class="card" id="dataTableCard" style="display:none;">
             <div class="card-header">
                 <span class="card-title"><span class="icon-dot"></span>📝 数据管理</span>
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <label style="font-size:0.78rem;color:var(--text-secondary);">选择日期：</label>
-                    <input type="date" id="selectedDate" style="padding:7px 12px;border-radius:20px;background:var(--bg-input);border:1px solid #3a3a50;color:#e8e8f0;font-size:0.82rem;" onchange="loadRecordsForDate()">
-                    <button class="btn btn-sm" style="background:var(--accent-purple);color:#fff;border-radius:20px;" onclick="addEmployeeRow()">➕ 添加员工记录</button>
-                    <button class="btn btn-sm" style="border:2px solid var(--accent-cyan);color:var(--accent-cyan);border-radius:20px;" onclick="openEmployeeManageModal()">👥 员工管理</button>
-                    <button class="btn btn-sm" style="border:2px solid var(--accent-amber);color:var(--accent-amber);border-radius:20px;" onclick="openChangePasswordModal()">🔑 修改密码</button>
+                    <input type="date" id="selectedDate" style="padding:6px 10px;border-radius:40px;background:var(--bg-input);border:1px solid #3a3a50;color:#e8e8f0;font-size:0.75rem;" onchange="loadRecordsForDate()">
+                    <button class="btn" style="background:var(--accent-purple);color:#fff;border-radius:40px;padding:5px 12px;" onclick="addEmployeeRow()">➕ 添加记录</button>
+                    <button class="btn" style="border:1.5px solid var(--accent-cyan);color:var(--accent-cyan);border-radius:40px;padding:5px 12px;" onclick="openEmployeeManageModal()">👥 员工</button>
+                    <button class="btn" style="border:1.5px solid var(--accent-amber);color:var(--accent-amber);border-radius:40px;padding:5px 12px;" onclick="openChangePasswordModal()">🔑 改密</button>
                 </div>
             </div>
             <div class="expense-section" id="expenseSection">
-                <div class="section-label">
+                <div class="section-label" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:0.75rem;margin-bottom:8px;">
                     🏪 店铺<span id="expenseDateLabel">当日</span>支出
-                    <span style="font-size:0.8rem;color:var(--text-muted);" id="totalExpenseDisplay">合计：¥0</span>
-                    <button class="btn-icon-small" onclick="addExpenseItem()" title="添加支出项">➕</button>
+                    <span style="font-size:0.7rem;color:var(--text-muted);" id="totalExpenseDisplay">合计¥0</span>
+                    <button class="btn-icon-small" onclick="addExpenseItem()" style="margin-left:auto;">➕</button>
                 </div>
                 <div id="expenseItemsContainer"></div>
-                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">💡 输入往日数据请先选择上方日期</div>
+                <div style="font-size:0.65rem;color:var(--text-muted);margin-top:5px;">💡 选择历史日期可编辑往日支出</div>
             </div>
             <div class="table-container">
                 <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>员工姓名</th><th>今日开单人数</th><th>新人开单人数</th><th>员工今日业绩</th>
-                            <th>今日兑奖金额</th><th>实际业绩</th><th>当月总业绩</th><th>备注</th><th>操作</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>员工</th><th>开单人数</th><th>新人开单</th><th>业绩(¥)</th><th>兑奖(¥)</th><th>实际业绩</th><th>月总业绩</th><th>备注</th><th>操作</th></tr></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- 登录弹窗 -->
-    <div class="modal-overlay" id="loginModalOverlay" style="display:none;">
-        <div class="modal">
-            <h3>🔐 管理员登录</h3>
-            <input type="password" id="loginPassword" placeholder="请输入管理员密码" autocomplete="off">
-            <div class="modal-buttons">
-                <button class="btn-modal primary" onclick="adminLogin()">登 录</button>
-                <button class="btn-modal secondary" onclick="closeLoginModal()">取 消</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 员工管理弹窗 -->
-    <div class="modal-overlay" id="employeeModalOverlay" style="display:none;">
-        <div class="modal" style="max-width:500px;">
-            <h3>👥 员工管理</h3>
-            <div style="display:flex;gap:8px;margin-bottom:14px;">
-                <input type="text" id="newEmployeeName" placeholder="新员工姓名" style="flex:1;">
-                <button class="btn-modal primary" onclick="addEmployee()">➕ 添加</button>
-            </div>
-            <div style="max-height:250px;overflow-y:auto;" id="employeeListContainer"></div>
-            <div class="modal-buttons" style="margin-top:14px;"><button class="btn-modal secondary" onclick="closeEmployeeModal()">关 闭</button></div>
-        </div>
-    </div>
-
-    <!-- 修改密码弹窗 -->
-    <div class="modal-overlay" id="changePasswordModalOverlay" style="display:none;">
-        <div class="modal">
-            <h3>🔑 修改管理员密码</h3>
-            <input type="password" id="oldPassword" placeholder="旧密码" autocomplete="off">
-            <input type="password" id="newPassword" placeholder="新密码" autocomplete="off">
-            <div class="modal-buttons">
-                <button class="btn-modal primary" onclick="changePassword()">确认修改</button>
-                <button class="btn-modal secondary" onclick="closeChangePasswordModal()">取 消</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- 弹窗层 -->
+    <div class="modal-overlay" id="loginModalOverlay" style="display:none;"><div class="modal"><h3>🔐 管理员登录</h3><input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off"><div class="modal-buttons"><button class="btn-modal primary" onclick="adminLogin()">登录</button><button class="btn-modal secondary" onclick="closeLoginModal()">取消</button></div></div></div>
+    <div class="modal-overlay" id="employeeModalOverlay" style="display:none;"><div class="modal" style="max-width:500px;"><h3>👥 员工管理</h3><div style="display:flex;gap:8px;margin-bottom:14px;"><input type="text" id="newEmployeeName" placeholder="新员工姓名" style="flex:1;"><button class="btn-modal primary" onclick="addEmployee()">➕ 添加</button></div><div style="max-height:260px;overflow-y:auto;" id="employeeListContainer"></div><div class="modal-buttons"><button class="btn-modal secondary" onclick="closeEmployeeModal()">关闭</button></div></div></div>
+    <div class="modal-overlay" id="changePasswordModalOverlay" style="display:none;"><div class="modal"><h3>🔑 修改密码</h3><input type="password" id="oldPassword" placeholder="旧密码"><input type="password" id="newPassword" placeholder="新密码"><div class="modal-buttons"><button class="btn-modal primary" onclick="changePassword()">确认</button><button class="btn-modal secondary" onclick="closeChangePasswordModal()">取消</button></div></div></div>
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // ==================== 云同步模块 ====================
+        // ==================== 云端模块 (完全保留原逻辑) ====================
         const CloudSync = (function() {
             const firebaseConfig = {
                 apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
@@ -332,572 +262,66 @@
             };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
-            return {
-                pushData: async (path, data) => { try { await db.ref(path).set(data); return true; } catch(e) { console.error(e); return false; } },
-                fetchData: async (path) => { try { const snap = await db.ref(path).once('value'); return snap.val(); } catch(e) { return null; } },
-                getDB: () => db
-            };
+            return { pushData: async (path, data) => { try { await db.ref(path).set(data); return true; } catch(e) { return false; } }, fetchData: async (path) => { try { const snap = await db.ref(path).once('value'); return snap.val(); } catch(e) { return null; } }, getDB: () => db };
         })();
-
         const db = CloudSync.getDB();
-        let isAdmin = false;
-        let isDirty = false;
-        let allEmployees = [];
-        let currentRecords = [];
-        let monthRecordsCache = [];
-        let currentExpenseItems = [];
-        let monthExpensesCache = {};
-        let currentDateStr = '';
+        let isAdmin = false, isDirty = false, allEmployees = [], currentRecords = [], monthRecordsCache = [], currentExpenseItems = [], monthExpensesCache = {}, currentDateStr = '';
         let charts = { employeePerf: null };
-
-        // ==================== 工具函数 ====================
-        function getBeijingDate() {
-            const now = new Date();
-            const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
-            const y = beijing.getFullYear();
-            const m = String(beijing.getMonth() + 1).padStart(2, '0');
-            const d = String(beijing.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-        function updateBeijingTime() { document.getElementById('beijingTime').textContent = '🕐 ' + getBeijingDateTimeStr() + ' (北京时间)'; }
-        function getBeijingDateTimeStr() {
-            const now = new Date();
-            const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
-            const y = beijing.getFullYear();
-            const m = String(beijing.getMonth() + 1).padStart(2, '0');
-            const d = String(beijing.getDate()).padStart(2, '0');
-            const h = String(beijing.getHours()).padStart(2, '0');
-            const min = String(beijing.getMinutes()).padStart(2, '0');
-            const s = String(beijing.getSeconds()).padStart(2, '0');
-            return `${y}-${m}-${d} ${h}:${min}:${s}`;
-        }
-        function getMonthKey(dateStr) { return dateStr.substring(0, 7); }
-        function formatMoney(val) { const n = parseFloat(val); return isNaN(n) ? '¥0' : '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
-        function parseNum(val) { const n = parseFloat(val); return isNaN(n) ? 0 : n; }
-        function showToast(msg, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-        function updateSaveStatus(status) {
-            const dot = document.getElementById('saveStatusDot'), text = document.getElementById('saveStatusText'), btn = document.getElementById('btnCloudSave');
-            dot.className = 'status-dot ' + status;
-            if (status === 'saved') { text.textContent = '已保存'; btn.textContent = '☁️ 云保存'; btn.classList.remove('auto-saving'); }
-            else if (status === 'unsaved') { text.textContent = '未保存'; btn.classList.remove('auto-saving'); }
-            else if (status === 'auto-saving') { text.textContent = '自动保存中...'; btn.textContent = '🔄 保存中'; btn.classList.add('auto-saving'); }
-            else if (status === 'error') { text.textContent = '保存失败'; btn.textContent = '⚠️ 重试'; btn.classList.remove('auto-saving'); }
-        }
-        function setMaxDate() { document.getElementById('selectedDate').max = getBeijingDate(); }
-        function markDirty() {
-            if (!isAdmin) return;
-            isDirty = true;
-            updateSaveStatus('unsaved');
-            clearTimeout(window.autoSaveTimer);
-            window.autoSaveTimer = setTimeout(() => {
-                if (isDirty && isAdmin) {
-                    updateSaveStatus('auto-saving');
-                    saveAllCurrentRecords().catch(() => updateSaveStatus('error'));
-                }
-            }, 5000);
-        }
-
-        // ==================== 员工管理 ====================
-        async function loadEmployees() {
-            const data = await CloudSync.fetchData('employees');
-            allEmployees = [];
-            if (data) { Object.entries(data).forEach(([id, val]) => { if (val && val.name) allEmployees.push({ id, name: val.name }); }); }
-            allEmployees.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
-        }
+        function getBeijingDate() { const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+        function getBeijingDateTimeStr() { const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`; }
+        function getMonthKey(dateStr) { return dateStr.substring(0,7); }
+        function formatMoney(v) { const n = parseFloat(v); return isNaN(n) ? '¥0' : '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits:0, maximumFractionDigits:2 }); }
+        function parseNum(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+        function showToast(msg, type='info') { const c = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t); setTimeout(()=>t.remove(), 2800); }
+        function updateSaveStatus(s) { const dot = document.getElementById('saveStatusDot'), txt = document.getElementById('saveStatusText'), btn = document.getElementById('btnCloudSave'); dot.className = 'status-dot ' + s; if(s==='saved'){ txt.textContent='已保存'; btn.textContent='☁️ 保存'; btn.classList.remove('auto-saving');} else if(s==='unsaved'){ txt.textContent='未保存'; btn.classList.remove('auto-saving'); } else if(s==='auto-saving'){ txt.textContent='保存中...'; btn.classList.add('auto-saving');} else if(s==='error'){ txt.textContent='保存失败';} }
+        function markDirty() { if(!isAdmin) return; isDirty = true; updateSaveStatus('unsaved'); clearTimeout(window.autoSaveTimer); window.autoSaveTimer = setTimeout(()=>{ if(isDirty && isAdmin){ updateSaveStatus('auto-saving'); saveAllCurrentRecords().catch(()=>updateSaveStatus('error')); } }, 5000); }
+        
+        async function loadEmployees() { const data = await CloudSync.fetchData('employees'); allEmployees = []; if(data) Object.entries(data).forEach(([id,val])=>{ if(val?.name) allEmployees.push({id, name:val.name}); }); allEmployees.sort((a,b)=>a.name.localeCompare(b.name,'zh')); }
         async function addEmployeeToDB(name) { await db.ref('employees').push().set({ name: name.trim() }); await loadEmployees(); }
         async function updateEmployeeNameDB(empId, newName) { await db.ref(`employees/${empId}`).update({ name: newName.trim() }); await loadEmployees(); }
-        async function deleteEmployeeDB(empId) {
-            await db.ref(`employees/${empId}`).remove();
-            const allRecords = await CloudSync.fetchData('dailyRecords');
-            if (allRecords) {
-                const updates = {};
-                Object.entries(allRecords).forEach(([key, val]) => { if (val && val.employeeId === empId) updates[key] = null; });
-                if (Object.keys(updates).length) await db.ref('dailyRecords').update(updates);
-            }
-            await loadEmployees();
-        }
-
-        // ==================== 月度缓存 ====================
-        async function loadMonthDataIntoCache(monthKey) {
-            const [recordsData, expensesData] = await Promise.all([
-                CloudSync.fetchData('dailyRecords'),
-                CloudSync.fetchData('dailyExpenses')
-            ]);
-            monthRecordsCache = [];
-            if (recordsData) {
-                Object.entries(recordsData).forEach(([id, val]) => {
-                    if (val && val.date && val.date.startsWith(monthKey)) monthRecordsCache.push({ id, ...val });
-                });
-            }
-            monthExpensesCache = {};
-            if (expensesData) {
-                Object.entries(expensesData).forEach(([date, val]) => {
-                    if (date.startsWith(monthKey)) monthExpensesCache[date] = val || { items: [] };
-                });
-            }
-        }
-
-        // ==================== 加载指定日期 ====================
-        async function loadRecordsForDate(dateStr) {
-            if (!dateStr) dateStr = document.getElementById('selectedDate').value;
-            if (!dateStr) return;
-            currentDateStr = dateStr;
-            document.getElementById('expenseDateLabel').textContent = (dateStr === getBeijingDate()) ? '当日' : dateStr;
-            await loadMonthDataIntoCache(getMonthKey(dateStr));
-            currentRecords = monthRecordsCache.filter(r => r.date === dateStr);
-            const dayExpense = monthExpensesCache[dateStr] || { items: [] };
-            currentExpenseItems = dayExpense.items || [];
-            renderExpenseItems();
-            renderTable();
-            updateAllCalculations();
-            updateChartsAndDaily();
-        }
-
-        function renderExpenseItems() {
-            const container = document.getElementById('expenseItemsContainer');
-            if (!isAdmin) { container.innerHTML = ''; return; }
-            let html = '';
-            currentExpenseItems.forEach((item, index) => {
-                html += `
-                <div class="expense-item-row">
-                    <input type="number" class="amount" placeholder="金额" step="0.01" value="${item.amount || 0}" onchange="updateExpenseItem(${index}, 'amount', this.value)">
-                    <input type="text" class="note" placeholder="支出备注" value="${item.note || ''}" onchange="updateExpenseItem(${index}, 'note', this.value)">
-                    <button class="btn-icon-small danger" onclick="removeExpenseItem(${index})" title="删除">🗑</button>
-                </div>`;
-            });
-            if (currentExpenseItems.length === 0) {
-                html = '<div style="color:var(--text-muted);font-size:0.8rem;padding:6px;">暂无支出项，点击➕添加</div>';
-            }
-            container.innerHTML = html;
-            updateTotalExpenseDisplay();
-        }
-
-        function updateTotalExpenseDisplay() {
-            const total = currentExpenseItems.reduce((sum, item) => sum + parseNum(item.amount), 0);
-            document.getElementById('totalExpenseDisplay').textContent = '合计：' + formatMoney(total);
-        }
-
-        window.addExpenseItem = function() {
-            if (!isAdmin) return;
-            currentExpenseItems.push({ amount: 0, note: '' });
-            renderExpenseItems();
-            if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
-            monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
-            markDirty();
-            updateAllCalculations();
-            updateChartsAndDaily();
-        };
-
-        window.removeExpenseItem = function(index) {
-            if (!isAdmin) return;
-            currentExpenseItems.splice(index, 1);
-            renderExpenseItems();
-            if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
-            monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
-            markDirty();
-            updateAllCalculations();
-            updateChartsAndDaily();
-        };
-
-        window.updateExpenseItem = function(index, field, value) {
-            if (!isAdmin) return;
-            if (field === 'amount') currentExpenseItems[index].amount = parseFloat(value) || 0;
-            else currentExpenseItems[index].note = value;
-            if (!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr] = { items: [] };
-            monthExpensesCache[currentDateStr].items = [...currentExpenseItems];
-            markDirty();
-            updateTotalExpenseDisplay();
-            updateAllCalculations();
-            updateChartsAndDaily();
-        };
-
-        // ==================== 保存所有记录 ====================
-        async function saveAllCurrentRecords() {
-            if (!isAdmin) return;
-            const updates = {};
-            for (const rec of currentRecords) {
-                const docId = rec.id || `${rec.date}_${rec.employeeId}`;
-                updates[`dailyRecords/${docId}`] = {
-                    date: rec.date,
-                    employeeId: rec.employeeId,
-                    employeeName: rec.employeeName,
-                    orderCount: parseNum(rec.orderCount),
-                    newCustomerCount: parseNum(rec.newCustomerCount),
-                    performance: parseNum(rec.performance),
-                    prizeAmount: parseNum(rec.prizeAmount),
-                    actualPerformance: parseNum(rec.actualPerformance),
-                    note: rec.note || '',
-                    updatedAt: getBeijingDateTimeStr()
-                };
-            }
-            const existingKeys = currentRecords.map(r => r.id || `${r.date}_${r.employeeId}`);
-            const allRecords = await CloudSync.fetchData('dailyRecords');
-            if (allRecords) {
-                Object.entries(allRecords).forEach(([key, val]) => {
-                    if (val && val.date === currentDateStr && !existingKeys.includes(key)) {
-                        updates[`dailyRecords/${key}`] = null;
-                    }
-                });
-            }
-            updates[`dailyExpenses/${currentDateStr}`] = {
-                items: currentExpenseItems.map(item => ({ amount: parseNum(item.amount), note: item.note || '' }))
-            };
-            await db.ref().update(updates);
-            await loadMonthDataIntoCache(getMonthKey(currentDateStr));
-            isDirty = false;
-            updateSaveStatus('saved');
-            showToast('✅ 数据已云保存成功', 'success');
-        }
-
-        // ==================== 表格渲染 ====================
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
-            if (!isAdmin) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="9">🔒 请登录管理员账号</td></tr>';
-                return;
-            }
-            if (!allEmployees.length) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="9">📭 暂无员工，请先添加员工</td></tr>';
-                return;
-            }
-            const recordMap = {};
-            currentRecords.forEach(r => { recordMap[r.employeeId] = r; });
-            let html = '';
-            allEmployees.forEach(emp => {
-                const rec = recordMap[emp.id] || {
-                    date: currentDateStr, employeeId: emp.id, employeeName: emp.name,
-                    orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0,
-                    actualPerformance:0, note:''
-                };
-                const perf = parseNum(rec.performance);
-                const prize = parseNum(rec.prizeAmount);
-                const actualPerf = perf - prize;
-                const monthTotal = getEmployeeMonthTotal(emp.id);
-                html += `<tr data-employee-id="${emp.id}">
-                    <td><strong>${emp.name}</strong></td>
-                    <td><input type="number" value="${rec.orderCount}" data-field="orderCount" onchange="onCellChange(this)" onfocus="this.select()"></td>
-                    <td><input type="number" value="${rec.newCustomerCount}" data-field="newCustomerCount" onchange="onCellChange(this)" onfocus="this.select()"></td>
-                    <td><input type="number" value="${perf}" data-field="performance" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
-                    <td><input type="number" value="${prize}" data-field="prizeAmount" step="0.01" onchange="onCellChange(this)" onfocus="this.select()"></td>
-                    <td class="${actualPerf<0?'negative':''}">${formatMoney(actualPerf)}</td>
-                    <td><strong>${formatMoney(monthTotal)}</strong></td>
-                    <td><input type="text" value="${rec.note||''}" data-field="note" class="input-note" onchange="onCellChange(this)" placeholder="备注"></td>
-                    <td><button class="btn-table danger" onclick="deleteRecordRow(this)">🗑</button></td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        function getEmployeeMonthTotal(empId) {
-            let total = 0;
-            monthRecordsCache.forEach(r => { if (r.employeeId === empId) total += parseNum(r.performance); });
-            return total;
-        }
-
-        window.onCellChange = function(inputEl) {
-            if (!isAdmin) return;
-            const row = inputEl.closest('tr');
-            const empId = row.dataset.employeeId;
-            const field = inputEl.dataset.field;
-            const value = inputEl.value;
-            let rec = currentRecords.find(r => r.employeeId === empId);
-            if (!rec) {
-                const emp = allEmployees.find(e => e.id === empId);
-                rec = { date: currentDateStr, employeeId: empId, employeeName: emp ? emp.name : '',
-                    orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0,
-                    actualPerformance:0, note:'' };
-                currentRecords.push(rec);
-            }
-            if (field === 'orderCount' || field === 'newCustomerCount') rec[field] = parseInt(value) || 0;
-            else if (field === 'performance' || field === 'prizeAmount') rec[field] = parseFloat(value) || 0;
-            else rec[field] = value;
-            rec.actualPerformance = parseNum(rec.performance) - parseNum(rec.prizeAmount);
-            const cacheIdx = monthRecordsCache.findIndex(r => r.employeeId === empId && r.date === currentDateStr);
-            if (cacheIdx >= 0) Object.assign(monthRecordsCache[cacheIdx], rec);
-            else monthRecordsCache.push({...rec});
-            markDirty();
-            renderTable();
-            updateAllCalculations();
-            updateChartsAndDaily();
-        };
-
-        window.deleteRecordRow = function(btn) {
-            if (!isAdmin) return;
-            if (!confirm('确定删除该员工的此日记录吗？')) return;
-            const empId = btn.closest('tr').dataset.employeeId;
-            currentRecords = currentRecords.filter(r => r.employeeId !== empId);
-            monthRecordsCache = monthRecordsCache.filter(r => !(r.employeeId === empId && r.date === currentDateStr));
-            markDirty();
-            renderTable();
-            updateAllCalculations();
-            updateChartsAndDaily();
-        };
-
-        window.addEmployeeRow = function() {
-            if (!isAdmin) return;
-            if (!allEmployees.length) { openEmployeeManageModal(); return; }
-            const existingIds = new Set(currentRecords.map(r => r.employeeId));
-            const missingEmp = allEmployees.find(e => !existingIds.has(e.id));
-            if (missingEmp) {
-                const newRec = { date: currentDateStr, employeeId: missingEmp.id, employeeName: missingEmp.name,
-                    orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0,
-                    actualPerformance:0, note:'' };
-                currentRecords.push(newRec);
-                monthRecordsCache.push({...newRec});
-                markDirty();
-                renderTable();
-                updateAllCalculations();
-                updateChartsAndDaily();
-            } else { showToast('所有员工已有当日记录', 'info'); }
-        };
-
-        // ==================== 店铺总结计算 ====================
-        function updateAllCalculations() {
-            let totalPerf = 0, totalPrize = 0, totalExpense = 0, runningBalance = 0;
-            const dateGroups = {};
-            monthRecordsCache.forEach(r => {
-                if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, actual:0 };
-                dateGroups[r.date].perf += parseNum(r.performance);
-                dateGroups[r.date].prize += parseNum(r.prizeAmount);
-                dateGroups[r.date].actual += parseNum(r.actualPerformance);
-            });
-            Object.keys(monthExpensesCache).forEach(d => {
-                const items = monthExpensesCache[d].items || [];
-                const dayExpense = items.reduce((sum, item) => sum + parseNum(item.amount), 0);
-                if (!dateGroups[d]) dateGroups[d] = { perf:0, prize:0, actual:0 };
-                dateGroups[d].expense = dayExpense;
-            });
-            const sortedDates = Object.keys(dateGroups).sort();
-            sortedDates.forEach(d => {
-                const g = dateGroups[d];
-                const expense = g.expense || 0;
-                totalPerf += g.perf;
-                totalPrize += g.prize;
-                totalExpense += expense;
-                runningBalance += g.actual - expense;
-            });
-            const storeActualPerf = totalPerf - totalPrize;
-            document.getElementById('sumActualBalance').textContent = formatMoney(runningBalance);
-            document.getElementById('sumActualBalance').className = 'summary-value ' + (runningBalance<0?'negative':runningBalance>0?'positive':'neutral');
-            document.getElementById('sumTotalPrize').textContent = formatMoney(totalPrize);
-            document.getElementById('sumTotalActualPerf').textContent = formatMoney(storeActualPerf);
-            document.getElementById('sumTotalActualPerf').className = 'summary-value ' + (storeActualPerf<0?'negative':storeActualPerf>0?'positive':'neutral');
-            document.getElementById('sumTotalExpense').textContent = formatMoney(totalExpense);
-            document.getElementById('sumTotalPerf').textContent = formatMoney(totalPerf);
-        }
-
-        // ==================== 图表和每日明细 ====================
-        function updateChartsAndDaily() {
-            const empPerf = {};
-            allEmployees.forEach(e => { empPerf[e.id] = { name: e.name, perf: 0 }; });
-            monthRecordsCache.forEach(r => {
-                if (empPerf[r.employeeId]) empPerf[r.employeeId].perf += parseNum(r.performance);
-            });
-            const empLabels = Object.values(empPerf).map(e => e.name);
-            const empData = Object.values(empPerf).map(e => e.perf);
-            const ctx = document.getElementById('chartEmployeePerf').getContext('2d');
-            if (charts.employeePerf) charts.employeePerf.destroy();
-            charts.employeePerf = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: empLabels.length ? empLabels : ['暂无数据'],
-                    datasets: [{
-                        label: '当月总业绩', data: empData.length ? empData : [0],
-                        backgroundColor: empData.map(v => v<0?'rgba(255,59,92,0.8)':'rgba(179,71,234,0.7)'),
-                        borderColor: empData.map(v => v<0?'#ff3b5c':'#b347ea'),
-                        borderWidth: 1.5, borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: true,
-                    plugins: { legend: { labels: { color: '#a0a0b8' } } },
-                    scales: {
-                        x: { ticks: { color: '#8a8a9a' }, grid: { color: 'rgba(255,255,255,0.03)' } },
-                        y: { ticks: { color: '#8a8a9a', callback: v => formatMoney(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                    }
-                }
-            });
-
-            const dateGroups = {};
-            monthRecordsCache.forEach(r => {
-                if (!dateGroups[r.date]) dateGroups[r.date] = { perf:0, prize:0, actual:0, expense:0 };
-                dateGroups[r.date].perf += parseNum(r.performance);
-                dateGroups[r.date].prize += parseNum(r.prizeAmount);
-                dateGroups[r.date].actual += parseNum(r.actualPerformance);
-            });
-            Object.keys(monthExpensesCache).forEach(d => {
-                const items = monthExpensesCache[d].items || [];
-                const dayExpense = items.reduce((sum, item) => sum + parseNum(item.amount), 0);
-                if (!dateGroups[d]) dateGroups[d] = { perf:0, prize:0, actual:0 };
-                dateGroups[d].expense = dayExpense;
-            });
-            const allDates = Object.keys(dateGroups).sort();
-            const recentDates = allDates.slice(-3);
-
-            const tbody = document.getElementById('dailySummaryBody');
-            if (recentDates.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);">暂无数据</td></tr>';
-                return;
-            }
-            let html = '';
-            recentDates.forEach(d => {
-                const g = dateGroups[d];
-                const balance = g.actual - (g.expense || 0);
-                html += `<tr>
-                    <td>${d}</td>
-                    <td>${formatMoney(g.perf)}</td>
-                    <td>${formatMoney(g.prize)}</td>
-                    <td>${formatMoney(g.expense)}</td>
-                    <td class="${balance<0?'negative':'positive'}">${formatMoney(balance)}</td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        // ==================== 一键生成报表（图片形式） ====================
-        window.generateReport = async function() {
-            const element = document.getElementById('reportArea');
-            if (!element) {
-                showToast('未找到报表区域', 'error');
-                return;
-            }
-            showToast('正在生成报表图片...', 'info');
-            try {
-                const canvas = await html2canvas(element, {
-                    backgroundColor: '#08080f',
-                    scale: 2, // 高清输出
-                    useCORS: true,
-                    allowTaint: false,
-                });
-                // 触发下载
-                const link = document.createElement('a');
-                link.download = `竞彩足球报表_${getBeijingDate()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showToast('✅ 报表已生成并下载', 'success');
-            } catch (error) {
-                console.error('报表生成失败:', error);
-                showToast('❌ 报表生成失败，请重试', 'error');
-            }
-        };
-
-        // ==================== 弹窗与管理功能 ====================
-        window.openLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'flex'; document.getElementById('loginPassword').value = ''; };
-        window.closeLoginModal = () => { document.getElementById('loginModalOverlay').style.display = 'none'; };
-        window.adminLogin = async () => {
-            const pw = document.getElementById('loginPassword').value.trim();
-            const correctPw = (await CloudSync.fetchData('settings/admin/password')) || 'admin123';
-            if (pw === correctPw) {
-                isAdmin = true; updateAdminUI(); closeLoginModal();
-                showToast('✅ 管理员登录成功', 'success');
-                await loadEmployees();
-                const dateInput = document.getElementById('selectedDate');
-                if (!dateInput.value) dateInput.value = getBeijingDate();
-                await loadRecordsForDate(dateInput.value);
-            } else { showToast('❌ 密码错误', 'error'); }
-        };
-        window.logout = () => {
-            isAdmin = false; updateAdminUI();
-            currentRecords = []; monthRecordsCache = []; monthExpensesCache = {};
-            renderTable(); updateAllCalculations(); updateChartsAndDaily();
-            showToast('已退出管理员模式', 'info');
-        };
-        function updateAdminUI() {
-            document.getElementById('dataTableCard').style.display = isAdmin ? '' : 'none';
-            document.getElementById('btnLogin').style.display = isAdmin ? 'none' : '';
-            document.getElementById('btnLogout').style.display = isAdmin ? '' : 'none';
-            const badge = document.getElementById('roleBadge');
-            if (isAdmin) { badge.textContent = '🔧 管理员模式'; badge.className = 'badge badge-admin'; }
-            else { badge.textContent = '👁 游客模式'; badge.className = 'badge badge-guest'; }
-        }
-
-        window.openChangePasswordModal = () => { if(isAdmin) document.getElementById('changePasswordModalOverlay').style.display = 'flex'; };
-        window.closeChangePasswordModal = () => { document.getElementById('changePasswordModalOverlay').style.display = 'none'; };
-        window.changePassword = async () => {
-            const oldPwd = document.getElementById('oldPassword').value.trim();
-            const newPwd = document.getElementById('newPassword').value.trim();
-            if (!oldPwd || !newPwd) { showToast('请输入旧密码和新密码', 'error'); return; }
-            const correctPw = (await CloudSync.fetchData('settings/admin/password')) || 'admin123';
-            if (oldPwd !== correctPw) { showToast('旧密码错误', 'error'); return; }
-            await CloudSync.pushData('settings/admin/password', newPwd);
-            showToast('✅ 密码修改成功', 'success'); closeChangePasswordModal();
-        };
-
-        window.openEmployeeManageModal = () => { if(isAdmin) { document.getElementById('employeeModalOverlay').style.display = 'flex'; renderEmployeeList(); } };
-        window.closeEmployeeModal = () => { document.getElementById('employeeModalOverlay').style.display = 'none'; };
-        function renderEmployeeList() {
-            const container = document.getElementById('employeeListContainer');
-            if (!allEmployees.length) { container.innerHTML = '<p style="color:var(--text-muted);">暂无员工</p>'; return; }
-            let html = '';
-            allEmployees.forEach(emp => {
-                html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #1e1e30;">
-                    <input type="text" value="${emp.name}" data-emp-id="${emp.id}" style="flex:1;padding:7px;background:var(--bg-input);border:1px solid #2a2a3d;border-radius:6px;color:#e8e8f0;" onchange="updateEmployeeName(this)">
-                    <button class="btn-table danger" onclick="deleteEmployeeConfirm('${emp.id}')">🗑</button></div>`;
-            });
-            container.innerHTML = html;
-        }
-        window.updateEmployeeName = async (inputEl) => {
-            const empId = inputEl.dataset.empId; const newName = inputEl.value.trim();
-            if (!newName) { showToast('姓名不能为空', 'error'); renderEmployeeList(); return; }
-            await updateEmployeeNameDB(empId, newName);
-            showToast('姓名已更新', 'success'); renderEmployeeList(); renderTable();
-        };
-        window.deleteEmployeeConfirm = async (empId) => {
-            if (!confirm('确定删除该员工及其所有记录吗？')) return;
-            await deleteEmployeeDB(empId);
-            currentRecords = currentRecords.filter(r => r.employeeId !== empId);
-            monthRecordsCache = monthRecordsCache.filter(r => r.employeeId !== empId);
-            renderEmployeeList(); renderTable(); markDirty(); updateAllCalculations(); updateChartsAndDaily();
-        };
-        window.addEmployee = async () => {
-            const name = document.getElementById('newEmployeeName').value.trim();
-            if (!name) { showToast('请输入姓名', 'error'); return; }
-            if (allEmployees.some(e => e.name === name)) { showToast('员工已存在', 'error'); return; }
-            await addEmployeeToDB(name);
-            document.getElementById('newEmployeeName').value = '';
-            showToast('✅ 添加成功', 'success'); renderEmployeeList();
-        };
-
-        window.manualSave = async () => {
-            if (!isAdmin) { showToast('游客模式无法保存', 'error'); return; }
-            updateSaveStatus('auto-saving');
-            try { await saveAllCurrentRecords(); } catch(e) { updateSaveStatus('error'); showToast('保存失败', 'error'); }
-        };
-
-        // ==================== 初始化 ====================
-        async function init() {
-            updateBeijingTime();
-            setInterval(updateBeijingTime, 1000);
-            setMaxDate();
-            const today = getBeijingDate();
-            const dateInput = document.getElementById('selectedDate');
-            dateInput.value = today;
-            currentDateStr = today;
-            updateAdminUI();
-            await loadEmployees();
-            await loadMonthDataIntoCache(getMonthKey(today));
-            if (isAdmin) {
-                currentRecords = monthRecordsCache.filter(r => r.date === today);
-                const dayExpense = monthExpensesCache[today] || { items: [] };
-                currentExpenseItems = dayExpense.items || [];
-                renderExpenseItems();
-                renderTable();
-            }
-            updateAllCalculations();
-            updateChartsAndDaily();
-            setInterval(() => { if (isDirty && isAdmin) { updateSaveStatus('auto-saving'); saveAllCurrentRecords().catch(() => updateSaveStatus('error')); } }, 5000);
-            document.getElementById('loginModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeLoginModal(); });
-            document.getElementById('employeeModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeEmployeeModal(); });
-            document.getElementById('changePasswordModalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeChangePasswordModal(); });
-            document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
-        }
+        async function deleteEmployeeDB(empId) { await db.ref(`employees/${empId}`).remove(); const all = await CloudSync.fetchData('dailyRecords'); if(all){ const updates={}; Object.entries(all).forEach(([k,v])=>{ if(v?.employeeId===empId) updates[k]=null; }); if(Object.keys(updates).length) await db.ref('dailyRecords').update(updates); } await loadEmployees(); }
+        
+        async function loadMonthDataIntoCache(monthKey) { const [recordsData, expensesData] = await Promise.all([CloudSync.fetchData('dailyRecords'), CloudSync.fetchData('dailyExpenses')]); monthRecordsCache = []; if(recordsData) Object.entries(recordsData).forEach(([id,val])=>{ if(val?.date?.startsWith(monthKey)) monthRecordsCache.push({ id, ...val }); }); monthExpensesCache = {}; if(expensesData) Object.entries(expensesData).forEach(([date,val])=>{ if(date.startsWith(monthKey)) monthExpensesCache[date] = val || { items: [] }; }); }
+        
+        async function loadRecordsForDate(dateStr) { if(!dateStr) dateStr = document.getElementById('selectedDate').value; if(!dateStr) return; currentDateStr = dateStr; document.getElementById('expenseDateLabel').innerHTML = (dateStr===getBeijingDate()) ? '当日' : dateStr; await loadMonthDataIntoCache(getMonthKey(dateStr)); currentRecords = monthRecordsCache.filter(r=>r.date===dateStr); const dayExp = monthExpensesCache[dateStr] || { items: [] }; currentExpenseItems = dayExp.items || []; renderExpenseItems(); renderTable(); updateAllCalculations(); updateChartsAndDaily(); }
+        
+        function renderExpenseItems() { const container = document.getElementById('expenseItemsContainer'); if(!isAdmin){ container.innerHTML=''; return;} let html=''; currentExpenseItems.forEach((item,i)=>{ html+=`<div class="expense-item-row"><input type="number" class="amount" placeholder="金额" step="0.01" value="${item.amount||0}" onchange="updateExpenseItem(${i},'amount',this.value)"><input type="text" class="note" placeholder="备注" value="${item.note||''}" onchange="updateExpenseItem(${i},'note',this.value)"><button class="btn-icon-small danger" onclick="removeExpenseItem(${i})">🗑</button></div>`; }); if(!currentExpenseItems.length) html='<div style="color:var(--text-muted);font-size:0.7rem;">暂无支出，点击➕添加</div>'; container.innerHTML=html; updateTotalExpenseDisplay(); }
+        function updateTotalExpenseDisplay() { const total = currentExpenseItems.reduce((s,i)=>s+parseNum(i.amount),0); document.getElementById('totalExpenseDisplay').innerHTML = '合计' + formatMoney(total); }
+        window.addExpenseItem = function() { if(!isAdmin) return; currentExpenseItems.push({ amount:0, note:'' }); renderExpenseItems(); if(!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr]={ items:[] }; monthExpensesCache[currentDateStr].items = [...currentExpenseItems]; markDirty(); updateAllCalculations(); updateChartsAndDaily(); };
+        window.removeExpenseItem = function(idx) { if(!isAdmin) return; currentExpenseItems.splice(idx,1); renderExpenseItems(); if(!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr]={ items:[] }; monthExpensesCache[currentDateStr].items = [...currentExpenseItems]; markDirty(); updateAllCalculations(); updateChartsAndDaily(); };
+        window.updateExpenseItem = function(idx,field,val) { if(!isAdmin) return; if(field==='amount') currentExpenseItems[idx].amount=parseFloat(val)||0; else currentExpenseItems[idx].note=val; if(!monthExpensesCache[currentDateStr]) monthExpensesCache[currentDateStr]={ items:[] }; monthExpensesCache[currentDateStr].items = [...currentExpenseItems]; markDirty(); updateTotalExpenseDisplay(); updateAllCalculations(); updateChartsAndDaily(); };
+        
+        async function saveAllCurrentRecords() { if(!isAdmin) return; const updates={}; for(const rec of currentRecords){ const docId = rec.id || `${rec.date}_${rec.employeeId}`; updates[`dailyRecords/${docId}`]={ date:rec.date,employeeId:rec.employeeId,employeeName:rec.employeeName,orderCount:parseNum(rec.orderCount),newCustomerCount:parseNum(rec.newCustomerCount),performance:parseNum(rec.performance),prizeAmount:parseNum(rec.prizeAmount),actualPerformance:parseNum(rec.performance)-parseNum(rec.prizeAmount),note:rec.note||'',updatedAt:getBeijingDateTimeStr() }; } const existingKeys=currentRecords.map(r=>r.id||`${r.date}_${r.employeeId}`); const all=await CloudSync.fetchData('dailyRecords'); if(all) Object.entries(all).forEach(([k,v])=>{ if(v?.date===currentDateStr && !existingKeys.includes(k)) updates[`dailyRecords/${k}`]=null; }); updates[`dailyExpenses/${currentDateStr}`] = { items: currentExpenseItems.map(i=>({ amount:parseNum(i.amount), note:i.note||'' })) }; await db.ref().update(updates); await loadMonthDataIntoCache(getMonthKey(currentDateStr)); isDirty=false; updateSaveStatus('saved'); showToast('✅ 云保存成功','success'); }
+        
+        function renderTable() { const tbody = document.getElementById('tableBody'); if(!isAdmin){ tbody.innerHTML='<tr><td colspan="9">🔒 请登录管理员账号</td></tr>'; return; } if(!allEmployees.length){ tbody.innerHTML='<tr><td colspan="9">📭 暂无员工，请先添加</td></tr>'; return; } const map={}; currentRecords.forEach(r=>map[r.employeeId]=r); let html=''; allEmployees.forEach(emp=>{ const rec=map[emp.id]||{ date:currentDateStr,employeeId:emp.id,employeeName:emp.name,orderCount:0,newCustomerCount:0,performance:0,prizeAmount:0,actualPerformance:0,note:'' }; const perf=parseNum(rec.performance),prize=parseNum(rec.prizeAmount),actualPerf=perf-prize; const monthTotal = monthRecordsCache.filter(r=>r.employeeId===emp.id).reduce((s,r)=>s+parseNum(r.performance),0); html+=`<tr data-employee-id="${emp.id}"><td><strong>${emp.name}</strong></td><td><input type="number" value="${rec.orderCount}" data-field="orderCount" onchange="onCellChange(this)" onfocus="this.select()"></td><td><input type="number" value="${rec.newCustomerCount}" data-field="newCustomerCount" onchange="onCellChange(this)"></td><td><input type="number" value="${perf}" data-field="performance" step="0.01" onchange="onCellChange(this)"></td><td><input type="number" value="${prize}" data-field="prizeAmount" step="0.01" onchange="onCellChange(this)"></td><td class="${actualPerf<0?'negative':''}">${formatMoney(actualPerf)}</td><td><strong>${formatMoney(monthTotal)}</strong></td><td><input type="text" value="${rec.note||''}" data-field="note" class="input-note" onchange="onCellChange(this)" placeholder="备注"></td><td><button class="btn-table danger" onclick="deleteRecordRow(this)">🗑</button></td></tr>`; }); tbody.innerHTML=html; }
+        window.onCellChange = function(el) { if(!isAdmin) return; const row=el.closest('tr'), empId=row.dataset.employeeId, field=el.dataset.field, val=el.value; let rec=currentRecords.find(r=>r.employeeId===empId); if(!rec){ const emp=allEmployees.find(e=>e.id===empId); rec={ date:currentDateStr,employeeId:empId,employeeName:emp?emp.name:'',orderCount:0,newCustomerCount:0,performance:0,prizeAmount:0,actualPerformance:0,note:'' }; currentRecords.push(rec); } if(['orderCount','newCustomerCount'].includes(field)) rec[field]=parseInt(val)||0; else if(['performance','prizeAmount'].includes(field)) rec[field]=parseFloat(val)||0; else rec[field]=val; rec.actualPerformance=parseNum(rec.performance)-parseNum(rec.prizeAmount); const idx=monthRecordsCache.findIndex(r=>r.employeeId===empId && r.date===currentDateStr); if(idx>=0) Object.assign(monthRecordsCache[idx],rec); else monthRecordsCache.push({...rec}); markDirty(); renderTable(); updateAllCalculations(); updateChartsAndDaily(); };
+        window.deleteRecordRow = function(btn) { if(!isAdmin||!confirm('删除该员工当日记录？')) return; const empId=btn.closest('tr').dataset.employeeId; currentRecords=currentRecords.filter(r=>r.employeeId!==empId); monthRecordsCache=monthRecordsCache.filter(r=>!(r.employeeId===empId && r.date===currentDateStr)); markDirty(); renderTable(); updateAllCalculations(); updateChartsAndDaily(); };
+        window.addEmployeeRow = function() { if(!isAdmin) return; if(!allEmployees.length){ openEmployeeManageModal(); return; } const existing=new Set(currentRecords.map(r=>r.employeeId)); const missing=allEmployees.find(e=>!existing.has(e.id)); if(missing){ const newRec={ date:currentDateStr,employeeId:missing.id,employeeName:missing.name,orderCount:0,newCustomerCount:0,performance:0,prizeAmount:0,actualPerformance:0,note:'' }; currentRecords.push(newRec); monthRecordsCache.push({...newRec}); markDirty(); renderTable(); updateAllCalculations(); updateChartsAndDaily(); } else showToast('所有员工均有当日记录','info'); };
+        
+        function updateAllCalculations() { let totalPerf=0,totalPrize=0,totalExpense=0,runningBalance=0; const groups={}; monthRecordsCache.forEach(r=>{ if(!groups[r.date]) groups[r.date]={ perf:0,prize:0,actual:0 }; groups[r.date].perf+=parseNum(r.performance); groups[r.date].prize+=parseNum(r.prizeAmount); groups[r.date].actual+=parseNum(r.performance)-parseNum(r.prizeAmount); }); Object.keys(monthExpensesCache).forEach(d=>{ const exp=(monthExpensesCache[d].items||[]).reduce((s,i)=>s+parseNum(i.amount),0); if(!groups[d]) groups[d]={ perf:0,prize:0,actual:0 }; groups[d].expense=exp; }); Object.values(groups).forEach(g=>{ totalPerf+=g.perf; totalPrize+=g.prize; totalExpense+=g.expense||0; runningBalance+= (g.actual||0) - (g.expense||0); }); const storeActual=totalPerf-totalPrize; document.getElementById('sumActualBalance').innerHTML=formatMoney(runningBalance); document.getElementById('sumTotalPrize').innerHTML=formatMoney(totalPrize); document.getElementById('sumTotalActualPerf').innerHTML=formatMoney(storeActual); document.getElementById('sumTotalExpense').innerHTML=formatMoney(totalExpense); document.getElementById('sumTotalPerf').innerHTML=formatMoney(totalPerf); }
+        
+        function updateChartsAndDaily() { const empMap={}; allEmployees.forEach(e=>empMap[e.id]={ name:e.name, perf:0 }); monthRecordsCache.forEach(r=>{ if(empMap[r.employeeId]) empMap[r.employeeId].perf+=parseNum(r.performance); }); const labels=Object.values(empMap).map(e=>e.name), data=Object.values(empMap).map(e=>e.perf); const ctx=document.getElementById('chartEmployeePerf').getContext('2d'); if(charts.employeePerf) charts.employeePerf.destroy(); charts.employeePerf=new Chart(ctx,{ type:'bar', data:{ labels:labels.length?labels:['暂无'], datasets:[{ label:'当月总业绩', data:data.length?data:[0], backgroundColor:data.map(v=>v<0?'rgba(255,59,92,0.7)':'rgba(179,71,234,0.7)'), borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ labels:{ color:'#a0a0b8', font:{ size:10 } } } }, scales:{ x:{ ticks:{ color:'#8a8a9a', font:{ size:9 } }, grid:{ color:'rgba(255,255,255,0.03)' } }, y:{ ticks:{ color:'#8a8a9a', callback:v=>formatMoney(v), font:{ size:9 } }, grid:{ color:'rgba(255,255,255,0.05)' } } } } }); const groups={}; monthRecordsCache.forEach(r=>{ if(!groups[r.date]) groups[r.date]={ perf:0,prize:0,actual:0,expense:0 }; groups[r.date].perf+=parseNum(r.performance); groups[r.date].prize+=parseNum(r.prizeAmount); groups[r.date].actual+=parseNum(r.performance)-parseNum(r.prizeAmount); }); Object.keys(monthExpensesCache).forEach(d=>{ const exp=(monthExpensesCache[d].items||[]).reduce((s,i)=>s+parseNum(i.amount),0); if(!groups[d]) groups[d]={ perf:0,prize:0,actual:0 }; groups[d].expense=exp; }); const dates=Object.keys(groups).sort().slice(-3); const tbody=document.getElementById('dailySummaryBody'); if(!dates.length){ tbody.innerHTML='<tr><td colspan="5" style="color:var(--text-muted);">暂无数据</td></tr>'; return; } let html=''; dates.forEach(d=>{ const g=groups[d]; const bal=g.actual-(g.expense||0); html+=`<tr><td>${d}</td><td>${formatMoney(g.perf)}</td><td>${formatMoney(g.prize)}</td><td>${formatMoney(g.expense)}</td><td class="${bal<0?'negative':'positive'}">${formatMoney(bal)}</td></tr>`; }); tbody.innerHTML=html; }
+        
+        window.generateReport = async function() { const el=document.getElementById('reportArea'); if(!el){ showToast('报表区域不存在','error'); return; } showToast('生成报表图片中...','info'); try{ const canvas=await html2canvas(el,{ backgroundColor:'#08080f', scale:2, useCORS:true }); const link=document.createElement('a'); link.download=`竞彩报表_${getBeijingDate()}.png`; link.href=canvas.toDataURL('image/png'); link.click(); showToast('✅ 报表已下载','success'); }catch(e){ showToast('生成失败','error'); } };
+        
+        window.openLoginModal = ()=>document.getElementById('loginModalOverlay').style.display='flex';
+        window.closeLoginModal = ()=>document.getElementById('loginModalOverlay').style.display='none';
+        window.adminLogin = async()=>{ const pw=document.getElementById('loginPassword').value.trim(); const correct=(await CloudSync.fetchData('settings/admin/password'))||'admin123'; if(pw===correct){ isAdmin=true; updateAdminUI(); closeLoginModal(); showToast('管理员登录成功','success'); await loadEmployees(); const inp=document.getElementById('selectedDate'); if(!inp.value) inp.value=getBeijingDate(); await loadRecordsForDate(inp.value); } else showToast('密码错误','error'); };
+        window.logout = ()=>{ isAdmin=false; updateAdminUI(); currentRecords=[]; monthRecordsCache=[]; monthExpensesCache={}; renderTable(); updateAllCalculations(); updateChartsAndDaily(); showToast('已退出管理','info'); };
+        function updateAdminUI(){ document.getElementById('dataTableCard').style.display=isAdmin?'':'none'; document.getElementById('btnLogin').style.display=isAdmin?'none':''; document.getElementById('btnLogout').style.display=isAdmin?'':'none'; const badge=document.getElementById('roleBadge'); if(isAdmin){ badge.textContent='🔧 管理员'; badge.className='badge badge-admin'; }else{ badge.textContent='👁 游客'; badge.className='badge badge-guest'; } }
+        window.openChangePasswordModal=()=>{ if(isAdmin) document.getElementById('changePasswordModalOverlay').style.display='flex'; };
+        window.closeChangePasswordModal=()=>document.getElementById('changePasswordModalOverlay').style.display='none';
+        window.changePassword=async()=>{ const oldPwd=document.getElementById('oldPassword').value.trim(), newPwd=document.getElementById('newPassword').value.trim(); if(!oldPwd||!newPwd){ showToast('请填完整','error'); return; } const correct=(await CloudSync.fetchData('settings/admin/password'))||'admin123'; if(oldPwd!==correct){ showToast('旧密码错误','error'); return; } await CloudSync.pushData('settings/admin/password',newPwd); showToast('密码修改成功','success'); closeChangePasswordModal(); };
+        window.openEmployeeManageModal=()=>{ if(isAdmin){ document.getElementById('employeeModalOverlay').style.display='flex'; renderEmployeeList(); } };
+        window.closeEmployeeModal=()=>document.getElementById('employeeModalOverlay').style.display='none';
+        function renderEmployeeList(){ const container=document.getElementById('employeeListContainer'); if(!allEmployees.length){ container.innerHTML='<p style="color:var(--text-muted);">暂无员工</p>'; return; } let html=''; allEmployees.forEach(emp=>{ html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #1e1e30;"><input type="text" value="${emp.name}" data-emp-id="${emp.id}" style="flex:1;padding:7px;background:var(--bg-input);border:1px solid #2a2a3d;border-radius:30px;font-size:0.8rem;" onchange="updateEmployeeName(this)"><button class="btn-table danger" onclick="deleteEmployeeConfirm('${emp.id}')">🗑</button></div>`; }); container.innerHTML=html; }
+        window.updateEmployeeName=async(input)=>{ const empId=input.dataset.empId, newName=input.value.trim(); if(!newName){ showToast('姓名不能空','error'); renderEmployeeList(); return; } await updateEmployeeNameDB(empId,newName); showToast('已更新','success'); renderEmployeeList(); renderTable(); };
+        window.deleteEmployeeConfirm=async(empId)=>{ if(!confirm('删除员工及其所有记录？')) return; await deleteEmployeeDB(empId); currentRecords=currentRecords.filter(r=>r.employeeId!==empId); monthRecordsCache=monthRecordsCache.filter(r=>r.employeeId!==empId); renderEmployeeList(); renderTable(); markDirty(); updateAllCalculations(); updateChartsAndDaily(); };
+        window.addEmployee=async()=>{ const name=document.getElementById('newEmployeeName').value.trim(); if(!name){ showToast('请输入姓名','error'); return; } if(allEmployees.some(e=>e.name===name)){ showToast('员工已存在','error'); return; } await addEmployeeToDB(name); document.getElementById('newEmployeeName').value=''; showToast('添加成功','success'); renderEmployeeList(); };
+        window.manualSave = async()=>{ if(!isAdmin){ showToast('游客无法保存','error'); return; } updateSaveStatus('auto-saving'); try{ await saveAllCurrentRecords(); }catch(e){ updateSaveStatus('error'); showToast('保存失败','error'); } };
+        
+        function updateBeijingTime() { document.getElementById('beijingTime').innerHTML = '🕐 ' + getBeijingDateTimeStr(); }
+        async function init(){ updateBeijingTime(); setInterval(updateBeijingTime,1000); document.getElementById('selectedDate').max=getBeijingDate(); const today=getBeijingDate(); document.getElementById('selectedDate').value=today; currentDateStr=today; updateAdminUI(); await loadEmployees(); await loadMonthDataIntoCache(getMonthKey(today)); if(isAdmin){ currentRecords=monthRecordsCache.filter(r=>r.date===today); currentExpenseItems=(monthExpensesCache[today]||{ items:[] }).items; renderExpenseItems(); renderTable(); } updateAllCalculations(); updateChartsAndDaily(); setInterval(()=>{ if(isDirty && isAdmin){ updateSaveStatus('auto-saving'); saveAllCurrentRecords().catch(()=>updateSaveStatus('error')); } },5000); document.getElementById('loginModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeLoginModal(); }); document.getElementById('employeeModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeEmployeeModal(); }); document.getElementById('changePasswordModalOverlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeChangePasswordModal(); }); window.addEventListener('resize',()=>{ if(charts.employeePerf) charts.employeePerf.resize(); }); }
         init();
     </script>
 </body>
