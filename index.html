@@ -4,209 +4,844 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>竞彩足球销售记录</title>
-  <link rel="stylesheet" href="css/style.css">
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-database-compat.js"></script>
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-primary: #0d0d1a; --bg-secondary: #12122a; --bg-card: rgba(18,18,42,0.85);
+  --border-color: rgba(128,0,255,0.3); --border-glow: rgba(0,255,255,0.25);
+  --text-primary: #e0e0f0; --text-secondary: #9999bb;
+  --accent-pink: #ff00ff; --accent-cyan: #00ffff; --accent-purple: #b347ea;
+  --danger: #ff4444; --danger-glow: rgba(255,68,68,0.5);
+  --success: #00e676; --warning: #ffab00;
+  --btn-gradient: linear-gradient(135deg, #b347ea, #7b2ff7);
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+  --radius: 12px; --transition: 0.25s ease;
+}
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 50%, #0a1628 100%);
+  color: var(--text-primary); min-height: 100vh; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+.hidden { display: none !important; }
+.text-danger { color: var(--danger); text-shadow: 0 0 8px var(--danger-glow); }
+.text-secondary { color: var(--text-secondary); }
+
+/* Toast */
+#toastContainer { position: fixed; top: 16px; right: 16px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { padding: 12px 20px; border-radius: var(--radius); font-size: 0.9rem; color: #fff; pointer-events: auto; animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards; max-width: 360px; word-break: break-word; }
+.toast-success { background: rgba(0,180,100,0.9); box-shadow: 0 0 16px rgba(0,230,118,0.4); }
+.toast-error { background: rgba(220,50,50,0.9); box-shadow: 0 0 16px rgba(255,68,68,0.4); }
+.toast-warning { background: rgba(200,140,0,0.9); box-shadow: 0 0 16px rgba(255,171,0,0.4); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(60px); } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all var(--transition); white-space: nowrap; color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: 0.82rem; }
+.btn-primary { background: var(--btn-gradient); box-shadow: 0 2px 12px rgba(179,71,234,0.3); }
+.btn-primary:hover { box-shadow: 0 0 20px rgba(179,71,234,0.5); transform: translateY(-1px); }
+.btn-save { background: linear-gradient(135deg, #00b894, #00cec9); box-shadow: 0 2px 12px rgba(0,206,201,0.3); }
+.btn-save:hover { box-shadow: 0 0 20px rgba(0,255,255,0.5); transform: translateY(-1px); }
+.btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.btn-danger:hover { box-shadow: 0 0 18px rgba(255,68,68,0.5); }
+.btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.15); }
+.btn-outline:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { color: var(--text-primary); }
+
+/* Layout */
+.app-container { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(128,0,255,0.2); margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.site-title { font-size: 1.3rem; background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.beijing-time { font-size: 0.95rem; color: var(--accent-cyan); font-variant-numeric: tabular-nums; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(0,255,255,0.2); background: rgba(0,255,255,0.05); }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.save-status { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; transition: background var(--transition); }
+.status-saved { background: var(--success); box-shadow: 0 0 6px rgba(0,230,118,0.6); }
+.status-dirty { background: var(--warning); box-shadow: 0 0 6px rgba(255,171,0,0.6); animation: pulse 1s infinite; }
+.status-error { background: var(--danger); box-shadow: 0 0 6px var(--danger-glow); }
+.status-saving { background: var(--accent-cyan); box-shadow: 0 0 6px rgba(0,255,255,0.6); animation: pulse 0.6s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.admin-toolbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 18px; margin-bottom: 16px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--card-shadow); }
+.date-picker-group { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.date-picker-group input[type="date"] { padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: var(--text-primary); font-size: 0.9rem; }
+.date-picker-group input[type="date"]:focus { outline: none; border-color: var(--accent-purple); }
+.auto-save-hint { font-size: 0.78rem; color: var(--text-secondary); margin-left: auto; }
+
+/* Summary Cards */
+.summary-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px; }
+.summary-card { background: var(--bg-card); border-radius: var(--radius); padding: 18px 16px; text-align: center; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); transition: transform var(--transition), border-color var(--transition); }
+.summary-card:hover { transform: translateY(-2px); border-color: var(--accent-cyan); }
+.card-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.5px; }
+.card-value { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.card { background: var(--bg-card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); margin-bottom: 16px; }
+.card-title { font-size: 1rem; margin-bottom: 14px; }
+.card-subtitle { font-size: 0.8rem; color: var(--text-secondary); font-weight: 400; }
+
+.chart-wrapper { position: relative; height: 400px; }
+.chart-wrapper canvas { width: 100% !important; }
+
+/* Table */
+.table-wrapper { overflow-x: auto; }
+#dailyTable { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.85rem; }
+#dailyTable th, #dailyTable td { padding: 10px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.06); overflow: hidden; text-overflow: ellipsis; }
+#dailyTable th { background: rgba(128,0,255,0.15); color: var(--accent-cyan); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.3px; }
+#dailyTable tbody tr { transition: background 0.2s; }
+#dailyTable tbody tr:hover { background: rgba(255,255,255,0.03); }
+#dailyTable .empty-row { color: var(--text-secondary); padding: 30px; }
+#dailyTable td input, #dailyTable td select { width: 100%; padding: 5px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-primary); text-align: center; font-size: 0.85rem; }
+#dailyTable td input:focus, #dailyTable td select:focus { outline: none; border-color: var(--accent-purple); }
+
+/* Expense */
+.expense-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.expense-row input { flex: 1; }
+.expense-summary { margin: 12px 0; font-size: 0.95rem; }
+.expense-summary strong { color: var(--accent-cyan); }
+
+input[type="text"], input[type="password"], input[type="number"] { padding: 9px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: var(--text-primary); font-size: 0.9rem; transition: border-color var(--transition); }
+input:focus { outline: none; border-color: var(--accent-purple); }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); }
+.error-text { color: var(--danger); font-size: 0.82rem; margin-top: 4px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
+.modal-box { background: var(--bg-secondary); border-radius: 16px; padding: 28px; width: 90%; max-width: 440px; border: 1px solid var(--border-color); box-shadow: 0 8px 48px rgba(128,0,255,0.2); animation: modalIn 0.3s ease; }
+.modal-wide { max-width: 560px; }
+.modal-title { font-size: 1.15rem; margin-bottom: 20px; color: var(--accent-cyan); }
+.modal-body { margin-bottom: 20px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(-20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* Employee List */
+.emp-add-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.emp-add-row input { flex: 1; }
+.emp-list { list-style: none; max-height: 300px; overflow-y: auto; }
+.emp-list li { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.emp-list .emp-name-input { flex: 1; margin-right: 12px; font-size: 0.9rem; }
+.emp-list .btn { padding: 4px 10px; font-size: 0.78rem; }
+
+.footer { text-align: center; padding: 20px 0; color: var(--text-secondary); font-size: 0.78rem; opacity: 0.6; }
+.note-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.note-row span { font-size: 0.85rem; min-width: 80px; }
+.note-row input { flex: 1; }
+
+/* Responsive */
+@media (max-width: 900px) { .summary-cards { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) {
+  .header { flex-direction: column; align-items: flex-start; }
+  .site-title { font-size: 1.1rem; }
+  .chart-wrapper { height: 250px; }
+  .summary-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .summary-card { padding: 14px 10px; }
+  .card-value { font-size: 1.05rem; }
+  #dailyTable { font-size: 0.72rem; }
+  #dailyTable th, #dailyTable td { padding: 6px 3px; }
+  .admin-toolbar { flex-direction: column; align-items: stretch; }
+  .modal-box { padding: 20px; width: 95%; }
+}
+@media (max-width: 480px) {
+  .summary-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .summary-card { padding: 12px 8px; }
+  .card-label { font-size: 0.7rem; }
+  .card-value { font-size: 0.95rem; }
+}
+  </style>
 </head>
 <body>
-  <!-- ====== Toast 容器 ====== -->
-  <div id="toastContainer"></div>
 
-  <!-- ====== 登录模态框 ====== -->
-  <div id="loginModal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <h2 class="modal-title">管理员登录</h2>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>请输入管理密码</label>
-          <input type="password" id="loginPassword" placeholder="输入密码" autocomplete="off">
-        </div>
-        <p id="loginError" class="error-text hidden"></p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="Auth.closeLoginModal()">取消</button>
-        <button class="btn btn-primary" id="loginConfirmBtn">登录</button>
-      </div>
+<div id="toastContainer"></div>
+
+<!-- Login Modal -->
+<div id="loginModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h2 class="modal-title">管理员登录</h2>
+    <div class="modal-body">
+      <div class="form-group"><label>请输入管理密码</label><input type="password" id="loginPassword" placeholder="输入密码" autocomplete="off"></div>
+      <p id="loginError" class="error-text hidden"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="loginCancelBtn">取消</button>
+      <button class="btn btn-primary" id="loginConfirmBtn">登录</button>
     </div>
   </div>
+</div>
 
-  <!-- ====== 修改密码模态框 ====== -->
-  <div id="changePwdModal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <h2 class="modal-title">修改管理员密码</h2>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>旧密码</label>
-          <input type="password" id="oldPassword" placeholder="输入旧密码" autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label>新密码</label>
-          <input type="password" id="newPassword" placeholder="输入新密码" autocomplete="off">
-        </div>
-        <p id="changePwdError" class="error-text hidden"></p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="Auth.closeChangePwdModal()">取消</button>
-        <button class="btn btn-primary" id="changePwdConfirmBtn">确认修改</button>
-      </div>
+<!-- Change Password Modal -->
+<div id="changePwdModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h2 class="modal-title">修改管理员密码</h2>
+    <div class="modal-body">
+      <div class="form-group"><label>旧密码</label><input type="password" id="oldPassword" placeholder="输入旧密码" autocomplete="off"></div>
+      <div class="form-group"><label>新密码</label><input type="password" id="newPassword" placeholder="输入新密码" autocomplete="off"></div>
+      <p id="changePwdError" class="error-text hidden"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="changePwdCancelBtn">取消</button>
+      <button class="btn btn-primary" id="changePwdConfirmBtn">确认修改</button>
     </div>
   </div>
+</div>
 
-  <!-- ====== 员工管理模态框 ====== -->
-  <div id="empModal" class="modal-overlay hidden">
-    <div class="modal-box modal-wide">
-      <h2 class="modal-title">员工管理</h2>
-      <div class="modal-body">
-        <div class="emp-add-row">
-          <input type="text" id="newEmpName" placeholder="输入新员工姓名" maxlength="20">
-          <button class="btn btn-primary btn-sm" id="addEmpBtn">添加员工</button>
-        </div>
-        <ul id="empList" class="emp-list"></ul>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="UI.closeEmpModal()">关闭</button>
-      </div>
+<!-- Employee Modal -->
+<div id="empModal" class="modal-overlay hidden">
+  <div class="modal-box modal-wide">
+    <h2 class="modal-title">员工管理</h2>
+    <div class="modal-body">
+      <div class="emp-add-row"><input type="text" id="newEmpName" placeholder="输入新员工姓名" maxlength="20"><button class="btn btn-primary btn-sm" id="addEmpBtn">添加员工</button></div>
+      <ul id="empList" class="emp-list"></ul>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="empModalCloseBtn">关闭</button></div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h2 class="modal-title">确认删除</h2>
+    <div class="modal-body"><p id="confirmMsg"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="confirmCancelBtn">取消</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
     </div>
   </div>
+</div>
 
-  <!-- ====== 删除确认模态框 ====== -->
-  <div id="confirmModal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <h2 class="modal-title">确认删除</h2>
-      <div class="modal-body">
-        <p id="confirmMsg"></p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="UI.closeConfirmModal()">取消</button>
-        <button class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+<!-- ====== Main UI ====== -->
+<div class="app-container">
+  <header class="header">
+    <div class="header-left"><h1 class="site-title">⚽ 竞彩足球销售记录</h1></div>
+    <div class="header-center"><span class="beijing-time" id="beijingTime">--</span></div>
+    <div class="header-right">
+      <div class="save-status" id="saveStatus"><span class="status-dot status-saved"></span><span class="status-text">已保存</span></div>
+      <button class="btn btn-outline btn-sm" id="loginBtn">管理员登录</button>
+      <button class="btn btn-outline btn-sm hidden" id="logoutBtn">退出登录</button>
+      <button class="btn btn-outline btn-sm hidden" id="changePwdBtn">修改密码</button>
+    </div>
+  </header>
+
+  <section id="adminToolbar" class="admin-toolbar hidden">
+    <button class="btn btn-primary" id="empManageBtn">👥 员工管理</button>
+    <div class="date-picker-group"><label>选择日期：</label><input type="date" id="datePicker"></div>
+    <button class="btn btn-save" id="manualSaveBtn">☁️ 云保存</button>
+    <span class="auto-save-hint" id="autoSaveHint">自动保存：5秒</span>
+  </section>
+
+  <section class="summary-cards" id="summaryCards">
+    <div class="summary-card"><div class="card-label">实际结余</div><div class="card-value" id="cardBalance">¥0</div></div>
+    <div class="summary-card"><div class="card-label">店铺总兑奖</div><div class="card-value" id="cardTotalPrize">¥0</div></div>
+    <div class="summary-card"><div class="card-label">店铺总实际业绩</div><div class="card-value" id="cardTotalActual">¥0</div></div>
+    <div class="summary-card"><div class="card-label">店铺总支出</div><div class="card-value" id="cardTotalExpense">¥0</div></div>
+    <div class="summary-card"><div class="card-label">所有员工总业绩</div><div class="card-value" id="cardTotalPerf">¥0</div></div>
+  </section>
+
+  <section class="chart-section">
+    <div class="card"><h3 class="card-title">员工当月业绩柱状图</h3><div class="chart-wrapper"><canvas id="perfChart"></canvas></div></div>
+  </section>
+
+  <section class="table-section">
+    <div class="card">
+      <h3 class="card-title">每日数据明细（最近 3 天）</h3>
+      <div class="table-wrapper">
+        <table id="dailyTable">
+          <thead><tr>
+            <th style="width:9%">日期</th><th style="width:9%">员工</th><th style="width:8%">开单人数</th><th style="width:8%">新人开单</th>
+            <th style="width:10%">业绩</th><th style="width:10%">兑奖金额</th><th style="width:10%">实际业绩</th>
+            <th style="width:10%">当月总业绩</th><th style="width:9%">今日支出</th><th style="width:9%">今日结余</th>
+            <th style="width:8%">备注</th>
+          </tr></thead>
+          <tbody id="dailyTableBody"><tr><td colspan="11" class="empty-row">暂无数据</td></tr></tbody>
+        </table>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- ====== 主界面 ====== -->
-  <div class="app-container">
-    <!-- HEADER -->
-    <header class="header">
-      <div class="header-left">
-        <h1 class="site-title">⚽ 竞彩足球销售记录</h1>
-      </div>
-      <div class="header-center">
-        <span class="beijing-time" id="beijingTime">--</span>
-      </div>
-      <div class="header-right">
-        <div class="save-status" id="saveStatus" title="保存状态">
-          <span class="status-dot status-saved"></span>
-          <span class="status-text">已保存</span>
-        </div>
-        <button class="btn btn-outline btn-sm" id="loginBtn" onclick="Auth.showLoginModal()">管理员登录</button>
-        <button class="btn btn-outline btn-sm hidden" id="logoutBtn" onclick="Auth.logout()">退出登录</button>
-        <button class="btn btn-outline btn-sm hidden" id="changePwdBtn" onclick="Auth.showChangePwdModal()">修改密码</button>
-      </div>
-    </header>
+  <section id="expenseSection" class="expense-section hidden">
+    <div class="card">
+      <h3 class="card-title">今日支出管理 <span class="card-subtitle" id="currentDateLabel"></span></h3>
+      <div id="expenseRows"></div>
+      <div class="expense-summary"><span>今日支出合计：<strong id="expenseTotal">¥0</strong></span></div>
+      <button class="btn btn-primary btn-sm" id="addExpenseBtn">+ 添加支出项</button>
+    </div>
+  </section>
 
-    <!-- 管理工具栏（仅管理员可见） -->
-    <section id="adminToolbar" class="admin-toolbar hidden">
-      <button class="btn btn-primary" id="empManageBtn">👥 员工管理</button>
-      <div class="date-picker-group">
-        <label>选择日期：</label>
-        <input type="date" id="datePicker">
-      </div>
-      <button class="btn btn-save" id="manualSaveBtn">☁️ 云保存</button>
-      <span class="auto-save-hint" id="autoSaveHint">自动保存：5秒</span>
-    </section>
+  <footer class="footer"><span>数据云端存储 · 双击 index.html 即可使用</span></footer>
+</div>
 
-    <!-- 店铺总结卡片 -->
-    <section class="summary-cards" id="summaryCards">
-      <div class="summary-card">
-        <div class="card-label">实际结余</div>
-        <div class="card-value" id="cardBalance">¥0</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-label">店铺总兑奖</div>
-        <div class="card-value" id="cardTotalPrize">¥0</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-label">店铺总实际业绩</div>
-        <div class="card-value" id="cardTotalActual">¥0</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-label">店铺总支出</div>
-        <div class="card-value" id="cardTotalExpense">¥0</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-label">所有员工总业绩</div>
-        <div class="card-value" id="cardTotalPerf">¥0</div>
-      </div>
-    </section>
+<script>
+// ============================================================
+//   Firebase 初始化
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
+  authDomain: "haixuanqi-16ad1.firebaseapp.com",
+  projectId: "haixuanqi-16ad1",
+  storageBucket: "haixuanqi-16ad1.firebasestorage.app",
+  messagingSenderId: "449619714205",
+  appId: "1:449619714205:web:10ee25d0dc5022d783f474",
+  measurementId: "G-E1B32ZW69Y"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    <!-- 图表区域 -->
-    <section class="chart-section">
-      <div class="card">
-        <h3 class="card-title">员工当月业绩柱状图</h3>
-        <div class="chart-wrapper">
-          <canvas id="perfChart"></canvas>
-        </div>
-      </div>
-    </section>
+// ============================================================
+//   CloudSync
+// ============================================================
+const CloudSync = {
+  async fetchAllData(month) {
+    const snap = await db.ref("/").once("value");
+    const data = snap.val() || {};
+    const employees = data.employees || {};
+    const allRecords = data.dailyRecords || {};
+    const allExpenses = data.dailyExpenses || {};
+    const monthRecords = {}, monthExpenses = {};
+    for (const k of Object.keys(allRecords)) { if (k.startsWith(month)) monthRecords[k] = allRecords[k]; }
+    for (const k of Object.keys(allExpenses)) { if (k.startsWith(month)) monthExpenses[k] = allExpenses[k]; }
+    return { employees, monthRecords, monthExpenses };
+  },
 
-    <!-- 每日明细表格 -->
-    <section class="table-section">
-      <div class="card">
-        <h3 class="card-title">每日数据明细（最近 3 天）</h3>
-        <div class="table-wrapper">
-          <table id="dailyTable">
-            <thead>
-              <tr>
-                <th style="width:10%">日期</th>
-                <th style="width:10%">员工</th>
-                <th style="width:9%">开单人数</th>
-                <th style="width:9%">新人开单</th>
-                <th style="width:11%">业绩</th>
-                <th style="width:11%">兑奖金额</th>
-                <th style="width:11%">实际业绩</th>
-                <th style="width:9%">当月总业绩</th>
-                <th style="width:10%">今日支出</th>
-                <th style="width:10%">今日结余</th>
-              </tr>
-            </thead>
-            <tbody id="dailyTableBody">
-              <tr><td colspan="10" class="empty-row">暂无数据</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+  async saveAllData(month, records, expenses) {
+    const updates = {};
+    const snap = await db.ref("dailyRecords").once("value");
+    const allRecords = snap.val() || {};
+    for (const k of Object.keys(allRecords)) { if (k.startsWith(month) && !records[k]) updates["dailyRecords/" + k] = null; }
+    for (const k of Object.keys(records)) { updates["dailyRecords/" + k] = records[k]; }
+    for (const k of Object.keys(expenses)) { updates["dailyExpenses/" + k] = expenses[k]; }
+    if (Object.keys(updates).length > 0) await db.ref("/").update(updates);
+  },
 
-    <!-- 支出管理区域（仅管理员可见） -->
-    <section id="expenseSection" class="expense-section hidden">
-      <div class="card">
-        <h3 class="card-title">今日支出管理 <span class="card-subtitle" id="currentDateLabel"></span></h3>
-        <div id="expenseRows"></div>
-        <div class="expense-summary">
-          <span>今日支出合计：<strong id="expenseTotal">¥0</strong></span>
-        </div>
-        <button class="btn btn-primary btn-sm" id="addExpenseBtn">+ 添加支出项</button>
-      </div>
-    </section>
+  async saveEmployees(empObj) { await db.ref("employees").set(empObj); },
 
-    <!-- 备注列说明（仅管理员可见） -->
-    <section id="noteSection" class="note-section hidden">
-      <div class="card">
-        <h3 class="card-title">备注管理 <span class="card-subtitle" id="noteDateLabel"></span></h3>
-        <div id="currentDayNotes"></div>
-      </div>
-    </section>
+  async deleteEmployee(empId) {
+    const paths = {};
+    paths["employees/" + empId] = null;
+    const snap = await db.ref("dailyRecords").once("value");
+    const allRecords = snap.val() || {};
+    for (const k of Object.keys(allRecords)) { if (k.endsWith("_" + empId)) paths["dailyRecords/" + k] = null; }
+    await db.ref("/").update(paths);
+  },
 
-    <footer class="footer">
-      <span>数据云端存储 · Firebase Realtime Database</span>
-    </footer>
-  </div>
+  async getAdminPassword() { const s = await db.ref("settings/admin/password").once("value"); return s.val() || "admin123"; },
+  async setAdminPassword(pwd) { await db.ref("settings/admin/password").set(pwd); }
+};
 
-  <!-- ====== JS 模块加载 ====== -->
-  <script type="module" src="js/firebase.js"></script>
-  <script type="module" src="js/utils.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/calculations.js"></script>
-  <script type="module" src="js/ui.js"></script>
-  <script type="module" src="js/app.js"></script>
+// ============================================================
+//   Utils
+// ============================================================
+const Utils = {
+  getBeijingDate(d) {
+    const date = d ? new Date(d) : new Date();
+    const y = date.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" });
+    const m = date.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", month: "2-digit" });
+    const day = date.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", day: "2-digit" });
+    return y + "-" + m + "-" + day;
+  },
+  getBeijingDateTimeStr() {
+    const d = new Date();
+    const date = d.toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
+    const time = d.toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    return date + " " + time;
+  },
+  getCurrentMonth() { return Utils.getBeijingDate().substring(0, 7); },
+  updateTime(el) { el.textContent = "北京时间 " + Utils.getBeijingDateTimeStr(); },
+  formatMoney(num) {
+    if (num == null || isNaN(num)) num = 0;
+    const n = Number(num), abs = Math.abs(n).toFixed(2);
+    const parts = abs.split("."); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const fm = "¥" + parts.join(".");
+    if (n < 0) return '<span class="text-danger">-' + fm + '</span>';
+    return fm;
+  },
+  formatNum(num) { if (num == null || isNaN(num)) return "0"; return Number(num).toFixed(2); },
+  showToast(msg, type) {
+    type = type || "success";
+    const c = document.getElementById("toastContainer");
+    const el = document.createElement("div");
+    el.className = "toast toast-" + type; el.textContent = msg; c.appendChild(el);
+    setTimeout(function() { el.remove(); }, 3000);
+  },
+  genId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 8); }
+};
+
+// ============================================================
+//   Calculations
+// ============================================================
+const Calc = {
+  empMonthTotal(records, empId) {
+    let t = 0;
+    for (const k of Object.keys(records)) { if (records[k].employeeId === empId) t += Number(records[k].performance) || 0; }
+    return t;
+  },
+  getDateRecords(records, date) {
+    const r = [];
+    for (const k of Object.keys(records)) { if (records[k].date === date) r.push(records[k]); }
+    return r;
+  },
+  getDateExpenses(expenses, date) {
+    const e = expenses[date]; return (e && e.items) ? e.items : [];
+  },
+  dailySummary(records, expenses, date) {
+    const dr = Calc.getDateRecords(records, date);
+    const de = Calc.getDateExpenses(expenses, date);
+    let tp = 0, tz = 0, ta = 0;
+    for (const r of dr) { tp += Number(r.performance)||0; tz += Number(r.prizeAmount)||0; ta += Number(r.actualPerformance)||0; }
+    let te = 0; for (const it of de) { te += Number(it.amount)||0; }
+    return { totalPerf: tp, totalPrize: tz, totalActual: ta, totalExpense: te, dailyBalance: ta - te, dateRecords: dr, dateExpenses: de };
+  },
+  shopMonthSummary(records, expenses) {
+    const dm = {};
+    for (const k of Object.keys(records)) {
+      const r = records[k], d = r.date;
+      if (!dm[d]) dm[d] = { perf:0, prize:0, actual:0 };
+      dm[d].perf += Number(r.performance)||0; dm[d].prize += Number(r.prizeAmount)||0; dm[d].actual += Number(r.actualPerformance)||0;
+    }
+    for (const d of Object.keys(expenses)) {
+      if (!dm[d]) dm[d] = { perf:0, prize:0, actual:0 };
+      dm[d].expense = (expenses[d].items||[]).reduce(function(s,it){ return s+(Number(it.amount)||0); }, 0);
+    }
+    const sd = Object.keys(dm).sort();
+    let tp=0, tz=0, te=0, cb=0;
+    for (const d of sd) { const dd=dm[d]; tp+=dd.perf; tz+=dd.prize; const ex=dd.expense||0; te+=ex; cb+=(dd.actual-ex); }
+    return { balance: cb, totalPrize: tz, totalActual: tp-tz, totalExpense: te, totalPerf: tp };
+  },
+  buildChartData(records, employees) {
+    const names=[], totals=[];
+    for (const id of Object.keys(employees)) {
+      if (!employees[id]||!employees[id].name) continue;
+      names.push(employees[id].name); totals.push(Calc.empMonthTotal(records, id));
+    }
+    return { labels: names, totals: totals };
+  },
+  getRecentDates(records, expenses, n) {
+    const ds = new Set();
+    for (const k of Object.keys(records)) ds.add(records[k].date);
+    for (const d of Object.keys(expenses)) ds.add(d);
+    return Array.from(ds).sort().slice(-n);
+  }
+};
+
+// ============================================================
+//   Auth
+// ============================================================
+let _isAdmin = false;
+let _onAuthChange = null;
+
+const Auth = {
+  get isAdmin() { return _isAdmin; },
+  onAuthChange: function(fn) { _onAuthChange = fn; },
+  showLoginModal: function() { document.getElementById("loginModal").classList.remove("hidden"); document.getElementById("loginPassword").value=""; document.getElementById("loginError").classList.add("hidden"); document.getElementById("loginPassword").focus(); },
+  closeLoginModal: function() { document.getElementById("loginModal").classList.add("hidden"); },
+  login: async function() {
+    const pwd = document.getElementById("loginPassword").value.trim();
+    if (!pwd) { document.getElementById("loginError").textContent="请输入密码"; document.getElementById("loginError").classList.remove("hidden"); return; }
+    const stored = await CloudSync.getAdminPassword();
+    if (pwd === stored) { _isAdmin=true; document.getElementById("loginModal").classList.add("hidden"); Utils.showToast("登录成功","success"); if (_onAuthChange) _onAuthChange(); }
+    else { document.getElementById("loginError").textContent="密码错误"; document.getElementById("loginError").classList.remove("hidden"); }
+  },
+  logout: function() { _isAdmin=false; Utils.showToast("已退出登录","warning"); if (_onAuthChange) _onAuthChange(); },
+  showChangePwdModal: function() { document.getElementById("changePwdModal").classList.remove("hidden"); document.getElementById("oldPassword").value=""; document.getElementById("newPassword").value=""; document.getElementById("changePwdError").classList.add("hidden"); },
+  closeChangePwdModal: function() { document.getElementById("changePwdModal").classList.add("hidden"); },
+  changePassword: async function() {
+    const oldPwd=document.getElementById("oldPassword").value.trim(), newPwd=document.getElementById("newPassword").value.trim(), err=document.getElementById("changePwdError");
+    if (!oldPwd||!newPwd) { err.textContent="请填写旧密码和新密码"; err.classList.remove("hidden"); return; }
+    if (newPwd.length<4) { err.textContent="新密码至少4位"; err.classList.remove("hidden"); return; }
+    const stored=await CloudSync.getAdminPassword();
+    if (oldPwd!==stored) { err.textContent="旧密码错误"; err.classList.remove("hidden"); return; }
+    await CloudSync.setAdminPassword(newPwd);
+    document.getElementById("changePwdModal").classList.add("hidden"); Utils.showToast("密码修改成功","success");
+  }
+};
+
+// ============================================================
+//   UI
+// ============================================================
+let _chartInstance = null;
+
+const UI = {
+  setAdminMode: function(isAdmin) {
+    document.getElementById("adminToolbar").classList.toggle("hidden", !isAdmin);
+    document.getElementById("expenseSection").classList.toggle("hidden", !isAdmin);
+    document.getElementById("loginBtn").classList.toggle("hidden", isAdmin);
+    document.getElementById("logoutBtn").classList.toggle("hidden", !isAdmin);
+    document.getElementById("changePwdBtn").classList.toggle("hidden", !isAdmin);
+    UI.refreshAll();
+  },
+  setSaveStatus: function(status) {
+    var dot=document.querySelector("#saveStatus .status-dot"), txt=document.querySelector("#saveStatus .status-text");
+    dot.className="status-dot";
+    switch(status) {
+      case "saved": dot.classList.add("status-saved"); txt.textContent="已保存"; break;
+      case "dirty": dot.classList.add("status-dirty"); txt.textContent="未保存"; break;
+      case "saving": dot.classList.add("status-saving"); txt.textContent="保存中..."; break;
+      case "error": dot.classList.add("status-error"); txt.textContent="保存失败"; break;
+    }
+  },
+  renderSummaryCards: function(records, expenses) {
+    var s = Calc.shopMonthSummary(records, expenses);
+    document.getElementById("cardBalance").innerHTML = Utils.formatMoney(s.balance);
+    document.getElementById("cardTotalPrize").innerHTML = Utils.formatMoney(s.totalPrize);
+    document.getElementById("cardTotalActual").innerHTML = Utils.formatMoney(s.totalActual);
+    document.getElementById("cardTotalExpense").innerHTML = Utils.formatMoney(s.totalExpense);
+    document.getElementById("cardTotalPerf").innerHTML = Utils.formatMoney(s.totalPerf);
+  },
+  renderChart: function(records, employees) {
+    var ctx = document.getElementById("perfChart").getContext("2d");
+    var d = Calc.buildChartData(records, employees);
+    var colors=[], borders=[];
+    for (var i=0; i<d.labels.length; i++) {
+      var h = 270 + (i*37)%90;
+      colors.push("hsla("+h+",80%,60%,0.8)"); borders.push("hsla("+h+",90%,70%,1)");
+    }
+    if (_chartInstance) _chartInstance.destroy();
+    _chartInstance = new Chart(ctx, {
+      type:"bar", data:{ labels:d.labels, datasets:[{ label:"当月总业绩", data:d.totals, backgroundColor:colors, borderColor:borders, borderWidth:1.5, borderRadius:6 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(ctx){ return Utils.formatMoney(ctx.raw).replace(/<[^>]*>/g,""); } } } },
+        scales:{ x:{ ticks:{ color:"#9999bb", font:{size:12} }, grid:{ color:"rgba(255,255,255,0.04)" } }, y:{ ticks:{ color:"#9999bb", font:{size:12}, callback:function(v){ return "¥"+(v/10000).toFixed(1)+"万"; } }, grid:{ color:"rgba(255,255,255,0.06)" } } } }
+    });
+  },
+  renderDailyTable: function(records, expenses, isAdmin, onCellChange) {
+    var tbody=document.getElementById("dailyTableBody"), dates=Calc.getRecentDates(records, expenses, 3);
+    if (dates.length===0) { tbody.innerHTML='<tr><td colspan="11" class="empty-row">暂无数据</td></tr>'; return; }
+    var html="";
+    for (var di=0; di<dates.length; di++) {
+      var date=dates[di], ds=Calc.dailySummary(records, expenses, date);
+      if (ds.dateRecords.length===0 && ds.dateExpenses.length>0) {
+        html+='<tr><td>'+date+'</td><td class="text-secondary">—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>'+Utils.formatMoney(ds.totalExpense)+'</td><td>'+Utils.formatMoney(ds.dailyBalance)+'</td><td>—</td></tr>';
+        continue;
+      }
+      for (var ri=0; ri<ds.dateRecords.length; ri++) {
+        var r=ds.dateRecords[ri], rk=r.date+"_"+r.employeeId;
+        var noteHtml = r.note ? ' <span title="'+r.note.replace(/"/g,'&quot;')+'" style="cursor:help;font-size:0.7rem">💬</span>' : '';
+        html+='<tr data-key="'+rk+'" data-date="'+r.date+'">';
+        html+='<td>'+r.date+'</td>';
+        if (isAdmin) {
+          html+='<td><input type="text" value="'+(r.employeeName||"")+'" data-key="'+rk+'" data-field="employeeName" class="cell-input" style="width:90%">'+noteHtml+'</td>';
+          html+='<td><input type="number" value="'+Utils.formatNum(r.orderCount)+'" data-key="'+rk+'" data-field="orderCount" class="cell-input" step="1" style="width:90%"></td>';
+          html+='<td><input type="number" value="'+Utils.formatNum(r.newCustomerCount)+'" data-key="'+rk+'" data-field="newCustomerCount" class="cell-input" step="1" style="width:90%"></td>';
+          html+='<td><input type="number" value="'+Utils.formatNum(r.performance)+'" data-key="'+rk+'" data-field="performance" class="cell-input" step="0.01" style="width:90%"></td>';
+          html+='<td><input type="number" value="'+Utils.formatNum(r.prizeAmount)+'" data-key="'+rk+'" data-field="prizeAmount" class="cell-input" step="0.01" style="width:90%"></td>';
+        } else {
+          html+='<td>'+(r.employeeName||"—")+noteHtml+'</td>';
+          html+='<td>'+Utils.formatNum(r.orderCount)+'</td>';
+          html+='<td>'+Utils.formatNum(r.newCustomerCount)+'</td>';
+          html+='<td>'+Utils.formatNum(r.performance)+'</td>';
+          html+='<td>'+Utils.formatNum(r.prizeAmount)+'</td>';
+        }
+        html+='<td>'+Utils.formatMoney(r.actualPerformance)+'</td>';
+        html+='<td>'+Utils.formatMoney(Calc.empMonthTotal(records, r.employeeId))+'</td>';
+        html+='<td>'+Utils.formatMoney(ds.totalExpense)+'</td>';
+        html+='<td>'+Utils.formatMoney(ds.dailyBalance)+'</td>';
+        html+='<td>'+(r.note||"—")+'</td>';
+        html+='</tr>';
+      }
+    }
+    tbody.innerHTML=html;
+  },
+  renderExpenseRows: function(expenses, date, isAdmin, onExpenseChange) {
+    var container=document.getElementById("expenseRows");
+    document.getElementById("currentDateLabel").textContent="("+date+")";
+    var items=(expenses[date]&&expenses[date].items) ? expenses[date].items : [];
+    if (items.length===0 && !isAdmin) { container.innerHTML='<p class="text-secondary" style="font-size:0.85rem">暂无支出记录</p>'; return; }
+    var html="", total=0;
+    for (var i=0; i<items.length; i++) {
+      total+=Number(items[i].amount)||0;
+      if (isAdmin) {
+        html+='<div class="expense-row"><span style="min-width:20px;color:var(--text-secondary)">'+(i+1)+'.</span>';
+        html+='<input type="number" value="'+Utils.formatNum(items[i].amount)+'" class="expense-amount" data-idx="'+i+'" data-field="amount" placeholder="金额" step="0.01">';
+        html+='<input type="text" value="'+(items[i].note||"")+'" class="expense-note" data-idx="'+i+'" data-field="note" placeholder="备注">';
+        html+='<button class="btn btn-danger btn-sm" data-del="'+i+'">删除</button></div>';
+      } else {
+        html+='<div class="expense-row"><span>'+(i+1)+'. ¥'+Utils.formatNum(items[i].amount)+' — '+(items[i].note||"无备注")+'</span></div>';
+      }
+    }
+    document.getElementById("expenseTotal").textContent="¥"+Utils.formatNum(total);
+    container.innerHTML=html||'<p class="text-secondary" style="font-size:0.85rem">暂无支出记录</p>';
+    if (isAdmin) {
+      container.querySelectorAll(".expense-amount, .expense-note").forEach(function(inp){ inp.addEventListener("change",function(){ if(onExpenseChange) onExpenseChange(); }); });
+      container.querySelectorAll("[data-del]").forEach(function(btn){ btn.addEventListener("click",function(){ if(onExpenseChange) onExpenseChange("delete",parseInt(btn.getAttribute("data-del"))); }); });
+    }
+  },
+  showEmpModal: function(employees, onAdd, onRename, onDelete) {
+    document.getElementById("empModal").classList.remove("hidden");
+    document.getElementById("newEmpName").value="";
+    UI._renderEmpList(employees, onRename, onDelete);
+    var addBtn=document.getElementById("addEmpBtn"), newAdd=addBtn.cloneNode(true);
+    addBtn.parentNode.replaceChild(newAdd, addBtn);
+    newAdd.addEventListener("click",function(){ var n=document.getElementById("newEmpName").value.trim(); if(!n){ Utils.showToast("请输入员工姓名","warning"); return; } if(onAdd) onAdd(n); });
+    var ni=document.getElementById("newEmpName"), newNi=ni.cloneNode(true);
+    ni.parentNode.replaceChild(newNi, ni);
+    newNi.addEventListener("keydown",function(e){ if(e.key==="Enter") newAdd.click(); });
+  },
+  _renderEmpList: function(employees, onRename, onDelete) {
+    var list=document.getElementById("empList"), ids=Object.keys(employees);
+    if (ids.length===0) { list.innerHTML='<li class="text-secondary">暂无员工，请添加</li>'; return; }
+    var html="";
+    for (var i=0; i<ids.length; i++) {
+      var e=employees[ids[i]]; if(!e||!e.name) continue;
+      html+='<li><input type="text" value="'+e.name+'" class="emp-name-input" data-emp-id="'+ids[i]+'" placeholder="员工姓名">';
+      html+='<button class="btn btn-outline btn-sm" data-rename="'+ids[i]+'">改名</button>';
+      html+='<button class="btn btn-danger btn-sm" data-delete="'+ids[i]+'">删除</button></li>';
+    }
+    list.innerHTML=html;
+    list.querySelectorAll("[data-rename]").forEach(function(btn){ btn.addEventListener("click",function(){ if(onRename) onRename(btn.getAttribute("data-rename"), list.querySelector('input[data-emp-id="'+btn.getAttribute("data-rename")+'"]').value.trim()); }); });
+    list.querySelectorAll("[data-delete]").forEach(function(btn){ btn.addEventListener("click",function(){ if(onDelete) onDelete(btn.getAttribute("data-delete")); }); });
+  },
+  closeEmpModal: function() { document.getElementById("empModal").classList.add("hidden"); },
+  showConfirmModal: function(msg, onConfirm) {
+    document.getElementById("confirmModal").classList.remove("hidden");
+    document.getElementById("confirmMsg").textContent=msg;
+    var btn=document.getElementById("confirmDeleteBtn"), nb=btn.cloneNode(true);
+    btn.parentNode.replaceChild(nb, btn);
+    nb.addEventListener("click",function(){ document.getElementById("confirmModal").classList.add("hidden"); if(onConfirm) onConfirm(); });
+  },
+  closeConfirmModal: function() { document.getElementById("confirmModal").classList.add("hidden"); },
+  refreshAll: function() {
+    var st=window._appState;
+    if (!st) return;
+    UI.renderSummaryCards(st.monthRecordsCache, st.monthExpensesCache);
+    UI.renderChart(st.monthRecordsCache, st.employees);
+    UI.renderDailyTable(st.monthRecordsCache, st.monthExpensesCache, Auth.isAdmin, st.onCellChange);
+    UI.renderExpenseRows(st.monthExpensesCache, st.currentDate, Auth.isAdmin, st.onExpenseChange);
+    if (Auth.isAdmin) App.bindCellInputs();
+    if (Auth.isAdmin) App.bindAddEmpToDate();
+  }
+};
+
+// ============================================================
+//   App Controller
+// ============================================================
+window._appState = {
+  currentDate: Utils.getBeijingDate(),
+  currentMonth: Utils.getBeijingDate().substring(0, 7),
+  employees: {},
+  monthRecordsCache: {},
+  monthExpensesCache: {},
+  isDirty: false,
+  autoSaveTimer: null,
+  onCellChange: null,
+  onExpenseChange: null
+};
+
+var App = {
+  init: async function() {
+    var st = window._appState;
+    var timeEl = document.getElementById("beijingTime");
+    Utils.updateTime(timeEl);
+    setInterval(function() { Utils.updateTime(timeEl); }, 1000);
+
+    var dp = document.getElementById("datePicker");
+    dp.value = st.currentDate;
+    dp.max = st.currentDate;
+    dp.addEventListener("change", App.onDateChange);
+
+    await App.loadMonthData();
+    UI.setAdminMode(false);
+
+    document.getElementById("manualSaveBtn").addEventListener("click", function() { App.saveData(); });
+    document.getElementById("addExpenseBtn").addEventListener("click", App.addExpense);
+    document.getElementById("loginBtn").addEventListener("click", Auth.showLoginModal);
+    document.getElementById("logoutBtn").addEventListener("click", Auth.logout);
+    document.getElementById("changePwdBtn").addEventListener("click", Auth.showChangePwdModal);
+    document.getElementById("loginCancelBtn").addEventListener("click", Auth.closeLoginModal);
+    document.getElementById("changePwdCancelBtn").addEventListener("click", Auth.closeChangePwdModal);
+    document.getElementById("empModalCloseBtn").addEventListener("click", UI.closeEmpModal);
+    document.getElementById("confirmCancelBtn").addEventListener("click", UI.closeConfirmModal);
+    document.getElementById("empManageBtn").addEventListener("click", App.openEmpModal);
+    document.getElementById("loginConfirmBtn").addEventListener("click", Auth.login);
+    document.getElementById("loginPassword").addEventListener("keydown", function(e) { if (e.key==="Enter") Auth.login(); });
+    document.getElementById("changePwdConfirmBtn").addEventListener("click", Auth.changePassword);
+
+    // 回调函数
+    st.onCellChange = App.onCellChange;
+    st.onExpenseChange = App.onExpenseChange;
+
+    // 认证状态变化
+    Auth.onAuthChange(function() {
+      UI.setAdminMode(Auth.isAdmin);
+      App.refreshAllUI();
+    });
+
+    st.autoSaveTimer = setInterval(App.autoSave, 5000);
+
+    window.addEventListener("beforeunload", function(e) {
+      if (st.isDirty) { e.preventDefault(); e.returnValue = ""; }
+    });
+  },
+
+  loadMonthData: async function() {
+    var st = window._appState;
+    try {
+      var data = await CloudSync.fetchAllData(st.currentMonth);
+      st.employees = data.employees;
+      st.monthRecordsCache = data.monthRecords;
+      st.monthExpensesCache = data.monthExpenses;
+      st.isDirty = false;
+      UI.setSaveStatus("saved");
+      App.refreshAllUI();
+    } catch(err) { console.error(err); Utils.showToast("数据加载失败，请检查网络","error"); }
+  },
+
+  refreshAllUI: function() { UI.refreshAll(); },
+
+  onDateChange: async function(e) {
+    var st = window._appState;
+    st.currentDate = e.target.value;
+    var nm = st.currentDate.substring(0,7);
+    if (nm !== st.currentMonth) { st.currentMonth = nm; await App.loadMonthData(); }
+    else App.refreshAllUI();
+  },
+
+  onCellChange: function(rk, field, value) {
+    var st = window._appState, r = st.monthRecordsCache[rk];
+    if (!r) return;
+    if (field==="employeeName") r[field]=value;
+    else r[field]=parseFloat(value)||0;
+    r.actualPerformance = (Number(r.performance)||0)-(Number(r.prizeAmount)||0);
+    r.updatedAt = Utils.getBeijingDateTimeStr();
+    App.markDirty(); App.refreshAllUI();
+  },
+
+  onExpenseChange: function(action, idx) {
+    var st = window._appState, d = st.currentDate;
+    if (!st.monthExpensesCache[d]) st.monthExpensesCache[d]={items:[]};
+    if (action==="delete") { st.monthExpensesCache[d].items.splice(idx,1); }
+    else { App.collectExpenseFromDOM(d); }
+    App.markDirty(); App.refreshAllUI();
+  },
+
+  collectExpenseFromDOM: function(date) {
+    var st = window._appState;
+    var amountEls = document.querySelectorAll("#expenseRows .expense-amount");
+    var noteEls = document.querySelectorAll("#expenseRows .expense-note");
+    var items = [];
+    for (var i=0; i<amountEls.length; i++) {
+      items.push({ amount: parseFloat(amountEls[i].value)||0, note: noteEls[i] ? noteEls[i].value.trim() : "" });
+    }
+    st.monthExpensesCache[date] = { items: items };
+  },
+
+  addExpense: function() {
+    var st = window._appState, d = st.currentDate;
+    if (!st.monthExpensesCache[d]) st.monthExpensesCache[d]={items:[]};
+    st.monthExpensesCache[d].items.push({amount:0,note:""});
+    App.markDirty(); App.refreshAllUI();
+  },
+
+  bindCellInputs: function() {
+    document.querySelectorAll("#dailyTableBody .cell-input").forEach(function(inp) {
+      var ni = inp.cloneNode(true);
+      inp.parentNode.replaceChild(ni, inp);
+      ni.addEventListener("change", function() {
+        var key = ni.getAttribute("data-key"), field = ni.getAttribute("data-field");
+        if (key && field) App.onCellChange(key, field, ni.value);
+      });
+    });
+  },
+
+  bindAddEmpToDate: function() {
+    var st = window._appState;
+    var tbody = document.getElementById("dailyTableBody");
+    if (!tbody) return;
+    var dr = Calc.getDateRecords(st.monthRecordsCache, st.currentDate);
+    var existingIds = new Set();
+    dr.forEach(function(r) { existingIds.add(r.employeeId); });
+    var missing = [];
+    for (var id of Object.keys(st.employees)) {
+      if (!existingIds.has(id) && st.employees[id] && st.employees[id].name) missing.push({id:id, name:st.employees[id].name});
+    }
+    tbody.querySelectorAll(".add-emp-row").forEach(function(r){ r.remove(); });
+    if (missing.length>0) {
+      var opts = missing.map(function(e){ return '<option value="'+e.id+'">'+e.name+'</option>'; }).join("");
+      var row = document.createElement("tr"); row.className="add-emp-row";
+      row.innerHTML = '<td>'+st.currentDate+'</td><td><select id="addEmpSelect" style="width:100%;padding:5px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:0.85rem;text-align:center"><option value="">— 添加 —</option>'+opts+'</select></td><td colspan="9" style="text-align:left;color:var(--text-secondary);font-size:0.78rem">选择员工以添加当日记录</td>';
+      tbody.appendChild(row);
+      document.getElementById("addEmpSelect").addEventListener("change", function() { if (this.value) App.addEmpRecord(this.value); });
+    }
+  },
+
+  addEmpRecord: function(empId) {
+    var st = window._appState, emp = st.employees[empId];
+    if (!emp) return;
+    var key = st.currentDate+"_"+empId;
+    if (st.monthRecordsCache[key]) return;
+    st.monthRecordsCache[key] = {
+      date: st.currentDate, employeeId: empId, employeeName: emp.name,
+      orderCount:0, newCustomerCount:0, performance:0, prizeAmount:0, actualPerformance:0,
+      note:"", updatedAt: Utils.getBeijingDateTimeStr()
+    };
+    App.markDirty(); App.refreshAllUI();
+  },
+
+  markDirty: function() { window._appState.isDirty=true; UI.setSaveStatus("dirty"); },
+
+  saveData: async function() {
+    var st = window._appState;
+    if (!st.isDirty) return;
+    UI.setSaveStatus("saving");
+    try {
+      App.collectExpenseFromDOM(st.currentDate);
+      await CloudSync.saveAllData(st.currentMonth, st.monthRecordsCache, st.monthExpensesCache);
+      st.isDirty = false;
+      UI.setSaveStatus("saved");
+      document.getElementById("autoSaveHint").textContent="自动保存：5秒";
+    } catch(err) { console.error(err); UI.setSaveStatus("error"); Utils.showToast("保存失败，请重试","error"); }
+  },
+
+  autoSave: function() {
+    var st = window._appState;
+    if (st.isDirty) { document.getElementById("autoSaveHint").textContent="自动保存中..."; App.saveData(); }
+  },
+
+  openEmpModal: function() {
+    var st = window._appState;
+    UI.showEmpModal(st.employees,
+      async function(name) {
+        var id = Utils.genId();
+        st.employees[id] = { name: name };
+        await CloudSync.saveEmployees(st.employees);
+        Utils.showToast("已添加员工「"+name+"」","success");
+        App.openEmpModal();
+      },
+      async function(empId, newName) {
+        if (!newName) { Utils.showToast("姓名不能为空","warning"); return; }
+        if (st.employees[empId]) {
+          st.employees[empId].name = newName;
+          for (var k of Object.keys(st.monthRecordsCache)) {
+            if (st.monthRecordsCache[k].employeeId===empId) st.monthRecordsCache[k].employeeName = newName;
+          }
+          await CloudSync.saveEmployees(st.employees);
+          App.markDirty(); App.refreshAllUI();
+          Utils.showToast("已改名为「"+newName+"」","success");
+          App.openEmpModal();
+        }
+      },
+      function(empId) {
+        var empName = (st.employees[empId]&&st.employees[empId].name)||"未知";
+        UI.showConfirmModal("确定删除员工「"+empName+"」及其所有历史记录吗？此操作不可恢复。", async function() {
+          await CloudSync.deleteEmployee(empId);
+          delete st.employees[empId];
+          for (var k of Object.keys(st.monthRecordsCache)) { if (st.monthRecordsCache[k].employeeId===empId) delete st.monthRecordsCache[k]; }
+          st.isDirty=false; UI.setSaveStatus("saved"); App.refreshAllUI();
+          Utils.showToast("已删除员工「"+empName+"」","success");
+          App.openEmpModal();
+        });
+      }
+    );
+  }
+};
+
+// 启动
+document.addEventListener("DOMContentLoaded", function() { App.init(); });
+</script>
+
 </body>
 </html>
