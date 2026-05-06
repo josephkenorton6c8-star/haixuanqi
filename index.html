@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>竞彩足球销售记录</title>
-<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -90,9 +88,6 @@ input:focus{outline:none;border-color:var(--purple)}
 .emp-list li{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05)}
 .emp-list .ei{flex:1;margin-right:12px;font-size:.9rem}
 .foot{text-align:center;padding:20px 0;color:var(--text2);font-size:.78rem;opacity:.6}
-.note-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.note-row span{font-size:.85rem;min-width:80px}
-.note-row input{flex:1}
 @media(max-width:900px){.cards{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){.header{flex-direction:column;align-items:flex-start}.logo{font-size:1.1rem}.chart-wrap{height:250px}.cards{grid-template-columns:repeat(2,1fr);gap:10px}.card0{padding:14px 10px}.card0 .val{font-size:1.05rem}#dt{font-size:.72rem}#dt th,#dt td{padding:6px 3px}.toolbar{flex-direction:column;align-items:stretch}.modal{padding:20px;width:95%}}
 @media(max-width:480px){.cards{grid-template-columns:1fr 1fr;gap:8px}.card0{padding:12px 8px}.card0 .lbl{font-size:.7rem}.card0 .val{font-size:.95rem}}
@@ -108,8 +103,8 @@ input:focus{outline:none;border-color:var(--purple)}
 <h2>管理员登录</h2>
 <div class="mb"><div class="fg"><label>请输入管理密码</label><input type="password" id="loginPwd" placeholder="输入密码"></div><p id="loginErr" class="err hidden"></p></div>
 <div class="mf">
-<button class="btn btn-ghost" onclick="document.getElementById('loginDlg').classList.add('hidden')">取消</button>
-<button class="btn btn-purple" onclick="Auth.login()">登录</button>
+<button class="btn btn-ghost" id="loginCancel">取消</button>
+<button class="btn btn-purple" id="loginOk">登录</button>
 </div></div></div>
 
 <!-- 改密码 -->
@@ -121,8 +116,8 @@ input:focus{outline:none;border-color:var(--purple)}
 <div class="fg"><label>新密码</label><input type="password" id="newPwd" placeholder="输入新密码"></div>
 <p id="pwdErr" class="err hidden"></p></div>
 <div class="mf">
-<button class="btn btn-ghost" onclick="document.getElementById('pwdDlg').classList.add('hidden')">取消</button>
-<button class="btn btn-purple" onclick="Auth.changePwd()">确认修改</button>
+<button class="btn btn-ghost" id="pwdCancel">取消</button>
+<button class="btn btn-purple" id="pwdOk">确认修改</button>
 </div></div></div>
 
 <!-- 员工管理 -->
@@ -130,10 +125,10 @@ input:focus{outline:none;border-color:var(--purple)}
 <div class="modal modal-wide">
 <h2>员工管理</h2>
 <div class="mb">
-<div class="emp-add"><input type="text" id="newEmp" placeholder="输入新员工姓名" maxlength="20"><button class="btn btn-purple btn-sm" onclick="App.addEmp()">添加员工</button></div>
+<div class="emp-add"><input type="text" id="newEmp" placeholder="输入新员工姓名" maxlength="20"><button class="btn btn-purple btn-sm" id="addEmpBtn">添加员工</button></div>
 <ul id="empListUl" class="emp-list"></ul>
 </div>
-<div class="mf"><button class="btn btn-ghost" onclick="document.getElementById('empDlg').classList.add('hidden')">关闭</button></div>
+<div class="mf"><button class="btn btn-ghost" id="empClose">关闭</button></div>
 </div></div>
 
 <!-- 确认删除 -->
@@ -142,8 +137,8 @@ input:focus{outline:none;border-color:var(--purple)}
 <h2>确认删除</h2>
 <div class="mb"><p id="cfmMsg"></p></div>
 <div class="mf">
-<button class="btn btn-ghost" onclick="document.getElementById('cfmDlg').classList.add('hidden')">取消</button>
-<button class="btn btn-red" id="cfmBtn">确认删除</button>
+<button class="btn btn-ghost" id="cfmCancel">取消</button>
+<button class="btn btn-red" id="cfmOk">确认删除</button>
 </div></div></div>
 
 <!-- ====== 主界面 ====== -->
@@ -153,15 +148,15 @@ input:focus{outline:none;border-color:var(--purple)}
 <div><span class="bjt" id="bjt">--</span></div>
 <div class="hdr-r">
 <div class="sv-stat"><span class="sv-dot sv-ok" id="svDot"></span><span id="svTxt">已保存</span></div>
-<button class="btn btn-out btn-sm" id="btnLogin" onclick="Auth.showLogin()">管理员登录</button>
-<button class="btn btn-out btn-sm hidden" id="btnLogout" onclick="Auth.logout()">退出登录</button>
-<button class="btn btn-out btn-sm hidden" id="btnPwd" onclick="Auth.showChangePwd()">修改密码</button>
+<button class="btn btn-out btn-sm" id="btnLogin">管理员登录</button>
+<button class="btn btn-out btn-sm hidden" id="btnLogout">退出登录</button>
+<button class="btn btn-out btn-sm hidden" id="btnPwd">修改密码</button>
 </div></header>
 
 <section class="toolbar hidden" id="toolbar">
-<button class="btn btn-purple" onclick="App.openEmp()">👥 员工管理</button>
-<div><label>选择日期：</label><input type="date" id="dp" onchange="App.changeDate(this.value)"></div>
-<button class="btn btn-cyan" onclick="App.save()">☁️ 云保存</button>
+<button class="btn btn-purple" id="btnEmp">👥 员工管理</button>
+<div><label>选择日期：</label><input type="date" id="dp"></div>
+<button class="btn btn-cyan" id="btnSave">☁️ 云保存</button>
 <span class="hint" id="hint">自动保存：5秒</span>
 </section>
 
@@ -191,65 +186,132 @@ input:focus{outline:none;border-color:var(--purple)}
 <h3>今日支出管理 <span class="sub" id="expLbl"></span></h3>
 <div id="expRows"></div>
 <div class="exp-sum"><span>今日支出合计：<strong id="expTot">¥0</strong></span></div>
-<button class="btn btn-purple btn-sm" onclick="App.addExp()">+ 添加支出项</button>
+<button class="btn btn-purple btn-sm" id="btnAddExp">+ 添加支出项</button>
 </div></section>
 
-<footer class="foot">数据云端存储 · 双击 index.html 即可使用</footer>
+<footer class="foot">数据云端存储 · Firebase Realtime Database</footer>
 </div>
 
-<script>
+<script type="module">
 // ============================================================
-//  Firebase
+//  Firebase (使用你提供的配置)
 // ============================================================
-try {
-  firebase.initializeApp({
-    apiKey:"AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
-    authDomain:"haixuanqi-16ad1.firebaseapp.com",
-    projectId:"haixuanqi-16ad1",
-    storageBucket:"haixuanqi-16ad1.firebasestorage.app",
-    messagingSenderId:"449619714205",
-    appId:"1:449619714205:web:10ee25d0dc5022d783f474"
-  });
-} catch(e) { console.error("Firebase init error:", e); }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
-var DB = firebase.database();
+const firebaseConfig = {
+  apiKey: "AIzaSyCZeyd2pcjhHJTbMsmeCcxampRPusotxl8",
+  authDomain: "haixuanqi-16ad1.firebaseapp.com",
+  projectId: "haixuanqi-16ad1",
+  storageBucket: "haixuanqi-16ad1.firebasestorage.app",
+  messagingSenderId: "449619714205",
+  appId: "1:449619714205:web:10ee25d0dc5022d783f474",
+  measurementId: "G-E1B32ZW69Y"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ============================================================
+//  CloudSync
+// ============================================================
+const Cloud = {
+  async fetch(month) {
+    const snap = await get(ref(db));
+    const data = snap.val() || {};
+    const emp = data.employees || {};
+    const allR = data.dailyRecords || {};
+    const allE = data.dailyExpenses || {};
+    const rec = {}, exp = {};
+    for (const k in allR) { if (k.startsWith(month)) rec[k] = allR[k]; }
+    for (const k in allE) { if (k.startsWith(month)) exp[k] = allE[k]; }
+    return { emp, rec, exp };
+  },
+  async save(month, rec, exp) {
+    const up = {};
+    const snap = await get(ref(db, "dailyRecords"));
+    const allR = snap.val() || {};
+    for (const k in allR) { if (k.startsWith(month) && !rec[k]) up["dailyRecords/" + k] = null; }
+    for (const k in rec) { up["dailyRecords/" + k] = rec[k]; }
+    for (const k in exp) { up["dailyExpenses/" + k] = exp[k]; }
+    if (Object.keys(up).length > 0) await update(ref(db), up);
+  },
+  async saveEmp(obj) { await set(ref(db, "employees"), obj); },
+  async delEmp(eid) {
+    const p = {}; p["employees/" + eid] = null;
+    const snap = await get(ref(db, "dailyRecords"));
+    const allR = snap.val() || {};
+    for (const k in allR) { if (k.endsWith("_" + eid)) p["dailyRecords/" + k] = null; }
+    await update(ref(db), p);
+  },
+  async getPwd() { const s = await get(ref(db, "settings/admin/password")); return s.val() || "admin123"; },
+  async setPwd(pwd) { await set(ref(db, "settings/admin/password"), pwd); }
+};
 
 // ============================================================
 //  Utils
 // ============================================================
 function BDate(d) {
-  var dt = d ? new Date(d) : new Date();
-  var y = dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",year:"numeric"});
-  var m = dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",month:"2-digit"});
-  var day = dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",day:"2-digit"});
-  return y+"-"+m+"-"+day;
+  const dt = d ? new Date(d) : new Date();
+  const y = dt.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" });
+  const m = dt.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", month: "2-digit" });
+  const day = dt.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", day: "2-digit" });
+  return y + "-" + m + "-" + day;
 }
 function BNow() {
-  var d = new Date();
-  return d.toLocaleDateString("en-CA",{timeZone:"Asia/Shanghai"})+" "+d.toLocaleTimeString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const d = new Date();
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" }) + " " +
+    d.toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
-function CM() { return BDate().substring(0,7); }
-function updTime() { document.getElementById("bjt").textContent="北京时间 "+BNow(); }
+function CM() { return BDate().substring(0, 7); }
+function updTime() { document.getElementById("bjt").textContent = "北京时间 " + BNow(); }
 function fmtM(num) {
-  if (num==null||isNaN(num)) num=0;
-  var n=Number(num), abs=Math.abs(n).toFixed(2), p=abs.split(".");
-  p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");
-  var s="¥"+p.join(".");
-  if (n<0) return '<span class="text-red">-'+s+'</span>';
+  if (num == null || isNaN(num)) num = 0;
+  const n = Number(num), abs = Math.abs(n).toFixed(2), p = abs.split(".");
+  p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const s = "¥" + p.join(".");
+  if (n < 0) return '<span class="text-red">-' + s + '</span>';
   return s;
 }
-function fmtN(num) { if (num==null||isNaN(num)) return "0"; return Number(num).toFixed(2); }
-function toast(msg,type) {
-  var c=document.getElementById("toastBox"), el=document.createElement("div");
-  el.className="toast toast-"+(type||"ok"); el.textContent=msg; c.appendChild(el);
-  setTimeout(function(){el.remove();},3000);
+function fmtN(num) { if (num == null || isNaN(num)) return "0"; return Number(num).toFixed(2); }
+function toast(msg, type) {
+  const c = document.getElementById("toastBox"), el = document.createElement("div");
+  el.className = "toast toast-" + (type || "ok"); el.textContent = msg; c.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
 }
-function genId() { return Date.now().toString(36)+Math.random().toString(36).substring(2,8); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 8); }
+
+// ============================================================
+//  Calc
+// ============================================================
+const Calc = {
+  empTotal(rec, eid) { let t = 0; for (const k in rec) { if (rec[k].employeeId === eid) t += Number(rec[k].performance) || 0; } return t; },
+  dtRecs(rec, date) { const r = []; for (const k in rec) { if (rec[k].date === date) r.push(rec[k]); } return r; },
+  dtExps(exp, date) { const e = exp[date]; return (e && e.items) ? e.items : []; },
+  daySum(rec, exp, date) {
+    const dr = Calc.dtRecs(rec, date), de = Calc.dtExps(exp, date);
+    let tp = 0, tz = 0, ta = 0;
+    for (const r of dr) { tp += Number(r.performance) || 0; tz += Number(r.prizeAmount) || 0; ta += Number(r.actualPerformance) || 0; }
+    let te = 0; for (const it of de) { te += Number(it.amount) || 0; }
+    return { tp, tz, ta, te, bal: ta - te, dr, de };
+  },
+  shopSum(rec, exp) {
+    const dm = {};
+    for (const k in rec) { const r = rec[k], d = r.date; if (!dm[d]) dm[d] = { p: 0, z: 0, a: 0 }; dm[d].p += Number(r.performance) || 0; dm[d].z += Number(r.prizeAmount) || 0; dm[d].a += Number(r.actualPerformance) || 0; }
+    for (const d in exp) { if (!dm[d]) dm[d] = { p: 0, z: 0, a: 0 }; dm[d].e = (exp[d].items || []).reduce((s, i) => s + (Number(i.amount) || 0), 0); }
+    const sd = Object.keys(dm).sort();
+    let tp = 0, tz = 0, te = 0, cb = 0;
+    for (const d of sd) { const dd = dm[d]; tp += dd.p; tz += dd.z; const ex = dd.e || 0; te += ex; cb += (dd.a - ex); }
+    return { bal: cb, tz, ta: tp - tz, te, tp };
+  },
+  chartData(rec, emp) { const n = [], t = []; for (const id in emp) { if (!emp[id] || !emp[id].name) continue; n.push(emp[id].name); t.push(Calc.empTotal(rec, id)); } return { l: n, t }; },
+  recentDates(rec, exp, n) { const s = new Set(); for (const k in rec) s.add(rec[k].date); for (const d in exp) s.add(d); return Array.from(s).sort().slice(-n); }
+};
 
 // ============================================================
 //  State
 // ============================================================
-var ST = {
+const ST = {
   date: BDate(),
   month: CM(),
   emp: {},
@@ -260,332 +322,299 @@ var ST = {
 };
 
 // ============================================================
-//  Cloud
-// ============================================================
-var Cloud = {
-  fetch: async function(month) {
-    var snap = await DB.ref("/").once("value"), data = snap.val()||{};
-    var emp = data.employees||{}, allR = data.dailyRecords||{}, allE = data.dailyExpenses||{};
-    var rec={}, exp={};
-    for (var k in allR) { if (k.indexOf(month)===0) rec[k]=allR[k]; }
-    for (var k in allE) { if (k.indexOf(month)===0) exp[k]=allE[k]; }
-    return {emp:emp, rec:rec, exp:exp};
-  },
-  save: async function(month, rec, exp) {
-    var up={}, snap=await DB.ref("dailyRecords").once("value"), allR=snap.val()||{};
-    for (var k in allR) { if (k.indexOf(month)===0 && !rec[k]) up["dailyRecords/"+k]=null; }
-    for (var k in rec) { up["dailyRecords/"+k]=rec[k]; }
-    for (var k in exp) { up["dailyExpenses/"+k]=exp[k]; }
-    if (Object.keys(up).length>0) await DB.ref("/").update(up);
-  },
-  saveEmp: async function(obj) { await DB.ref("employees").set(obj); },
-  delEmp: async function(eid) {
-    var p={}; p["employees/"+eid]=null;
-    var snap=await DB.ref("dailyRecords").once("value"), allR=snap.val()||{};
-    for (var k in allR) { if (k.indexOf("_"+eid)>0) p["dailyRecords/"+k]=null; }
-    await DB.ref("/").update(p);
-  },
-  getPwd: async function() { var s=await DB.ref("settings/admin/password").once("value"); return s.val()||"admin123"; },
-  setPwd: async function(pwd) { await DB.ref("settings/admin/password").set(pwd); }
-};
-
-// ============================================================
-//  Calc
-// ============================================================
-var Calc = {
-  empTotal: function(rec, eid) { var t=0; for (var k in rec) { if (rec[k].employeeId===eid) t+=Number(rec[k].performance)||0; } return t; },
-  dtRecs: function(rec, date) { var r=[]; for (var k in rec) { if (rec[k].date===date) r.push(rec[k]); } return r; },
-  dtExps: function(exp, date) { var e=exp[date]; return (e&&e.items)?e.items:[]; },
-  daySum: function(rec, exp, date) {
-    var dr=Calc.dtRecs(rec,date), de=Calc.dtExps(exp,date), tp=0,tz=0,ta=0;
-    for (var i=0;i<dr.length;i++) { tp+=Number(dr[i].performance)||0; tz+=Number(dr[i].prizeAmount)||0; ta+=Number(dr[i].actualPerformance)||0; }
-    var te=0; for (var i=0;i<de.length;i++) { te+=Number(de[i].amount)||0; }
-    return {tp:tp,tz:tz,ta:ta,te:te,bal:ta-te,dr:dr,de:de};
-  },
-  shopSum: function(rec, exp) {
-    var dm={};
-    for (var k in rec) { var r=rec[k],d=r.date; if (!dm[d]) dm[d]={p:0,z:0,a:0}; dm[d].p+=Number(r.performance)||0; dm[d].z+=Number(r.prizeAmount)||0; dm[d].a+=Number(r.actualPerformance)||0; }
-    for (var d in exp) { if (!dm[d]) dm[d]={p:0,z:0,a:0}; var it=exp[d].items||[]; dm[d].e=it.reduce(function(s,i){return s+(Number(i.amount)||0);},0); }
-    var sd=Object.keys(dm).sort(), tp=0,tz=0,te=0,cb=0;
-    for (var i=0;i<sd.length;i++) { var dd=dm[sd[i]]; tp+=dd.p; tz+=dd.z; var ex=dd.e||0; te+=ex; cb+=(dd.a-ex); }
-    return {bal:cb,tz:tz,ta:tp-tz,te:te,tp:tp};
-  },
-  chartData: function(rec, emp) { var n=[],t=[]; for (var id in emp) { if (!emp[id]||!emp[id].name) continue; n.push(emp[id].name); t.push(Calc.empTotal(rec,id)); } return {l:n,t:t}; },
-  recentDates: function(rec, exp, n) { var s=new Set(); for (var k in rec) s.add(rec[k].date); for (var d in exp) s.add(d); var a=Array.from(s).sort(); return a.slice(-n); }
-};
-
-// ============================================================
-//  Auth
-// ============================================================
-var Auth = {
-  showLogin: function() { document.getElementById("loginDlg").classList.remove("hidden"); document.getElementById("loginPwd").value=""; document.getElementById("loginErr").classList.add("hidden"); document.getElementById("loginPwd").focus(); },
-  login: async function() {
-    var p=document.getElementById("loginPwd").value.trim();
-    if (!p) { document.getElementById("loginErr").textContent="请输入密码"; document.getElementById("loginErr").classList.remove("hidden"); return; }
-    try {
-      var s=await Cloud.getPwd();
-      if (p===s) { ST.isAdmin=true; document.getElementById("loginDlg").classList.add("hidden"); toast("登录成功","ok"); UI.toggle(); }
-      else { document.getElementById("loginErr").textContent="密码错误"; document.getElementById("loginErr").classList.remove("hidden"); }
-    } catch(e) { toast("连接失败，请检查网络","err"); }
-  },
-  logout: function() { ST.isAdmin=false; toast("已退出登录","warn"); UI.toggle(); },
-  showChangePwd: function() { document.getElementById("pwdDlg").classList.remove("hidden"); document.getElementById("oldPwd").value=""; document.getElementById("newPwd").value=""; document.getElementById("pwdErr").classList.add("hidden"); },
-  changePwd: async function() {
-    var o=document.getElementById("oldPwd").value.trim(), n=document.getElementById("newPwd").value.trim(), er=document.getElementById("pwdErr");
-    if (!o||!n) { er.textContent="请填写旧密码和新密码"; er.classList.remove("hidden"); return; }
-    if (n.length<4) { er.textContent="新密码至少4位"; er.classList.remove("hidden"); return; }
-    try {
-      var s=await Cloud.getPwd();
-      if (o!==s) { er.textContent="旧密码错误"; er.classList.remove("hidden"); return; }
-      await Cloud.setPwd(n);
-      document.getElementById("pwdDlg").classList.add("hidden"); toast("密码修改成功","ok");
-    } catch(e) { toast("操作失败，请检查网络","err"); }
-  }
-};
-
-// ============================================================
 //  UI
 // ============================================================
-var chartInst = null;
+let chartInst = null;
 
-var UI = {
-  toggle: function() {
-    var ad=ST.isAdmin;
-    document.getElementById("toolbar").classList.toggle("hidden",!ad);
-    document.getElementById("expSec").classList.toggle("hidden",!ad);
-    document.getElementById("btnLogin").classList.toggle("hidden",ad);
-    document.getElementById("btnLogout").classList.toggle("hidden",!ad);
-    document.getElementById("btnPwd").classList.toggle("hidden",!ad);
+const UI = {
+  toggle() {
+    const ad = ST.isAdmin;
+    document.getElementById("toolbar").classList.toggle("hidden", !ad);
+    document.getElementById("expSec").classList.toggle("hidden", !ad);
+    document.getElementById("btnLogin").classList.toggle("hidden", ad);
+    document.getElementById("btnLogout").classList.toggle("hidden", !ad);
+    document.getElementById("btnPwd").classList.toggle("hidden", !ad);
     App.refresh();
   },
-  setSv: function(s) {
-    var d=document.getElementById("svDot"), t=document.getElementById("svTxt");
-    d.className="sv-dot";
-    if (s==="ok") { d.classList.add("sv-ok"); t.textContent="已保存"; }
-    else if (s==="dirty") { d.classList.add("sv-dirty"); t.textContent="未保存"; }
-    else if (s==="ing") { d.classList.add("sv-ing"); t.textContent="保存中..."; }
-    else { d.classList.add("sv-err"); t.textContent="保存失败"; }
+  setSv(s) {
+    const d = document.getElementById("svDot"), t = document.getElementById("svTxt");
+    d.className = "sv-dot";
+    if (s === "ok") { d.classList.add("sv-ok"); t.textContent = "已保存"; }
+    else if (s === "dirty") { d.classList.add("sv-dirty"); t.textContent = "未保存"; }
+    else if (s === "ing") { d.classList.add("sv-ing"); t.textContent = "保存中..."; }
+    else { d.classList.add("sv-err"); t.textContent = "保存失败"; }
   },
-  cards: function() {
-    var s=Calc.shopSum(ST.rec,ST.exp);
-    document.getElementById("v0").innerHTML=fmtM(s.bal);
-    document.getElementById("v1").innerHTML=fmtM(s.tz);
-    document.getElementById("v2").innerHTML=fmtM(s.ta);
-    document.getElementById("v3").innerHTML=fmtM(s.te);
-    document.getElementById("v4").innerHTML=fmtM(s.tp);
+  cards() {
+    const s = Calc.shopSum(ST.rec, ST.exp);
+    document.getElementById("v0").innerHTML = fmtM(s.bal);
+    document.getElementById("v1").innerHTML = fmtM(s.tz);
+    document.getElementById("v2").innerHTML = fmtM(s.ta);
+    document.getElementById("v3").innerHTML = fmtM(s.te);
+    document.getElementById("v4").innerHTML = fmtM(s.tp);
   },
-  chart: function() {
-    var ctx=document.getElementById("chart").getContext("2d"), d=Calc.chartData(ST.rec,ST.emp), cs=[],bs=[];
-    for (var i=0;i<d.l.length;i++) { var h=270+(i*37)%90; cs.push("hsla("+h+",80%,60%,0.8)"); bs.push("hsla("+h+",90%,70%,1)"); }
+  chart() {
+    const ctx = document.getElementById("chart").getContext("2d"), d = Calc.chartData(ST.rec, ST.emp), cs = [], bs = [];
+    for (let i = 0; i < d.l.length; i++) { const h = 270 + (i * 37) % 90; cs.push("hsla(" + h + ",80%,60%,0.8)"); bs.push("hsla(" + h + ",90%,70%,1)"); }
     if (chartInst) chartInst.destroy();
-    chartInst = new Chart(ctx,{
-      type:"bar",data:{labels:d.l,datasets:[{label:"当月总业绩",data:d.t,backgroundColor:cs,borderColor:bs,borderWidth:1.5,borderRadius:6}]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtM(c.raw).replace(/<[^>]*>/g,"");}}}},
-        scales:{x:{ticks:{color:"#9999bb",font:{size:12}},grid:{color:"rgba(255,255,255,0.04)"}},y:{ticks:{color:"#9999bb",font:{size:12},callback:function(v){return"¥"+(v/10000).toFixed(1)+"万"}},grid:{color:"rgba(255,255,255,0.06)"}}}}
+    chartInst = new Chart(ctx, {
+      type: "bar", data: { labels: d.l, datasets: [{ label: "当月总业绩", data: d.t, backgroundColor: cs, borderColor: bs, borderWidth: 1.5, borderRadius: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => fmtM(c.raw).replace(/<[^>]*>/g, "") } } },
+        scales: { x: { ticks: { color: "#9999bb", font: { size: 12 } }, grid: { color: "rgba(255,255,255,0.04)" } }, y: { ticks: { color: "#9999bb", font: { size: 12 }, callback: (v) => "¥" + (v / 10000).toFixed(1) + "万" }, grid: { color: "rgba(255,255,255,0.06)" } } }
+      }
     });
   },
-  table: function() {
-    var tb=document.getElementById("tb"), dates=Calc.recentDates(ST.rec,ST.exp,3), ad=ST.isAdmin;
-    if (dates.length===0) { tb.innerHTML='<tr><td colspan="11" class="empty">暂无数据</td></tr>'; return; }
-    var h="";
-    for (var di=0;di<dates.length;di++) {
-      var date=dates[di], ds=Calc.daySum(ST.rec,ST.exp,date);
-      if (ds.dr.length===0 && ds.de.length>0) {
-        h+='<tr><td>'+date+'</td><td class="text2">—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>'+fmtM(ds.te)+'</td><td>'+fmtM(ds.bal)+'</td><td>—</td></tr>';
+  table() {
+    const tb = document.getElementById("tb"), dates = Calc.recentDates(ST.rec, ST.exp, 3), ad = ST.isAdmin;
+    if (dates.length === 0) { tb.innerHTML = '<tr><td colspan="11" class="empty">暂无数据</td></tr>'; return; }
+    let h = "";
+    for (const date of dates) {
+      const ds = Calc.daySum(ST.rec, ST.exp, date);
+      if (ds.dr.length === 0 && ds.de.length > 0) {
+        h += '<tr><td>' + date + '</td><td class="text2">—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>' + fmtM(ds.te) + '</td><td>' + fmtM(ds.bal) + '</td><td>—</td></tr>';
         continue;
       }
-      for (var ri=0;ri<ds.dr.length;ri++) {
-        var r=ds.dr[ri], rk=r.date+"_"+r.employeeId, ni=r.note?' <span title="'+r.note.replace(/"/g,"&quot;")+'" style="cursor:help;font-size:0.7rem">💬</span>':'';
-        h+='<tr data-key="'+rk+'">';
-        h+='<td>'+r.date+'</td>';
+      for (const r of ds.dr) {
+        const rk = r.date + "_" + r.employeeId, ni = r.note ? ' <span title="' + r.note.replace(/"/g, "&quot;") + '" style="cursor:help;font-size:0.7rem">💬</span>' : "";
+        h += '<tr data-key="' + rk + '">';
+        h += '<td>' + r.date + '</td>';
         if (ad) {
-          h+='<td><input type="text" value="'+(r.employeeName||"")+'" data-k="'+rk+'" data-f="employeeName" class="ci" style="width:90%">'+ni+'</td>';
-          h+='<td><input type="number" value="'+fmtN(r.orderCount)+'" data-k="'+rk+'" data-f="orderCount" class="ci" step="1" style="width:90%"></td>';
-          h+='<td><input type="number" value="'+fmtN(r.newCustomerCount)+'" data-k="'+rk+'" data-f="newCustomerCount" class="ci" step="1" style="width:90%"></td>';
-          h+='<td><input type="number" value="'+fmtN(r.performance)+'" data-k="'+rk+'" data-f="performance" class="ci" step="0.01" style="width:90%"></td>';
-          h+='<td><input type="number" value="'+fmtN(r.prizeAmount)+'" data-k="'+rk+'" data-f="prizeAmount" class="ci" step="0.01" style="width:90%"></td>';
-          h+='<td>'+fmtM(r.actualPerformance)+'</td>';
+          h += '<td><input type="text" value="' + (r.employeeName || "") + '" data-k="' + rk + '" data-f="employeeName" class="ci" style="width:90%">' + ni + '</td>';
+          h += '<td><input type="number" value="' + fmtN(r.orderCount) + '" data-k="' + rk + '" data-f="orderCount" class="ci" step="1" style="width:90%"></td>';
+          h += '<td><input type="number" value="' + fmtN(r.newCustomerCount) + '" data-k="' + rk + '" data-f="newCustomerCount" class="ci" step="1" style="width:90%"></td>';
+          h += '<td><input type="number" value="' + fmtN(r.performance) + '" data-k="' + rk + '" data-f="performance" class="ci" step="0.01" style="width:90%"></td>';
+          h += '<td><input type="number" value="' + fmtN(r.prizeAmount) + '" data-k="' + rk + '" data-f="prizeAmount" class="ci" step="0.01" style="width:90%"></td>';
+          h += '<td>' + fmtM(r.actualPerformance) + '</td>';
         } else {
-          h+='<td>'+(r.employeeName||"—")+ni+'</td>';
-          h+='<td>'+fmtN(r.orderCount)+'</td><td>'+fmtN(r.newCustomerCount)+'</td><td>'+fmtN(r.performance)+'</td><td>'+fmtN(r.prizeAmount)+'</td>';
-          h+='<td>'+fmtM(r.actualPerformance)+'</td>';
+          h += '<td>' + (r.employeeName || "—") + ni + '</td>';
+          h += '<td>' + fmtN(r.orderCount) + '</td><td>' + fmtN(r.newCustomerCount) + '</td><td>' + fmtN(r.performance) + '</td><td>' + fmtN(r.prizeAmount) + '</td>';
+          h += '<td>' + fmtM(r.actualPerformance) + '</td>';
         }
-        h+='<td>'+fmtM(Calc.empTotal(ST.rec,r.employeeId))+'</td>';
-        h+='<td>'+fmtM(ds.te)+'</td><td>'+fmtM(ds.bal)+'</td>';
-        h+='<td>'+(r.note||"—")+'</td>';
-        h+='</tr>';
+        h += '<td>' + fmtM(Calc.empTotal(ST.rec, r.employeeId)) + '</td>';
+        h += '<td>' + fmtM(ds.te) + '</td><td>' + fmtM(ds.bal) + '</td>';
+        h += '<td>' + (r.note || "—") + '</td>';
+        h += '</tr>';
       }
     }
-    tb.innerHTML=h;
+    tb.innerHTML = h;
   },
-  expRows: function() {
-    var c=document.getElementById("expRows"), d=ST.date, items=(ST.exp[d]&&ST.exp[d].items)?ST.exp[d].items:[], ad=ST.isAdmin;
-    document.getElementById("expLbl").textContent="("+d+")";
-    if (items.length===0 && !ad) { c.innerHTML='<p class="text2" style="font-size:0.85rem">暂无支出记录</p>'; return; }
-    var h="", tot=0;
-    for (var i=0;i<items.length;i++) {
-      tot+=Number(items[i].amount)||0;
+  expRows() {
+    const c = document.getElementById("expRows"), d = ST.date, items = (ST.exp[d] && ST.exp[d].items) ? ST.exp[d].items : [], ad = ST.isAdmin;
+    document.getElementById("expLbl").textContent = "(" + d + ")";
+    if (items.length === 0 && !ad) { c.innerHTML = '<p class="text2" style="font-size:0.85rem">暂无支出记录</p>'; return; }
+    let h = "", tot = 0;
+    for (let i = 0; i < items.length; i++) {
+      tot += Number(items[i].amount) || 0;
       if (ad) {
-        h+='<div class="exp-row"><span style="min-width:20px;color:var(--text2)">'+(i+1)+'.</span>';
-        h+='<input type="number" value="'+fmtN(items[i].amount)+'" class="ea" data-idx="'+i+'" placeholder="金额" step="0.01">';
-        h+='<input type="text" value="'+(items[i].note||"")+'" class="en" data-idx="'+i+'" placeholder="备注">';
-        h+='<button class="btn btn-red btn-sm" onclick="App.delExp('+i+')">删除</button></div>';
+        h += '<div class="exp-row"><span style="min-width:20px;color:var(--text2)">' + (i + 1) + '.</span>';
+        h += '<input type="number" value="' + fmtN(items[i].amount) + '" class="ea" data-idx="' + i + '" placeholder="金额" step="0.01">';
+        h += '<input type="text" value="' + (items[i].note || "") + '" class="en" data-idx="' + i + '" placeholder="备注">';
+        h += '<button class="btn btn-red btn-sm" data-del="' + i + '">删除</button></div>';
       } else {
-        h+='<div class="exp-row"><span>'+(i+1)+'. ¥'+fmtN(items[i].amount)+' — '+(items[i].note||"无备注")+'</span></div>';
+        h += '<div class="exp-row"><span>' + (i + 1) + '. ¥' + fmtN(items[i].amount) + ' — ' + (items[i].note || "无备注") + '</span></div>';
       }
     }
-    document.getElementById("expTot").textContent="¥"+fmtN(tot);
-    c.innerHTML=h||'<p class="text2" style="font-size:0.85rem">暂无支出记录</p>';
+    document.getElementById("expTot").textContent = "¥" + fmtN(tot);
+    c.innerHTML = h || '<p class="text2" style="font-size:0.85rem">暂无支出记录</p>';
     if (ad) {
-      c.querySelectorAll(".ea,.en").forEach(function(inp){ inp.addEventListener("change",function(){ App.expChange(); }); });
+      c.querySelectorAll(".ea, .en").forEach(inp => inp.addEventListener("change", () => App.expChange()));
+      c.querySelectorAll("[data-del]").forEach(btn => btn.addEventListener("click", () => App.delExp(parseInt(btn.dataset.del))));
     }
   },
-  empList: function() {
-    var ul=document.getElementById("empListUl"), ids=Object.keys(ST.emp);
-    if (ids.length===0) { ul.innerHTML='<li class="text2">暂无员工，请添加</li>'; return; }
-    var h="";
-    for (var i=0;i<ids.length;i++) {
-      var e=ST.emp[ids[i]]; if (!e||!e.name) continue;
-      h+='<li><input type="text" value="'+e.name+'" class="ei" data-eid="'+ids[i]+" placeholder=\"员工姓名\">";
-      h+='<button class="btn btn-out btn-sm" onclick="App.renameEmp(\''+ids[i]+'\')">改名</button>';
-      h+='<button class="btn btn-red btn-sm" onclick="App.delEmp(\''+ids[i]+'\')">删除</button></li>';
+  empList() {
+    const ul = document.getElementById("empListUl"), ids = Object.keys(ST.emp);
+    if (ids.length === 0) { ul.innerHTML = '<li class="text2">暂无员工，请添加</li>'; return; }
+    let h = "";
+    for (const id of ids) {
+      const e = ST.emp[id]; if (!e || !e.name) continue;
+      h += '<li><input type="text" value="' + e.name + '" class="ei" data-eid="' + id + '" placeholder="员工姓名">';
+      h += '<button class="btn btn-out btn-sm" data-rename="' + id + '">改名</button>';
+      h += '<button class="btn btn-red btn-sm" data-delete="' + id + '">删除</button></li>';
     }
-    ul.innerHTML=h;
+    ul.innerHTML = h;
+    ul.querySelectorAll("[data-rename]").forEach(btn => btn.addEventListener("click", () => App.renameEmp(btn.dataset.rename)));
+    ul.querySelectorAll("[data-delete]").forEach(btn => btn.addEventListener("click", () => App.delEmp(btn.dataset.delete)));
   },
-  refresh: function() { UI.cards(); UI.chart(); UI.table(); UI.expRows(); if (ST.isAdmin) App.bindInputs(); if (ST.isAdmin) App.bindAdd(); }
+  refresh() { UI.cards(); UI.chart(); UI.table(); UI.expRows(); if (ST.isAdmin) App.bindInputs(); if (ST.isAdmin) App.bindAdd(); }
 };
 
 // ============================================================
 //  App
 // ============================================================
-var App = {
-  init: async function() {
-    updTime(); setInterval(updTime,1000);
-    var dp=document.getElementById("dp"); dp.value=ST.date; dp.max=ST.date;
+const App = {
+  async init() {
+    updTime(); setInterval(updTime, 1000);
+    const dp = document.getElementById("dp"); dp.value = ST.date; dp.max = ST.date;
+    dp.addEventListener("change", () => App.changeDate(dp.value));
+
+    // 所有按钮事件绑定
+    document.getElementById("btnLogin").addEventListener("click", () => {
+      document.getElementById("loginDlg").classList.remove("hidden");
+      document.getElementById("loginPwd").value = "";
+      document.getElementById("loginErr").classList.add("hidden");
+      document.getElementById("loginPwd").focus();
+    });
+    document.getElementById("loginCancel").addEventListener("click", () => document.getElementById("loginDlg").classList.add("hidden"));
+    document.getElementById("loginOk").addEventListener("click", () => App.login());
+    document.getElementById("loginPwd").addEventListener("keydown", (e) => { if (e.key === "Enter") App.login(); });
+    document.getElementById("btnLogout").addEventListener("click", () => App.logout());
+    document.getElementById("btnPwd").addEventListener("click", () => {
+      document.getElementById("pwdDlg").classList.remove("hidden");
+      document.getElementById("oldPwd").value = ""; document.getElementById("newPwd").value = "";
+      document.getElementById("pwdErr").classList.add("hidden");
+    });
+    document.getElementById("pwdCancel").addEventListener("click", () => document.getElementById("pwdDlg").classList.add("hidden"));
+    document.getElementById("pwdOk").addEventListener("click", () => App.changePwd());
+    document.getElementById("btnEmp").addEventListener("click", () => App.openEmp());
+    document.getElementById("empClose").addEventListener("click", () => document.getElementById("empDlg").classList.add("hidden"));
+    document.getElementById("addEmpBtn").addEventListener("click", () => App.addEmp());
+    document.getElementById("newEmp").addEventListener("keydown", (e) => { if (e.key === "Enter") App.addEmp(); });
+    document.getElementById("cfmCancel").addEventListener("click", () => document.getElementById("cfmDlg").classList.add("hidden"));
+    document.getElementById("btnSave").addEventListener("click", () => App.save());
+    document.getElementById("btnAddExp").addEventListener("click", () => App.addExp());
+
     try {
-      var d=await Cloud.fetch(ST.month);
-      ST.emp=d.emp; ST.rec=d.rec; ST.exp=d.exp;
+      const d = await Cloud.fetch(ST.month);
+      ST.emp = d.emp; ST.rec = d.rec; ST.exp = d.exp;
       UI.setSv("ok"); UI.refresh();
-    } catch(e) { console.error(e); toast("数据加载失败，请检查网络","err"); }
-    setInterval(App.autoSave,5000);
+    } catch (e) { console.error(e); toast("数据加载失败，请检查网络", "err"); }
+
+    setInterval(() => App.autoSave(), 5000);
   },
 
-  changeDate: async function(v) {
-    if (!v) return; ST.date=v; var nm=v.substring(0,7);
-    if (nm!==ST.month) { ST.month=nm;
-      try { var d=await Cloud.fetch(ST.month); ST.emp=d.emp; ST.rec=d.rec; ST.exp=d.exp; UI.setSv("ok"); } catch(e) { toast("加载失败","err"); }
+  async login() {
+    const p = document.getElementById("loginPwd").value.trim();
+    if (!p) { document.getElementById("loginErr").textContent = "请输入密码"; document.getElementById("loginErr").classList.remove("hidden"); return; }
+    try {
+      const s = await Cloud.getPwd();
+      if (p === s) { ST.isAdmin = true; document.getElementById("loginDlg").classList.add("hidden"); toast("登录成功", "ok"); UI.toggle(); }
+      else { document.getElementById("loginErr").textContent = "密码错误"; document.getElementById("loginErr").classList.remove("hidden"); }
+    } catch (e) { toast("连接失败，请检查网络", "err"); }
+  },
+  logout() { ST.isAdmin = false; toast("已退出登录", "warn"); UI.toggle(); },
+  async changePwd() {
+    const o = document.getElementById("oldPwd").value.trim(), n = document.getElementById("newPwd").value.trim(), er = document.getElementById("pwdErr");
+    if (!o || !n) { er.textContent = "请填写旧密码和新密码"; er.classList.remove("hidden"); return; }
+    if (n.length < 4) { er.textContent = "新密码至少4位"; er.classList.remove("hidden"); return; }
+    try {
+      const s = await Cloud.getPwd();
+      if (o !== s) { er.textContent = "旧密码错误"; er.classList.remove("hidden"); return; }
+      await Cloud.setPwd(n);
+      document.getElementById("pwdDlg").classList.add("hidden"); toast("密码修改成功", "ok");
+    } catch (e) { toast("操作失败，请检查网络", "err"); }
+  },
+
+  async changeDate(v) {
+    if (!v) return; ST.date = v; const nm = v.substring(0, 7);
+    if (nm !== ST.month) {
+      ST.month = nm;
+      try { const d = await Cloud.fetch(ST.month); ST.emp = d.emp; ST.rec = d.rec; ST.exp = d.exp; UI.setSv("ok"); } catch (e) { toast("加载失败", "err"); }
     }
     UI.refresh();
   },
 
-  refresh: function() { UI.refresh(); },
+  refresh() { UI.refresh(); },
 
-  // 单元格变更
-  bindInputs: function() {
-    document.querySelectorAll("#tb .ci").forEach(function(inp){
-      var ni=inp.cloneNode(true); inp.parentNode.replaceChild(ni,inp);
-      ni.addEventListener("change",function(){
-        var k=ni.getAttribute("data-k"), f=ni.getAttribute("data-f"), r=ST.rec[k];
+  bindInputs() {
+    document.querySelectorAll("#tb .ci").forEach(inp => {
+      const ni = inp.cloneNode(true); inp.parentNode.replaceChild(ni, inp);
+      ni.addEventListener("change", () => {
+        const k = ni.dataset.k, f = ni.dataset.f, r = ST.rec[k];
         if (!r) return;
-        if (f==="employeeName") r[f]=ni.value;
-        else r[f]=parseFloat(ni.value)||0;
-        r.actualPerformance=(Number(r.performance)||0)-(Number(r.prizeAmount)||0);
-        r.updatedAt=BNow();
-        ST.dirty=true; UI.setSv("dirty"); UI.refresh();
+        if (f === "employeeName") r[f] = ni.value;
+        else r[f] = parseFloat(ni.value) || 0;
+        r.actualPerformance = (Number(r.performance) || 0) - (Number(r.prizeAmount) || 0);
+        r.updatedAt = BNow();
+        ST.dirty = true; UI.setSv("dirty"); UI.refresh();
       });
     });
   },
 
-  // 添加员工到当日
-  bindAdd: function() {
-    var tb=document.getElementById("tb"); if (!tb) return;
-    var dr=Calc.dtRecs(ST.rec,ST.date), exist=new Set();
-    dr.forEach(function(r){ exist.add(r.employeeId); });
-    var miss=[];
-    for (var id in ST.emp) { if (!exist.has(id)&&ST.emp[id]&&ST.emp[id].name) miss.push({id:id,name:ST.emp[id].name}); }
-    tb.querySelectorAll(".add-row").forEach(function(r){r.remove();});
-    if (miss.length>0) {
-      var opts=miss.map(function(e){return'<option value="'+e.id+'">'+e.name+'</option>';}).join("");
-      var row=document.createElement("tr"); row.className="add-row";
-      row.innerHTML='<td>'+ST.date+'</td><td><select id="addSel" style="width:100%;padding:5px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);text-align:center;font-size:.85rem"><option value="">— 添加 —</option>'+opts+'</select></td><td colspan="9" style="text-align:left;color:var(--text2);font-size:.78rem">选择员工以添加当日记录</td>';
+  bindAdd() {
+    const tb = document.getElementById("tb"); if (!tb) return;
+    const dr = Calc.dtRecs(ST.rec, ST.date), exist = new Set();
+    dr.forEach(r => exist.add(r.employeeId));
+    const miss = [];
+    for (const id in ST.emp) { if (!exist.has(id) && ST.emp[id] && ST.emp[id].name) miss.push({ id, name: ST.emp[id].name }); }
+    tb.querySelectorAll(".add-row").forEach(r => r.remove());
+    if (miss.length > 0) {
+      const opts = miss.map(e => '<option value="' + e.id + '">' + e.name + '</option>').join("");
+      const row = document.createElement("tr"); row.className = "add-row";
+      row.innerHTML = '<td>' + ST.date + '</td><td><select id="addSel" style="width:100%;padding:5px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);text-align:center;font-size:.85rem"><option value="">— 添加 —</option>' + opts + '</select></td><td colspan="9" style="text-align:left;color:var(--text2);font-size:.78rem">选择员工以添加当日记录</td>';
       tb.appendChild(row);
-      document.getElementById("addSel").addEventListener("change",function(){if(this.value) App.addRec(this.value);});
+      document.getElementById("addSel").addEventListener("change", function () { if (this.value) App.addRec(this.value); });
     }
   },
 
-  addRec: function(eid) {
-    var e=ST.emp[eid]; if (!e) return;
-    var k=ST.date+"_"+eid; if (ST.rec[k]) return;
-    ST.rec[k]={date:ST.date,employeeId:eid,employeeName:e.name,orderCount:0,newCustomerCount:0,performance:0,prizeAmount:0,actualPerformance:0,note:"",updatedAt:BNow()};
-    ST.dirty=true; UI.setSv("dirty"); UI.refresh();
+  addRec(eid) {
+    const e = ST.emp[eid]; if (!e) return;
+    const k = ST.date + "_" + eid; if (ST.rec[k]) return;
+    ST.rec[k] = { date: ST.date, employeeId: eid, employeeName: e.name, orderCount: 0, newCustomerCount: 0, performance: 0, prizeAmount: 0, actualPerformance: 0, note: "", updatedAt: BNow() };
+    ST.dirty = true; UI.setSv("dirty"); UI.refresh();
   },
 
-  // 支出
-  expChange: function() {
-    var d=ST.date, amts=document.querySelectorAll("#expRows .ea"), nts=document.querySelectorAll("#expRows .en"), it=[];
-    for (var i=0;i<amts.length;i++) { it.push({amount:parseFloat(amts[i].value)||0,note:nts[i]?nts[i].value.trim():""}); }
-    ST.exp[d]={items:it};
-    ST.dirty=true; UI.setSv("dirty"); UI.refresh();
+  expChange() {
+    const d = ST.date, amts = document.querySelectorAll("#expRows .ea"), nts = document.querySelectorAll("#expRows .en"), it = [];
+    for (let i = 0; i < amts.length; i++) { it.push({ amount: parseFloat(amts[i].value) || 0, note: nts[i] ? nts[i].value.trim() : "" }); }
+    ST.exp[d] = { items: it };
+    ST.dirty = true; UI.setSv("dirty"); UI.refresh();
   },
-  addExp: function() {
-    var d=ST.date; if (!ST.exp[d]) ST.exp[d]={items:[]};
-    ST.exp[d].items.push({amount:0,note:""});
-    ST.dirty=true; UI.setSv("dirty"); UI.refresh();
+  addExp() {
+    const d = ST.date; if (!ST.exp[d]) ST.exp[d] = { items: [] };
+    ST.exp[d].items.push({ amount: 0, note: "" });
+    ST.dirty = true; UI.setSv("dirty"); UI.refresh();
   },
-  delExp: function(idx) {
-    var d=ST.date; if (ST.exp[d]&&ST.exp[d].items) ST.exp[d].items.splice(idx,1);
-    ST.dirty=true; UI.setSv("dirty"); UI.refresh();
+  delExp(idx) {
+    const d = ST.date; if (ST.exp[d] && ST.exp[d].items) ST.exp[d].items.splice(idx, 1);
+    ST.dirty = true; UI.setSv("dirty"); UI.refresh();
   },
 
-  // 保存
-  save: async function() {
+  async save() {
     if (!ST.dirty) return; UI.setSv("ing");
     try {
-      // 先同步支出 DOM
-      var d=ST.date, amts=document.querySelectorAll("#expRows .ea"), nts=document.querySelectorAll("#expRows .en"), it=[];
-      for (var i=0;i<amts.length;i++) { it.push({amount:parseFloat(amts[i].value)||0,note:nts[i]?nts[i].value.trim():""}); }
-      if (it.length>0) ST.exp[d]={items:it};
-      await Cloud.save(ST.month,ST.rec,ST.exp);
-      ST.dirty=false; UI.setSv("ok"); document.getElementById("hint").textContent="自动保存：5秒";
-    } catch(e) { console.error(e); UI.setSv("err"); toast("保存失败","err"); }
+      const d = ST.date, amts = document.querySelectorAll("#expRows .ea"), nts = document.querySelectorAll("#expRows .en"), it = [];
+      for (let i = 0; i < amts.length; i++) { it.push({ amount: parseFloat(amts[i].value) || 0, note: nts[i] ? nts[i].value.trim() : "" }); }
+      if (it.length > 0) ST.exp[d] = { items: it };
+      await Cloud.save(ST.month, ST.rec, ST.exp);
+      ST.dirty = false; UI.setSv("ok"); document.getElementById("hint").textContent = "自动保存：5秒";
+    } catch (e) { console.error(e); UI.setSv("err"); toast("保存失败", "err"); }
   },
-  autoSave: function() { if (ST.dirty) { document.getElementById("hint").textContent="自动保存中..."; App.save(); } },
+  autoSave() { if (ST.dirty) { document.getElementById("hint").textContent = "自动保存中..."; App.save(); } },
 
-  // 员工管理
-  openEmp: function() { document.getElementById("empDlg").classList.remove("hidden"); UI.empList(); },
-  addEmp: async function() {
-    var n=document.getElementById("newEmp").value.trim(); if (!n) { toast("请输入员工姓名","warn"); return; }
-    var id=genId(); ST.emp[id]={name:n};
-    try { await Cloud.saveEmp(ST.emp); document.getElementById("newEmp").value=""; toast("已添加「"+n+"」","ok"); UI.empList(); } catch(e) { toast("操作失败","err"); }
+  openEmp() { document.getElementById("empDlg").classList.remove("hidden"); UI.empList(); },
+  async addEmp() {
+    const n = document.getElementById("newEmp").value.trim(); if (!n) { toast("请输入员工姓名", "warn"); return; }
+    const id = genId(); ST.emp[id] = { name: n };
+    try { await Cloud.saveEmp(ST.emp); document.getElementById("newEmp").value = ""; toast("已添加「" + n + "」", "ok"); UI.empList(); } catch (e) { toast("操作失败", "err"); }
   },
-  renameEmp: async function(eid) {
-    var inp=document.querySelector('.ei[data-eid="'+eid+'"]'); if (!inp) return;
-    var nn=inp.value.trim(); if (!nn) { toast("姓名不能为空","warn"); return; }
+  async renameEmp(eid) {
+    const inp = document.querySelector('.ei[data-eid="' + eid + '"]'); if (!inp) return;
+    const nn = inp.value.trim(); if (!nn) { toast("姓名不能为空", "warn"); return; }
     if (ST.emp[eid]) {
-      ST.emp[eid].name=nn;
-      for (var k in ST.rec) { if (ST.rec[k].employeeId===eid) ST.rec[k].employeeName=nn; }
-      try { await Cloud.saveEmp(ST.emp); ST.dirty=true; UI.setSv("dirty"); UI.refresh(); toast("已改名「"+nn+"」","ok"); UI.empList(); } catch(e) { toast("操作失败","err"); }
+      ST.emp[eid].name = nn;
+      for (const k in ST.rec) { if (ST.rec[k].employeeId === eid) ST.rec[k].employeeName = nn; }
+      try { await Cloud.saveEmp(ST.emp); ST.dirty = true; UI.setSv("dirty"); UI.refresh(); toast("已改名「" + nn + "」", "ok"); UI.empList(); } catch (e) { toast("操作失败", "err"); }
     }
   },
-  delEmp: function(eid) {
-    var nm=(ST.emp[eid]&&ST.emp[eid].name)||"未知";
-    document.getElementById("cfmMsg").textContent="确定删除员工「"+nm+"」及其所有历史记录吗？此操作不可恢复。";
+  delEmp(eid) {
+    const nm = (ST.emp[eid] && ST.emp[eid].name) || "未知";
+    document.getElementById("cfmMsg").textContent = "确定删除员工「" + nm + "」及其所有历史记录吗？此操作不可恢复。";
     document.getElementById("cfmDlg").classList.remove("hidden");
-    var btn=document.getElementById("cfmBtn"), nb=btn.cloneNode(true); btn.parentNode.replaceChild(nb,btn);
-    nb.addEventListener("click",async function(){
+    const btn = document.getElementById("cfmOk"), nb = btn.cloneNode(true); btn.parentNode.replaceChild(nb, btn);
+    nb.addEventListener("click", async () => {
       document.getElementById("cfmDlg").classList.add("hidden");
       try {
         await Cloud.delEmp(eid); delete ST.emp[eid];
-        for (var k in ST.rec) { if (ST.rec[k].employeeId===eid) delete ST.rec[k]; }
-        ST.dirty=false; UI.setSv("ok"); UI.refresh(); toast("已删除「"+nm+"」","ok"); UI.empList();
-      } catch(e) { toast("操作失败","err"); }
+        for (const k in ST.rec) { if (ST.rec[k].employeeId === eid) delete ST.rec[k]; }
+        ST.dirty = false; UI.setSv("ok"); UI.refresh(); toast("已删除「" + nm + "」", "ok"); UI.empList();
+      } catch (e) { toast("操作失败", "err"); }
     });
   }
 };
 
 // 启动
-document.addEventListener("DOMContentLoaded",function(){ App.init(); });
+App.init();
 </script>
 
 </body>
